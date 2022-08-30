@@ -1,0 +1,1 @@
+PS from Andrey Shchochka : I add loader, now ImGui has no dependency on opengl, but the addresses on the functions have to be loaded elsewhere
