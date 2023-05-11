@@ -1,0 +1,90 @@
+----------------------------------------------------------------------
+Lab3
+----------------------------------------------------------------------
+Rework Cone
+Rework Cylinder
+Rework Torus
+Filling holes
+
+Review 3 and 4 faces rendering support
+Optimize rendering data for moving vertices, faces
+Optimize rendering data by pointers, templates
+----------------------------------------------------------------------
+Lab4
+----------------------------------------------------------------------
+Review global optimization
+Implement Octree, Frustum Culling
+
+Rework STL, ColladaParser
+Rework SaveModel
+Rework OperatorDispatcher
+Optimize calcAbsoluteTransform
+----------------------------------------------------------------------
+Lab5
+----------------------------------------------------------------------
+Rework scale manipulator
+Implement scale by axis
+In-scale manipulators, redraw
+
+Rework rotating angle
+Rework Intersection with ray
+
+Rework TranslationManipulator
+Rework RotationManipulator
+Rework ScaleManipulator
+Rework EditMeshOperator
+Rework EditVertexOperator
+Rework TransformNodeOperator
+Rework DeleteFaceOperator
+----------------------------------------------------------------------
+General
+----------------------------------------------------------------------
+Exceptions
+Headers including
+
+Filling holes
+Shader +IMesh + BufferData
+
+Update operators in loop
+In-scale manipulators, redraw
+
+Replace doubles to float
+Replace vec3 to vec4
+
+Global objects id
+Global lights id
+
+Tick, delta time and etc
+About window (keys, info)
+
+Viewport bbox, zoomtofit
+Lights architecture with types
+
+Alpha blending
+Projector light
+Normals for Vertex
+Material editing
+Material / Color support
+
+Imgui DLLs
+Imgui Events
+Imgui Editor
+
+2D/3D Support
+FPP Camera
+Panning object
+Multiviewports
+----------------------------------------------------------------------
+Global Plans
+----------------------------------------------------------------------
+Roadmaps
+ImGuizmo
+Scene
+Terrain
+Texture
+Animations
+Lighting
+Shadows
+Octree
+Frustum culling
+Occlusion culling
