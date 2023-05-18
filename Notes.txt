@@ -43,7 +43,7 @@ Exceptions
 Headers including
 
 Filling holes
-Shader +IMesh + BufferData
+Shader + IMesh + BufferData
 
 Update operators in loop
 In-scale manipulators, redraw

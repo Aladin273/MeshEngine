@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{b7bf1c87-2c3b-4ab4-b695-3ad44bc3ed2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\tinyxml2">
+      <UniqueIdentifier>{ed5f6d8b-f6d4-4d48-863a-2278c7b73d55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{874a606b-1cda-4540-a520-3eb133d04d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parsers">
+      <UniqueIdentifier>{58ae1725-1ec6-403d-b25b-96e2c4ef63a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controllers">
+      <UniqueIdentifier>{61d9967e-2269-4bf1-9aa1-98ae4e2f00ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manipulators">
+      <UniqueIdentifier>{f459f356-31a1-49de-bf43-aaf84dabac28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Viewport">
+      <UniqueIdentifier>{e564e51e-a45a-473b-b355-4c288a4b6bde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{0c77f6c7-4c86-4a81-b4ab-bab89e96d1bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{612a2381-23d2-4355-8222-41e55b6f378b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{a9988eda-20dd-4884-b148-c6bf23884444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HalfEdge">
+      <UniqueIdentifier>{14a88403-8e84-44db-9790-066bd92f951f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\assimp">
+      <UniqueIdentifier>{23018b66-a6aa-49f1-861d-dc10de1c2a28}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ThirdParty\tinyxml2\tinyxml2.cpp">
+      <Filter>ThirdParty\tinyxml2</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulators\Manipulator.cpp">
+      <Filter>Manipulators</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulators\RotationManipulator.cpp">
+      <Filter>Manipulators</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulators\ScaleManipulator.cpp">
+      <Filter>Manipulators</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulators\TranslationManipulator.cpp">
+      <Filter>Manipulators</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulators\Triad.cpp">
+      <Filter>Manipulators</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport\Camera.cpp">
+      <Filter>Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewport\Viewport.cpp">
+      <Filter>Viewport</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\Mesh.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\Model.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\Node.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Parsers\ColladaParser.cpp">
+      <Filter>Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Parsers\STLParser.cpp">
+      <Filter>Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Misc\DynamicLibrary.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Misc\Timer.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="HalfEdge\HalfEdge.cpp">
+      <Filter>HalfEdge</Filter>
+    </ClCompile>
+    <ClCompile Include="Parsers\AssimpParser.cpp">
+      <Filter>Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\Intersections.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ThirdParty\tinyxml2\tinyxml2.h">
+      <Filter>ThirdParty\tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulators\Manipulator.h">
+      <Filter>Manipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulators\RotationManipulator.h">
+      <Filter>Manipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulators\ScaleManipulator.h">
+      <Filter>Manipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulators\TranslationManipulator.h">
+      <Filter>Manipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulators\Triad.h">
+      <Filter>Manipulators</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport\Camera.h">
+      <Filter>Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport\Viewport.h">
+      <Filter>Viewport</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Mesh.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Model.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\Node.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\Intersections.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Parsers\ColladaParser.h">
+      <Filter>Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Parsers\STLParser.h">
+      <Filter>Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Misc\DynamicLibrary.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Misc\Timer.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="HalfEdge\HalfEdge.h">
+      <Filter>HalfEdge</Filter>
+    </ClInclude>
+    <ClInclude Include="Parsers\AssimpParser.h">
+      <Filter>Parsers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
