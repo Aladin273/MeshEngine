@@ -1,246 +1,91 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Headers Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resouce Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="ThirdParty">
-      <UniqueIdentifier>{6a173bd3-6169-47e7-b83a-ab9d708d2291}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\imgui">
-      <UniqueIdentifier>{6640a532-d85c-43a1-a56f-6692847c1daf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\timer">
-      <UniqueIdentifier>{aa9d6583-5142-4674-b1dd-93146c39bdec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\tinyxml2">
-      <UniqueIdentifier>{33b86a76-d0d4-41a0-873c-306f292e7b89}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Operators">
-      <UniqueIdentifier>{d68e63bf-5336-4050-8672-876ba3383626}</UniqueIdentifier>
+      <UniqueIdentifier>{4e440a0b-2693-4b40-b4a4-bf4716cb3689}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{a97336d2-f01a-427e-9630-e6f43c7630c5}</UniqueIdentifier>
+    <Filter Include="Operators\Edit">
+      <UniqueIdentifier>{6ec0e088-6ae7-48d7-8046-62562dce75fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Operators\Delete">
+      <UniqueIdentifier>{cd636e1d-7fe1-4a81-9d18-a5edae3917eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Operators\View">
+      <UniqueIdentifier>{c656bfcf-397e-47a2-b3f9-03b062f611c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Operators\Create">
+      <UniqueIdentifier>{b088237d-3270-4686-a804-c5c24541cc09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{1affacba-3b41-4faa-bd23-1f2b0939cc56}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Viewport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_demo.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_tables.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_widgets.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\timer\Timer.cpp">
-      <Filter>ThirdParty\timer</Filter>
-    </ClCompile>
-    <ClCompile Include="DynamicLibrary.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="STLParser.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_filedialog.cpp">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\imgui\imgui_filedialogconfig.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Node.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ColladaParser.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\ThirdParty\tinyxml2\tinyxml2.cpp">
-      <Filter>ThirdParty\tinyxml2</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="View.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Arcball.cpp">
+    <ClCompile Include="Operators\OperatorDispatcher.cpp">
       <Filter>Operators</Filter>
     </ClCompile>
-    <ClCompile Include="OperatorDispatcher.cpp">
-      <Filter>Operators</Filter>
+    <ClCompile Include="Operators\Edit\EditFaceOperator.cpp">
+      <Filter>Operators\Edit</Filter>
     </ClCompile>
-    <ClCompile Include="DeleteFace.cpp">
-      <Filter>Operators</Filter>
+    <ClCompile Include="Operators\Edit\EditNodeOperator.cpp">
+      <Filter>Operators\Edit</Filter>
     </ClCompile>
-    <ClCompile Include="Pan.cpp">
-      <Filter>Operators</Filter>
+    <ClCompile Include="Operators\Edit\EditVertexOperator.cpp">
+      <Filter>Operators\Edit</Filter>
     </ClCompile>
-    <ClCompile Include="Manipulator.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Operators\Delete\DeleteFaceOperator.cpp">
+      <Filter>Operators\Delete</Filter>
     </ClCompile>
-    <ClCompile Include="TranslationManipulator.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Operators\View\Arcball.cpp">
+      <Filter>Operators\View</Filter>
     </ClCompile>
-    <ClCompile Include="EditMeshOperator.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Operators\View\Pan.cpp">
+      <Filter>Operators\View</Filter>
     </ClCompile>
-    <ClCompile Include="RotationManipulator.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Application\Application.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="Triad.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformNodeOperator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ScaleManipulator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EditVertexOperator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Application\View.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Viewport.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imconfig.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_internal.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_rectpack.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_textedit.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imstb_truetype.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\timer\Timer.h">
-      <Filter>ThirdParty\timer</Filter>
-    </ClInclude>
-    <ClInclude Include="DynamicLibrary.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="STLParser.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\imgui\imgui_filedialog.h">
-      <Filter>ThirdParty\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Node.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ColladaParser.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\ThirdParty\tinyxml2\tinyxml2.h">
-      <Filter>ThirdParty\tinyxml2</Filter>
-    </ClInclude>
-    <ClInclude Include="Application.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="View.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Arcball.h">
+    <ClInclude Include="Operators\Operator.h">
       <Filter>Operators</Filter>
     </ClInclude>
-    <ClInclude Include="Contact.h">
+    <ClInclude Include="Operators\OperatorDispatcher.h">
       <Filter>Operators</Filter>
     </ClInclude>
-    <ClInclude Include="DeleteFace.h">
+    <ClInclude Include="Operators\Edit\EditFaceOperator.h">
+      <Filter>Operators\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\Edit\EditNodeOperator.h">
+      <Filter>Operators\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\Edit\EditVertexOperator.h">
+      <Filter>Operators\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\Delete\DeleteFaceOperator.h">
+      <Filter>Operators\Delete</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\View\Arcball.h">
+      <Filter>Operators\View</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\View\Pan.h">
+      <Filter>Operators\View</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\Settings.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Application\View.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\Contact.h">
       <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="FilterValue.h">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Operator.h">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="OperatorDispatcher.h">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Pan.h">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Manipulator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TranslationManipulator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EditMeshOperator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RotationManipulator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Triad.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformNodeOperator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScaleManipulator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EditVertexOperator.h">
-      <Filter>Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Headers Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,0 +1,100 @@
+----------------------------------------------------------------------
+Lab3
+----------------------------------------------------------------------
+Rework Cone
+Rework Cylinder
+Rework Torus
+Filling holes
+
+Review 3 and 4 faces rendering support
+Optimize rendering data for moving vertices, faces
+Optimize rendering data by pointers, templates
+----------------------------------------------------------------------
+Lab4
+----------------------------------------------------------------------
+Review global optimization
+Implement Octree, Frustum Culling
+
+Rework STLParser, ColladaParser
+Rework SaveModel
+Rework OperatorDispatcher
+Optimize calcAbsoluteTransform
+----------------------------------------------------------------------
+Lab5
+----------------------------------------------------------------------
+Rework scale manipulator
+Implement scale by axis
+In-scale manipulators, redraw temp
+
+Rework rotating angle
+Rework Intersection with ray
+
+Rework TranslationManipulator
+Rework RotationManipulator
+Rework ScaleManipulator
+Rework EditFaceOperator
+Rework EditVertexOperator
+Rework EditNodeOperator
+Rework DeleteFaceOperator
+----------------------------------------------------------------------
+General
+----------------------------------------------------------------------
+Exceptions
+Headers including
+
+Filling holes
+Editor drawables, bbox, plane
+Multi-mesh objects
+Shader, IMesh, BufferData, BufferIndices
+
+Update operators in loop
+In-scale manipulators, redraw temp
+
+Replace doubles to float
+Replace vec3 to vec4
+
+Assimp
+Settings, json/xml
+Tick, delta, time and etc
+Viewport bbox, zoomtofit
+Lights architecture with types
+
+Global objects id
+Global lights id
+
+Alpha blending
+Smooth, Flat shading
+Normals for Vertex
+Material editing
+Material, Color support
+
+Imgui DLLs, ImguiZmo
+Events, Editor, Tree, Operators, Properties, About
+
+2D/3D Support
+FPP Camera
+Zoom Operator
+Panning object
+Multiviewports
+
+Create Operator
+Edit Operaror
+Delete Operator
+Unite Operator
+Divide Operator
+Split Operator
+----------------------------------------------------------------------
+Plans
+----------------------------------------------------------------------
+Roadmaps
+Scene
+Terrain
+Texture
+Animations
+Lighting
+Shadows
+Postprocess
+Resource
+Octree
+Frustum culling
+Occlusion culling
