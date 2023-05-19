@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <glm/glm.hpp>
+#include "ThirdParty/glm/glm.hpp"
 
 struct Vertex
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include "ThirdParty/glad/glad.h"
+#include "ThirdParty/glfw/glfw3.h"
 
-#include "../IWindow.h"
+#include "RenderSystem/IWindow.h"
 
 class GLWindow : public IWindow
 {

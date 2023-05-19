@@ -4,17 +4,17 @@
 #include <string>
 #include <vector>
 
-#include "MeshEngine/Misc/DynamicLibrary.h"
+#include "MeshEngine/RenderSystem/Export.h"
 #include "MeshEngine/Parsers/ColladaParser.h"
 #include "MeshEngine/Parsers/STLParser.h"
 #include "MeshEngine/Model/Model.h"
 
-#include "MeshEditor/Operators/View/Pan.h"
-#include "MeshEditor/Operators/View/Arcball.h"
-#include "MeshEditor/Operators/Edit/EditNodeOperator.h"
-#include "MeshEditor/Operators/Edit/EditFaceOperator.h"
-#include "MeshEditor/Operators/Edit/EditVertexOperator.h"
-#include "MeshEditor/Operators/Delete/DeleteFaceOperator.h"
+#include "Operators/View/Pan.h"
+#include "Operators/View/Arcball.h"
+#include "Operators/Edit/EditNodeOperator.h"
+#include "Operators/Edit/EditFaceOperator.h"
+#include "Operators/Edit/EditVertexOperator.h"
+#include "Operators/Delete/DeleteFaceOperator.h"
 
 #include "Settings.h"
 #include "View.h"
@@ -47,7 +47,6 @@ private:
     STLParser m_stl;
     ColladaParser m_collada;
 
-    std::unique_ptr<DynamicLibrary> m_dll;
     std::function<void()> m_waitEvents;
     std::function<void()> m_pollEvents;
     std::function<void(IWindow*)> m_swapDisplayBuffers;

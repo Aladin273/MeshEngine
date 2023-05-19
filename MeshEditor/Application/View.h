@@ -5,14 +5,14 @@
 #include <string>
 #include <algorithm>
 
-#include "RenderSystem/IWindow.h"
-#include "RenderSystem/IGuiSystem.h"
-#include "RenderSystem/IRenderSystem.h"
+#include "MeshEngine/RenderSystem/IWindow.h"
+#include "MeshEngine/RenderSystem/IGuiSystem.h"
+#include "MeshEngine/RenderSystem/IRenderSystem.h"
 
 #include "MeshEngine/Viewport/Viewport.h"
 #include "MeshEngine/Model/Model.h"
-#include "MeshEngine/Math/Intersections.h"
 #include "MeshEngine/Manipulators/Triad.h"
+#include "MeshEngine/Math/Intersections.h"
 
 #include "MeshEditor/Operators/Contact.h"
 #include "MeshEditor/Operators/OperatorDispatcher.h"

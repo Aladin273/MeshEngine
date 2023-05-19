@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "ThirdParty/glm/glm.hpp"
+#include "ThirdParty/glm/gtc/type_ptr.hpp"
 
 class Camera
 {

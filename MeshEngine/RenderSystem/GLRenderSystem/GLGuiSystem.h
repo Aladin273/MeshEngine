@@ -2,13 +2,13 @@
 
 #include <map>
 
-//#include <glfw/glfw3.h>
-//#include <imgui/imgui.h>
-//#include <imgui/backends/imgui_impl_glfw.h>
-//#include <imgui/backends/imgui_impl_opengl2.h>
+//#include "ThirdParty/glfw/glfw3.h"
+//#include "ThirdParty/imgui/imgui.h"
+//#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
+//#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
 
-#include "../IWindow.h"
-#include "../IGuiSystem.h"
+#include "RenderSystem/IWindow.h"
+#include "RenderSystem/IGuiSystem.h"
 
 class GLGuiSystem : public IGuiSystem
 {

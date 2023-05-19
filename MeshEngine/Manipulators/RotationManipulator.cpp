@@ -1,7 +1,7 @@
 #include "RotationManipulator.h"
 
-#include "glm/gtx/intersect.hpp"
-#include "glm/gtx/vector_angle.hpp"
+#include "ThirdParty/glm/gtx/intersect.hpp"
+#include "ThirdParty/glm/gtx/vector_angle.hpp"
 
 RotationManipulator::RotationManipulator(glm::vec3 dir_L)
 {

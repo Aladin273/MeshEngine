@@ -2,9 +2,9 @@
 
 #include <functional>
 
-#include "MeshEngine/Viewport/Viewport.h"
-#include "MeshEngine/Model/Node.h"
-#include "MeshEngine/Math/Intersections.h"
+#include "Viewport/Viewport.h"
+#include "Model/Node.h"
+#include "Math/Intersections.h"
 
 enum class MovementType
 {

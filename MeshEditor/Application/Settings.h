@@ -1,7 +1,7 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
+#include <ThirdParty/glm/vec3.hpp>
+#include <ThirdParty/glm/vec4.hpp>
 
 namespace Settings
 {

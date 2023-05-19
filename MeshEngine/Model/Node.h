@@ -2,10 +2,12 @@
 
 #include <string>
 #include <memory>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
+
+#include "ThirdParty/glm/glm.hpp"
+#include "ThirdParty/glm/gtc/matrix_transform.hpp"
+#include "ThirdParty/glm/gtc/type_ptr.hpp"
+#include "ThirdParty/glm/gtx/transform.hpp"
+
 #include "Mesh.h"
 
 class Node

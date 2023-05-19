@@ -27,7 +27,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)ThirdParty\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)\MeshEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -65,8 +65,8 @@
     <Link>
       <SubSystem>NotSet</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir);$(SolutionDir)ThirdParty\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)\MeshEngine\;$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>MeshEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -76,10 +76,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>PLATFORM=PLATFORM_WIN32</PreprocessorDefinitions>
+      <PreprocessorDefinitions>
+      </PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\HalfEdge;$(SolutionDir)\Interfaces;$(SolutionDir)\ThirdParty\timer;$(SolutionDir)\ThirdParty\imgui;$(SolutionDir)\ThirdParty\glm;$(SolutionDir)\ThirdParty\tinyxml2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)\MeshEngine\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AdditionalOptions>/D"_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
@@ -89,8 +90,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>HalfEdge.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir);$(SolutionDir);$(SolutionDir)\MeshEngine\;$(SolutionDir)$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>MeshEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -119,9 +120,6 @@
     <ClInclude Include="Operators\OperatorDispatcher.h" />
     <ClInclude Include="Operators\View\Arcball.h" />
     <ClInclude Include="Operators\View\Pan.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\x64\Debug\MeshEngine.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

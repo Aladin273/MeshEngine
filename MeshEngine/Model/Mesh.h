@@ -4,7 +4,7 @@
 #include <string>
 
 #include "RenderSystem/IRenderSystem.h"
-#include "MeshEngine/HalfEdge/HalfEdge.h"
+#include "HalfEdge/HalfEdge.h"
 
 struct bbox
 {

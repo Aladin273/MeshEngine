@@ -19,9 +19,6 @@
     <Filter Include="Application">
       <UniqueIdentifier>{1affacba-3b41-4faa-bd23-1f2b0939cc56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ThirdParty">
-      <UniqueIdentifier>{ad17a957-7092-4647-9393-e50484aa1888}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Operators\OperatorDispatcher.cpp">
@@ -90,10 +87,5 @@
     <ClInclude Include="Operators\Contact.h">
       <Filter>Operators</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\x64\Debug\MeshEngine.lib">
-      <Filter>ThirdParty</Filter>
-    </Library>
   </ItemGroup>
 </Project>

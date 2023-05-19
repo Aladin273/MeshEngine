@@ -1,9 +1,9 @@
 #pragma once
 
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
+#include "ThirdParty/glad/glad.h"
+#include "ThirdParty/glm/gtc/type_ptr.hpp"
 
-#include "../IRenderSystem.h"
+#include "RenderSystem/IRenderSystem.h"
 
 class GLRenderSystem : public IRenderSystem
 {

@@ -1,10 +1,16 @@
 #include "DynamicLibrary.h"
 
+#if !defined PLATFORM
+#define PLATFORM PLATFORM_WIN32
+#endif
+
 #if PLATFORM == PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
-#if !defined(NOMINMAX) && defined(_MSC_VER)
-#define NOMINMAX
-#endif
+
+    #if !defined(NOMINMAX) && defined(_MSC_VER)
+    #define NOMINMAX
+    #endif
+
 #include <windows.h>
 #endif
 
@@ -13,7 +19,6 @@ DynamicLibrary::DynamicLibrary(const std::string& name)
 {
 #if PLATFORM == PLATFORM_WIN32
     instance = (void*)LoadLibrary(name.c_str());
-    //instance = (void*)LoadLibrary(name.c_str(), NULL, 0);
 #endif
 }
 

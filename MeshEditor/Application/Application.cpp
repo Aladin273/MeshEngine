@@ -8,19 +8,17 @@ Application* Application::instance()
 
 Application::Application()
 {
-    m_dll = std::make_unique<DynamicLibrary>(Settings::dll);
-    m_waitEvents = m_dll->getSymbol<void(*)()>("waitEvents");
-    m_pollEvents = m_dll->getSymbol<void(*)()>("pollEvents");
-    m_swapDisplayBuffers = m_dll->getSymbol<void(*)(IWindow*)>("swapDisplayBuffers");
-    m_windowShouldClose = m_dll->getSymbol<bool(*)(IWindow*)>("windowShouldClose");
-
     m_renderSystem.reset(createRenderSystem());
+
+    m_waitEvents = MeshEngine::waitEvents;
+    m_pollEvents = MeshEngine::pollEvents;
+    m_swapDisplayBuffers = MeshEngine::swapDisplayBuffers;
+    m_windowShouldClose = MeshEngine::windowShouldClose;
 }
 
 Application::~Application()
 {
     m_renderSystem.release();
-    m_dll.release();
 }
 
 View* Application::createView(const std::string& title, uint32_t width, uint32_t height)
@@ -302,19 +300,16 @@ void Application::run()
 }
 
 IWindow* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
-{
-    static auto createWindow = m_dll->getSymbol<IWindow* (*)(const std::string&, uint32_t, uint32_t)>("createWindow");
-    return createWindow(title, width, height);
+{;
+    return MeshEngine::createWindow(title, width, height);
 }
 
 IGuiSystem* Application::createGuiSystem(IWindow* window)
-{
-    static auto createGuiSystem = m_dll->getSymbol<IGuiSystem* (*)(IWindow*)>("createGuiSystem");
-    return createGuiSystem(window);
+{;
+    return MeshEngine::createGuiSystem(window);
 }
 
 IRenderSystem* Application::createRenderSystem()
-{
-    static auto createRenderSystem = m_dll->getSymbol<IRenderSystem* (*)()>("createRenderSystem");
-    return createRenderSystem();
+{;
+    return MeshEngine::createRenderSystem();
 }

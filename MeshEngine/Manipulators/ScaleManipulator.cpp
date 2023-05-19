@@ -1,5 +1,4 @@
 #include "ScaleManipulator.h"
-#include <iostream>
 
 ScaleManipulator::ScaleManipulator(glm::vec3 dir_L)
 {

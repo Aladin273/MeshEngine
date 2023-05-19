@@ -15,7 +15,7 @@ Lab4
 Review global optimization
 Implement Octree, Frustum Culling
 
-Rework STL, ColladaParser
+Rework STLParser, ColladaParser
 Rework SaveModel
 Rework OperatorDispatcher
 Optimize calcAbsoluteTransform
@@ -24,7 +24,7 @@ Lab5
 ----------------------------------------------------------------------
 Rework scale manipulator
 Implement scale by axis
-In-scale manipulators, redraw
+In-scale manipulators, redraw temp
 
 Rework rotating angle
 Rework Intersection with ray
@@ -32,9 +32,9 @@ Rework Intersection with ray
 Rework TranslationManipulator
 Rework RotationManipulator
 Rework ScaleManipulator
-Rework EditMeshOperator
+Rework EditFaceOperator
 Rework EditVertexOperator
-Rework TransformNodeOperator
+Rework EditNodeOperator
 Rework DeleteFaceOperator
 ----------------------------------------------------------------------
 General
@@ -43,48 +43,58 @@ Exceptions
 Headers including
 
 Filling holes
-Shader + IMesh + BufferData
+Editor drawables, bbox, plane
+Multi-mesh objects
+Shader, IMesh, BufferData, BufferIndices
 
 Update operators in loop
-In-scale manipulators, redraw
+In-scale manipulators, redraw temp
 
 Replace doubles to float
 Replace vec3 to vec4
 
-Global objects id
-Global lights id
-
-Tick, delta time and etc
-About window (keys, info)
-
+Assimp
+Settings, json/xml
+Tick, delta, time and etc
 Viewport bbox, zoomtofit
 Lights architecture with types
 
+Global objects id
+Global lights id
+
 Alpha blending
-Projector light
+Smooth, Flat shading
 Normals for Vertex
 Material editing
-Material / Color support
+Material, Color support
 
-Imgui DLLs
-Imgui Events
-Imgui Editor
+Imgui DLLs, ImguiZmo
+Events, Editor, Tree, Operators, Properties, About
 
 2D/3D Support
 FPP Camera
+Zoom Operator
 Panning object
 Multiviewports
+
+Create Operator
+Edit Operaror
+Delete Operator
+Unite Operator
+Divide Operator
+Split Operator
 ----------------------------------------------------------------------
-Global Plans
+Plans
 ----------------------------------------------------------------------
 Roadmaps
-ImGuizmo
 Scene
 Terrain
 Texture
 Animations
 Lighting
 Shadows
+Postprocess
+Resource
 Octree
 Frustum culling
 Occlusion culling

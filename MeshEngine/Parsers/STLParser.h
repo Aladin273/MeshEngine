@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "MeshEngine/Model/Model.h"
+#include "Model/Model.h"
 
 class STLParser
 {
