@@ -9,13 +9,17 @@ void GLRenderSystem::init()
 {
     glShadeModel(GL_SMOOTH);
     glDepthFunc(GL_LEQUAL);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
     glEnable(GL_NORMALIZE);
     glEnable(GL_LIGHTING);
 
-    glLineWidth(m_lineWidth);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+    glLineWidth(m_lineSize);
+    glPointSize(m_pointSize);
 }
 
 void GLRenderSystem::clearDepth(float d)
@@ -37,9 +41,9 @@ void GLRenderSystem::clearDisplay(float r, float g, float b, float a, float d)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GLRenderSystem::setViewport(double x, double y, double width, double height)
+void GLRenderSystem::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-    glViewport(static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height));
+    glViewport(x, y, width, height);
 }
 
 void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices)
@@ -47,63 +51,155 @@ void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices)
     glBegin(GL_TRIANGLES);
     for (auto& vertex : vertices)
     {
-        glColor3fv(glm::value_ptr(vertex.color));
+        glColor4fv(glm::value_ptr(vertex.color));
         glNormal3fv(glm::value_ptr(vertex.normal));
         glVertex3fv(glm::value_ptr(vertex.position));
     }
     glEnd();
 }
 
-void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices, glm::vec3 color)
+void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices, glm::vec4 color)
 {
     glBegin(GL_TRIANGLES);
     for (auto& vertex : vertices)
     {
-        glColor3fv(glm::value_ptr(color));
+        glColor4fv(glm::value_ptr(color));
         glNormal3fv(glm::value_ptr(vertex.normal));
         glVertex3fv(glm::value_ptr(vertex.position));
     }
     glEnd();
 }
 
-void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices)
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices)
 {
-    glBegin(GL_LINES);
+    glBegin(GL_TRIANGLE_STRIP);
     for (auto& vertex : vertices)
     {
-        glColor3fv(glm::value_ptr(vertex.color));
+        glColor4fv(glm::value_ptr(vertex.color));
         glNormal3fv(glm::value_ptr(vertex.normal));
         glVertex3fv(glm::value_ptr(vertex.position));
     }
     glEnd();
 }
 
-void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, glm::vec3 color)
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color)
 {
-    glBegin(GL_LINES);
+    glBegin(GL_TRIANGLE_STRIP);
     for (auto& vertex : vertices)
     {
-        glColor3fv(glm::value_ptr(color));
+        glColor4fv(glm::value_ptr(color));
         glNormal3fv(glm::value_ptr(vertex.normal));
         glVertex3fv(glm::value_ptr(vertex.position));
     }
     glEnd();
+}
+
+void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices)
+{
+    glBegin(GL_QUADS);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(vertex.color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices, glm::vec4 color)
+{
+    glBegin(GL_QUADS);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPoints(const std::vector<Vertex>& vertices, float size)
+{
+    if (size >= 0.0)
+        glPointSize(size);
+
+    glBegin(GL_POINTS);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(vertex.color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+
+    glPointSize(m_pointSize);
+}
+
+void GLRenderSystem::renderPoints(const std::vector<Vertex>& vertices, glm::vec4 color, float size)
+{
+    if (size >= 0.0)
+        glPointSize(size);
+
+    glBegin(GL_POINTS);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+
+    glPointSize(m_pointSize);
+}
+
+void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, float size)
+{
+    if (size >= 0.0)
+        glLineWidth(size);
+
+    glBegin(GL_LINES);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(vertex.color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+
+    glLineWidth(m_lineSize);
+}
+
+void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, glm::vec4 color, float size)
+{
+    if (size >= 0.0)
+        glLineWidth(size);
+
+    glBegin(GL_LINES);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+
+    glLineWidth(m_lineSize);
 }
 
 void GLRenderSystem::setupMaterial(const Material& material, Face face)
 {
-    int current = static_cast<int>(face);
+    int faceIndex = static_cast<int>(face);
 
-    glMaterialfv(current, GL_AMBIENT, glm::value_ptr(material.ambient));
-    glMaterialfv(current, GL_DIFFUSE, glm::value_ptr(material.diffuse));
-    glMaterialfv(current, GL_SPECULAR, glm::value_ptr(material.specular));
-    glMaterialfv(current, GL_EMISSION, glm::value_ptr(material.emission));
-    glMaterialf(current, GL_SHININESS, material.shininess);
+    glMaterialfv(faceIndex, GL_AMBIENT, glm::value_ptr(material.ambient));
+    glMaterialfv(faceIndex, GL_DIFFUSE, glm::value_ptr(material.diffuse));
+    glMaterialfv(faceIndex, GL_SPECULAR, glm::value_ptr(material.specular));
+    glMaterialfv(faceIndex, GL_EMISSION, glm::value_ptr(material.emission));
+    glMaterialf(faceIndex, GL_SHININESS, material.shininess);
 }
 
 void GLRenderSystem::setupLightDir(uint32_t index, glm::vec3 position, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is)
 {
-    if (index > m_maxIndex)
+    if (index > 7 || index < 0)
         return;
 
     glLightfv(GL_LIGHT0 + index, GL_POSITION, glm::value_ptr(glm::vec4(position, 0.0f)));
@@ -112,28 +208,59 @@ void GLRenderSystem::setupLightDir(uint32_t index, glm::vec3 position, glm::vec3
     glLightfv(GL_LIGHT0 + index, GL_SPECULAR, glm::value_ptr(Is));
 }
 
-void GLRenderSystem::setupLightPoint(uint32_t index, glm::vec3 position, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is, float k_const, float k_linear, float k_quadratic)
+void GLRenderSystem::setupLightSpot(uint32_t index, glm::vec3 position, glm::vec3 direction, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is, float cutoff, float exponent)
 {
-    if (index > m_maxIndex)
+    if (index > 7 || index < 0)
+        return;
+
+    glLightfv(GL_LIGHT0 + index, GL_POSITION, glm::value_ptr(glm::vec4(position, 1.0f)));
+    glLightfv(GL_LIGHT0 + index, GL_SPOT_DIRECTION, glm::value_ptr(-glm::normalize(direction)));
+    glLightf(GL_LIGHT0 + index, GL_SPOT_CUTOFF, cutoff);
+    glLightf(GL_LIGHT0 + index, GL_SPOT_EXPONENT, exponent);
+    glLightfv(GL_LIGHT0 + index, GL_AMBIENT, glm::value_ptr(Ia));
+    glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, glm::value_ptr(Id));
+    glLightfv(GL_LIGHT0 + index, GL_SPECULAR, glm::value_ptr(Is));
+}
+
+void GLRenderSystem::setupLightPoint(uint32_t index, glm::vec3 position, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is, float constant, float linear, float quadratic)
+{
+    if (index > 7 || index < 0)
         return;
 
     glLightfv(GL_LIGHT0 + index, GL_POSITION, glm::value_ptr(glm::vec4(position, 1.0f)));
     glLightfv(GL_LIGHT0 + index, GL_AMBIENT, glm::value_ptr(Ia));
     glLightfv(GL_LIGHT0 + index, GL_DIFFUSE, glm::value_ptr(Id));
     glLightfv(GL_LIGHT0 + index, GL_SPECULAR, glm::value_ptr(Is));
-    glLightf(GL_LIGHT0 + index, GL_CONSTANT_ATTENUATION, k_const);
-    glLightf(GL_LIGHT0 + index, GL_LINEAR_ATTENUATION, k_linear);
-    glLightf(GL_LIGHT0 + index, GL_QUADRATIC_ATTENUATION, k_quadratic);
+    glLightf(GL_LIGHT0 + index, GL_CONSTANT_ATTENUATION, constant);
+    glLightf(GL_LIGHT0 + index, GL_LINEAR_ATTENUATION, linear);
+    glLightf(GL_LIGHT0 + index, GL_QUADRATIC_ATTENUATION, quadratic);
 }
 
-void GLRenderSystem::turnLight(uint32_t index, bool enable)
+void GLRenderSystem::setLight(uint32_t index, bool enable)
 {
-    if (index > m_maxIndex)
+    if (index > 7 || index < 0)
         return;
-    else if (enable)
+
+    if (enable)
         glEnable(GL_LIGHT0 + index);
     else
         glDisable(GL_LIGHT0 + index);
+}
+
+void GLRenderSystem::setLighting(bool enable)
+{
+    if (enable)
+        glEnable(GL_LIGHTING);
+    else
+        glDisable(GL_LIGHTING);
+}
+
+void GLRenderSystem::setColorMaterial(bool enable)
+{
+    if (enable)
+        glEnable(GL_COLOR_MATERIAL);
+    else
+        glDisable(GL_COLOR_MATERIAL);
 }
 
 void GLRenderSystem::setDepth(bool enable)
@@ -152,28 +279,15 @@ void GLRenderSystem::setSmooth(bool enable)
         glShadeModel(GL_FLAT);
 }
 
-void GLRenderSystem::setLighting(bool enable)
+bool GLRenderSystem::getLight(uint32_t index) const
 {
-    if (enable)
-        glEnable(GL_LIGHTING);
-    else
-        glDisable(GL_LIGHTING);
+    GLboolean state;
+    glGetBooleanv(GL_LIGHT0 + index, &state);
+
+    return state;
 }
 
-void GLRenderSystem::setLightTwoSide(bool enable)
-{
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, enable);
-}
-
-void GLRenderSystem::setColorMaterial(bool enable)
-{
-    if (enable)
-        glEnable(GL_COLOR_MATERIAL);
-    else
-        glDisable(GL_COLOR_MATERIAL);
-}
-
-bool GLRenderSystem::getLighting()
+bool GLRenderSystem::getLighting() const
 {
     GLboolean state;
     glGetBooleanv(GL_LIGHTING, &state);
@@ -181,29 +295,7 @@ bool GLRenderSystem::getLighting()
     return state;
 }
 
-bool GLRenderSystem::getLightTwoSide()
-{
-    GLboolean state;
-    glGetBooleanv(GL_LIGHT_MODEL_TWO_SIDE, &state);
-
-    return state;
-}
-
-bool GLRenderSystem::getDepth()
-{
-    GLboolean state;
-    glGetBooleanv(GL_DEPTH_TEST, &state);
-    return state;
-}
-
-bool GLRenderSystem::getSmooth()
-{
-    GLboolean state;
-    glGetBooleanv(GL_SMOOTH, &state);
-    return state;
-}
-
-bool GLRenderSystem::getColorMaterial()
+bool GLRenderSystem::getColorMaterial() const
 {
     GLboolean state;
     glGetBooleanv(GL_COLOR_MATERIAL, &state);
@@ -211,12 +303,38 @@ bool GLRenderSystem::getColorMaterial()
     return state;
 }
 
-bool GLRenderSystem::turnedLight(uint32_t index)
+bool GLRenderSystem::getDepth() const
 {
     GLboolean state;
-    glGetBooleanv(GL_LIGHT0 + index, &state);
-
+    glGetBooleanv(GL_DEPTH_TEST, &state);
     return state;
+}
+
+bool GLRenderSystem::getSmooth() const
+{
+    GLboolean state;
+    glGetBooleanv(GL_SMOOTH, &state);
+    return state;
+}
+
+void GLRenderSystem::setPointSize(float size)
+{
+    if (size >= 0.0)
+        m_pointSize = size;
+}
+void GLRenderSystem::setLineSize(float size)
+{
+    if (size >= 0.0)
+        m_lineSize = size;
+}
+
+float GLRenderSystem::getPointSize() const
+{
+    return m_pointSize;
+}
+float GLRenderSystem::getLineSize() const
+{
+    return m_lineSize;
 }
 
 void GLRenderSystem::setWorldMatrix(const glm::mat4& matrix)
@@ -259,7 +377,6 @@ void GLRenderSystem::setProjMatrix(const glm::mat4& matrix)
     
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(glm::value_ptr(m_proj_matrix));
-        glMatrixMode(GL_MODELVIEW);
     }
 }
 

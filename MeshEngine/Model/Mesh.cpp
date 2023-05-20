@@ -369,42 +369,42 @@ bool Mesh::getDrawHoles() const
     return m_drawHoles;
 }
 
-void Mesh::setColorBoundaries(glm::vec3 color)
+void Mesh::setColorBoundaries(glm::vec4 color)
 {
     m_colorBoundaries = color;
 }
 
-void Mesh::setColorTriangles(glm::vec3 color)
+void Mesh::setColorTriangles(glm::vec4 color)
 {
     m_colorTriangles = color;
 }
 
-void Mesh::setColorLines(glm::vec3 color)
+void Mesh::setColorLines(glm::vec4 color)
 {
     m_colorLines = color;
 }
 
-void Mesh::setColorHoles(glm::vec3 color)
+void Mesh::setColorHoles(glm::vec4 color)
 {
     m_colorHoles = color;
 }
 
-const glm::vec3& Mesh::getColorBoundaries()
+const glm::vec4& Mesh::getColorBoundaries()
 {
     return m_colorBoundaries;
 }
 
-const glm::vec3& Mesh::getColorTriangles()
+const glm::vec4& Mesh::getColorTriangles()
 {
     return m_colorTriangles;
 }
 
-const glm::vec3& Mesh::getColorLines()
+const glm::vec4& Mesh::getColorLines()
 {
     return m_colorLines;
 }
 
-const glm::vec3& Mesh::getColorHoles()
+const glm::vec4& Mesh::getColorHoles()
 {
     return m_colorHoles;
 }

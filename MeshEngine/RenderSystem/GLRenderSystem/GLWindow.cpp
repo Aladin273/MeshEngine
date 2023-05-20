@@ -20,6 +20,11 @@ GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     glfwSetInputMode(m_handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSetInputMode(m_handle, GLFW_STICKY_KEYS, GLFW_TRUE);
     glfwSetInputMode(m_handle, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
+
+    glfwSetKeyCallback(m_handle, onKeyCallbackWrapper);
+    glfwSetCursorPosCallback(m_handle, onCursorCallbackWrapper);
+    glfwSetMouseButtonCallback(m_handle, onMouseCallbackWrapper);
+    glfwSetScrollCallback(m_handle, onScrollCallbackWrapper);
     glfwSetFramebufferSizeCallback(m_handle, onFramebufferSizeCallbackWrapper);
 }
 
@@ -56,7 +61,7 @@ Action GLWindow::getMouseButton(ButtonCode code) const
 void GLWindow::getCursorPos(double& x, double& y) const
 {
     glfwGetCursorPos(m_handle, &x, &y);
-    y = m_height - y - 1.0f;
+    y = m_height - y - 1.0;
 }
 
 void* GLWindow::getHandle() const
@@ -69,79 +74,87 @@ void* GLWindow::getCurrentContext() const
     return glfwGetCurrentContext();
 }
 
-void GLWindow::makeContextCurrent() const
+void GLWindow::setCurrentContext() const
 {
     glfwMakeContextCurrent(m_handle);
 }
 
-void GLWindow::setCurrentContext(void* context)
-{
-    glfwMakeContextCurrent(reinterpret_cast<GLFWwindow*>(context));
-}
-
 void GLWindow::setKeyCallback(const KeyCallback& callback)
 {
-    m_keyCallback = callback;
-    glfwSetKeyCallback(m_handle, onKeyCallbackWrapper);
+    m_keyCallbacks.push_back(callback);
 }
 
 void GLWindow::setCursorPosCallback(const CursorPosCallback& callback)
 {
-    m_cursorCallback = callback;
-    glfwSetCursorPosCallback(m_handle, onCursorCallbackWrapper);
+    m_cursorCallbacks.push_back(callback);
 }
 
 void GLWindow::setMouseCallback(const MouseCallback& callback)
 {
-    m_mouseCallback = callback;
-    glfwSetMouseButtonCallback(m_handle, onMouseCallbackWrapper);
+    m_mouseCallbacks.push_back(callback);
 }
 
 void GLWindow::setScrollCallback(const ScrollCallback& callback)
 {
-    m_scrollCallback = callback;
-    glfwSetScrollCallback(m_handle, onScrollCallbackWrapper);
+    m_scrollCallbacks.push_back(callback);
 }
 
 void GLWindow::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
 {
-    m_sizeCallback = callback;
-    glfwSetFramebufferSizeCallback(m_handle, onFramebufferSizeCallbackWrapper);
+    m_sizeCallbacks.push_back(callback);
 }
 
 void onKeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     GLWindow* current = reinterpret_cast<GLWindow*>(glfwGetWindowUserPointer(window));
-    current->m_keyCallback(static_cast<KeyCode>(key), static_cast<Action>(action), static_cast<Modifier>(mods));
+
+    for (auto& callback : current->m_keyCallbacks)
+    {
+        callback(static_cast<KeyCode>(key), static_cast<Action>(action), static_cast<Modifier>(mods));
+    }
 }
 
 void onCursorCallbackWrapper(GLFWwindow* window, double xpos, double ypos)
 {
     GLWindow* current = reinterpret_cast<GLWindow*>(glfwGetWindowUserPointer(window));
-    current->m_cursorCallback(xpos, current->m_height - ypos - 1.0f);
+
+    for (auto& callback : current->m_cursorCallbacks)
+    {
+        callback(xpos, current->m_height - ypos - 1.0);
+    }
 }
 
 void onMouseCallbackWrapper(GLFWwindow* window, int button, int action, int mods)
 {
-    double xpos, ypos;
-    glfwGetCursorPos(window, &xpos, &ypos);
-
     GLWindow* current = reinterpret_cast<GLWindow*>(glfwGetWindowUserPointer(window));
-    current->m_mouseCallback(static_cast<ButtonCode>(button), static_cast<Action>(action), static_cast<Modifier>(mods), xpos, current->m_height - ypos - 1.0f);
+
+    for (auto& callback : current->m_mouseCallbacks)
+    {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        callback(static_cast<ButtonCode>(button), static_cast<Action>(action), static_cast<Modifier>(mods), xpos, current->m_height - ypos - 1.0);
+    }
 }
 
 void onScrollCallbackWrapper(GLFWwindow* window, double xoffset, double yoffset)
 {
     GLWindow* current = reinterpret_cast<GLWindow*>(glfwGetWindowUserPointer(window));
-    current->m_scrollCallback(xoffset, yoffset);
+
+    for (auto& callback : current->m_scrollCallbacks)
+    {
+        callback(xoffset, yoffset);
+    }
 }
 
 void onFramebufferSizeCallbackWrapper(GLFWwindow* window, int width, int height)
 {
     GLWindow* current = reinterpret_cast<GLWindow*>(glfwGetWindowUserPointer(window));
-    current->m_width = width;
-    current->m_height = height;
-
-    if (current->m_sizeCallback != nullptr)
-        current->m_sizeCallback(width, height);
+    
+    for (auto& callback : current->m_sizeCallbacks)
+    {
+        current->m_width = width;
+        current->m_height = height;
+        callback(width, height);
+    }
 }

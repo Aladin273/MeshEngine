@@ -22,9 +22,7 @@ public:
     void* getHandle() const override;
     void* getCurrentContext() const override;
 
-    void makeContextCurrent() const override;
-
-    void setCurrentContext(void*) override;
+    void setCurrentContext() const override;
     void setKeyCallback(const KeyCallback& callback) override;
     void setCursorPosCallback(const CursorPosCallback& callback) override;
     void setMouseCallback(const MouseCallback& callback) override;
@@ -41,14 +39,15 @@ private:
     GLFWwindow* m_handle = nullptr;
 
     std::string m_title = "GLWindow";
+    
     uint32_t m_width = 800;
     uint32_t m_height = 600;
 
-    KeyCallback m_keyCallback = nullptr;
-    CursorPosCallback m_cursorCallback = nullptr;
-    MouseCallback m_mouseCallback = nullptr;
-    ScrollCallback m_scrollCallback = nullptr;
-    FramebufferSizeCallback m_sizeCallback = nullptr;
+    std::vector<KeyCallback> m_keyCallbacks;
+    std::vector<CursorPosCallback> m_cursorCallbacks;
+    std::vector<MouseCallback> m_mouseCallbacks;
+    std::vector<ScrollCallback> m_scrollCallbacks;
+    std::vector<FramebufferSizeCallback> m_sizeCallbacks;
 };
 
 void onKeyCallbackWrapper(GLFWwindow* window, int key, int scancode, int action, int mods);

@@ -116,10 +116,10 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
                         switch (i)
                         {
                         case 0: node.getMesh()->setMaterial(Settings::ruby); break;
-                        case 1: node.getMesh()->setMaterial(Settings::gold); break;
-                        case 2: node.getMesh()->setMaterial(Settings::copper); break;
-                        case 3: node.getMesh()->setMaterial(Settings::chrome); break;
-                        case 4: node.getMesh()->setMaterial(Settings::emerald); break;
+                        case 1: node.getMesh()->setMaterial(Settings::emerald); break;
+                        case 2: node.getMesh()->setMaterial(Settings::gold); break;
+                        case 3: node.getMesh()->setMaterial(Settings::copper); break;
+                        case 4: node.getMesh()->setMaterial(Settings::chrome); break;
                         case 5: node.getMesh()->setMaterial(Settings::dark); break;
                         case 6: node.getMesh()->setMaterial(Settings::clear); break;
                         }
@@ -285,7 +285,7 @@ void Application::run()
         {
             if (!m_windowShouldClose(view->getWindow()))
             {
-                view->getWindow()->makeContextCurrent();
+                view->getWindow()->setCurrentContext();
                 view->update();
 
                 m_swapDisplayBuffers(view->getWindow());

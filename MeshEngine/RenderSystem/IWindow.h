@@ -184,9 +184,7 @@ public:
     virtual void* getHandle() const = 0;
     virtual void* getCurrentContext() const = 0;
 
-    virtual void makeContextCurrent() const = 0;
-
-    virtual void setCurrentContext(void*) = 0;
+    virtual void setCurrentContext() const = 0;
     virtual void setKeyCallback(const KeyCallback& callback) = 0;
     virtual void setCursorPosCallback(const CursorPosCallback& callback) = 0;
     virtual void setMouseCallback(const MouseCallback& callback) = 0;

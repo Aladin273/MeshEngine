@@ -55,15 +55,15 @@ public:
     bool getDrawLines() const;
     bool getDrawHoles() const;
 
-    void setColorBoundaries(glm::vec3 color);
-    void setColorTriangles(glm::vec3 color);
-    void setColorLines(glm::vec3 color);
-    void setColorHoles(glm::vec3 color);
+    void setColorBoundaries(glm::vec4 color);
+    void setColorTriangles(glm::vec4 color);
+    void setColorLines(glm::vec4 color);
+    void setColorHoles(glm::vec4 color);
 
-    const glm::vec3& getColorBoundaries();
-    const glm::vec3& getColorTriangles();
-    const glm::vec3& getColorLines();
-    const glm::vec3& getColorHoles();
+    const glm::vec4& getColorBoundaries();
+    const glm::vec4& getColorTriangles();
+    const glm::vec4& getColorLines();
+    const glm::vec4& getColorHoles();
 
 private:
     std::string m_name = "Mesh 0";
@@ -81,10 +81,10 @@ private:
 
     bbox m_bbox;
     Material m_material;
-    glm::vec3 m_colorLines{ 1.0f };
-    glm::vec3 m_colorHoles{ 0.75f, 0.25f, 0.25f };
-    glm::vec3 m_colorTriangles{ 0.25f, 0.75f, 0.25f };
-    glm::vec3 m_colorBoundaries{ 0.75f, 0.25f, 0.25f };
+    glm::vec4 m_colorLines{ 1.0f };
+    glm::vec4 m_colorHoles{ 0.75f, 0.25f, 0.25f, 1.0f };
+    glm::vec4 m_colorTriangles{ 0.25f, 0.75f, 0.25f, 1.0f };
+    glm::vec4 m_colorBoundaries{ 0.75f, 0.25f, 0.25f, 1.0f };
 };
 
 
