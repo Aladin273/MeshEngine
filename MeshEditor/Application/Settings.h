@@ -61,23 +61,25 @@ namespace Settings
     const uint32_t numSubs = 64;
 
     // Colors
-    const glm::vec3 gray = { 0.5f, 0.5f, 0.5f };
-    const glm::vec3 white = { 1.0f, 1.0f, 1.0f };
-    const glm::vec3 black = { 0.0f, 0.0f, 0.0f };
+    const glm::vec4 gray = { 0.5f, 0.5f, 0.5f, 1.0f};
+    const glm::vec4 white = { 1.0f, 1.0f, 1.0f, 1.0f};
+    const glm::vec4 black = { 0.0f, 0.0f, 0.0f, 1.0f};
 
     // Materials
-    const Material ruby{ glm::vec4(1.07, 0.01, 0.01, 1.0), glm::vec4(0.61, 0.04, 0.04, 1.0), glm::vec4(0.72, 0.62, 0.62, 1.0), glm::vec4(0.0), 75.f };
-    const Material gold{ glm::vec4(0.25, 0.22, 0.06, 1.0), glm::vec4(0.35, 0.31, 0.09, 1.0), glm::vec4(0.80, 0.72, 0.21, 1.0), glm::vec4(0.0), 83.2f };
-    const Material copper{ glm::vec4(1.09, 0.07, 0.02, 1.0), glm::vec4(0.70, 0.27, 0.08, 1.0), glm::vec4(0.26, 1.04, 0.09, 1.0), glm::vec4(0.0), 12.8f };
-    const Material chrome{ glm::vec4(0.25, 0.25, 0.25, 1.0), glm::vec4(0.4, 0.4, 0.4, 1.0), glm::vec4(0.77, 0.77, 0.77, 1.0), glm::vec4(0.0), 75.f };
-    const Material emerald{ glm::vec4(0.1, 0.9, 0.5, 0.55), glm::vec4(0.08, 0.61, 0.58, 0.55), glm::vec4(0.63, 0.73, 0.63, 0.55), glm::vec4(0.0), 128.f };
-    const Material dark{ glm::vec4(0.15f), glm::vec4(0.15f), glm::vec4(0.15f), glm::vec4(0.0f) };
-    const Material clear{ glm::vec4(0.0f), glm::vec4(1.0f), glm::vec4(1.0f), glm::vec4(0.0f) };
+    const Material ruby{ glm::vec3(1.07, 0.01, 0.01), glm::vec4(0.61, 0.04, 0.04, 0.85), glm::vec3(0.72, 0.62, 0.62), glm::vec3(0.0), 75.f };
+    const Material emerald{ glm::vec3(0.1, 0.9, 0.5), glm::vec4(0.08, 0.61, 0.58, 0.55), glm::vec3(0.63, 0.73, 0.63), glm::vec3(0.0), 128.f };
     
-    const Material red{ glm::vec4(1.0f, 0.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 0.0f), glm::vec4(0.0f), glm::vec4(0.0f) };
-    const Material green{ glm::vec4(0.0f, 1.0f, 0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 0.0f), glm::vec4(0.0f), glm::vec4(0.0f) };
-    const Material blue{ glm::vec4(0.0f, 0.0f, 1.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 0.0f), glm::vec4(0.0f), glm::vec4(0.0f) };
-    const Material yellow{ glm::vec4(1.0f, 1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 0.0f), glm::vec4(0.0f), glm::vec4(0.0f) };
+    const Material gold{ glm::vec3(0.25, 0.22, 0.06), glm::vec4(0.35, 0.31, 0.09, 1.0), glm::vec3(0.80, 0.72, 0.21), glm::vec3(0.0), 83.2f };
+    const Material copper{ glm::vec3(1.09, 0.07, 0.02), glm::vec4(0.70, 0.27, 0.08, 1.0), glm::vec3(0.26, 1.04, 0.09), glm::vec3(0.0), 12.8f };
+    const Material chrome{ glm::vec3(0.25, 0.25, 0.25), glm::vec4(0.4, 0.4, 0.4, 1.0), glm::vec3(0.77, 0.77, 0.77), glm::vec3(0.0), 75.f };
+    
+    const Material dark{ glm::vec3(0.15f), glm::vec4(0.15f, 0.15f, 0.15f, 1.0f), glm::vec3(0.15f), glm::vec3(0.0f), 128.f };
+    const Material clear{ glm::vec3(0.0f), glm::vec4(1.0f), glm::vec3(1.0f), glm::vec3(0.0f), 128.f };
+    
+    const Material red{ glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
+    const Material green{ glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
+    const Material blue{ glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
+    const Material yellow{ glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
 
     // Models
     const std::string model1 = "../Data/Cube.stl";

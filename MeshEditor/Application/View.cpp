@@ -10,7 +10,7 @@ View::View(IRenderSystem* rs, const std::string& title, uint32_t width, uint32_t
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
     m_renderSystem->setupLightDir(Settings::source, Settings::eye, Settings::ambient, Settings::diffuse, Settings::specular);
-    m_renderSystem->turnLight(Settings::source, true);
+    m_renderSystem->setLight(Settings::source, true);
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);

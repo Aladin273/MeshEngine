@@ -47,14 +47,18 @@ Editor drawables, bbox, plane
 Multi-mesh objects
 Shader, IMesh, BufferData, BufferIndices
 
+Process mouse scroll
+RotateAroundTarget operator
 Update operators in loop
 In-scale manipulators, redraw temp
+In-scale world plane
 
 Replace doubles to float
 Replace vec3 to vec4
 
 Assimp
 Settings, json/xml
+Rework event system
 Tick, delta, time and etc
 Viewport bbox, zoomtofit
 Lights architecture with types
