@@ -176,7 +176,7 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
         }
     }
 
-    Utils::HalfEdgeTable table;
+    heds::HalfEdgeTable table;
 
     std::string geometryName = pNode->FirstChildElement("instance_geometry")->Attribute("url");
     geometryName.erase(geometryName.begin());
@@ -198,12 +198,12 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
             {
                 if (vcounts[vcount] == 3)
                 {
-                    table.addFace(Utils::VertexHandle{ indices[index] }, Utils::VertexHandle{ indices[index + 1] }, Utils::VertexHandle{ indices[index + 2] });
+                    table.addFace(heds::VertexHandle{ indices[index] }, heds::VertexHandle{ indices[index + 1] }, heds::VertexHandle{ indices[index + 2] });
                     index += 3;
                 }
                 else if (vcounts[vcount] == 4)
                 {
-                    table.addFace(Utils::VertexHandle{ indices[index] }, Utils::VertexHandle{ indices[index + 1] }, Utils::VertexHandle{ indices[index + 2] }, Utils::VertexHandle{ indices[index + 3] });
+                    table.addFace(heds::VertexHandle{ indices[index] }, heds::VertexHandle{ indices[index + 1] }, heds::VertexHandle{ indices[index + 2] }, heds::VertexHandle{ indices[index + 3] });
                     index += 4;
                 }
             }
@@ -212,7 +212,7 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
         {
             for (size_t index = 0; index < indices.size(); index += 3)
             {
-                table.addFace(Utils::VertexHandle{ indices[index] }, Utils::VertexHandle{ indices[index + 1] }, Utils::VertexHandle{ indices[index + 2] });
+                table.addFace(heds::VertexHandle{ indices[index] }, heds::VertexHandle{ indices[index + 1] }, heds::VertexHandle{ indices[index + 2] });
             }
         }
 
@@ -308,7 +308,7 @@ void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxm
     pSource = pMesh->InsertNewChildElement("source");
     pSource->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-positions").c_str());
 
-    const Utils::HalfEdgeTable& table = parent->getMesh()->getHalfEdgeTable();
+    const heds::HalfEdgeTable& table = parent->getMesh()->getHalfEdgeTable();
 
     pData = pSource->InsertNewChildElement("float_array");
     pData->SetAttribute("id", (std::string(pSource->Attribute("id")) + "-array").c_str());
@@ -350,8 +350,8 @@ void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxm
 
     for (auto& face : table.getFaces())
     {
-        Utils::HalfEdgeHandle start_heh = face.heh;
-        Utils::HalfEdgeHandle next_heh = face.heh;
+        heds::HalfEdgeHandle start_heh = face.heh;
+        heds::HalfEdgeHandle next_heh = face.heh;
 
         int64_t size = 0;
 

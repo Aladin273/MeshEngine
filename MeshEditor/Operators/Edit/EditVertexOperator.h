@@ -30,7 +30,7 @@ private:
     glm::vec3 m_center { 0.0f};
     glm::vec3 m_normal { 0.0f};
 
-    Utils::VertexHandle m_vh;
+    heds::VertexHandle m_vh;
     Contact m_contact;
     View* m_view;
     Triad* m_triad;

@@ -96,10 +96,10 @@ void EditFaceOperator::clear()
 void EditFaceOperator::init()
 {
     const auto& table = m_contact.node->getMesh()->getHalfEdgeTable();
-    Utils::HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
-    Utils::HalfEdgeHandle heh1 = table.next(heh0);
-    Utils::HalfEdgeHandle heh2 = table.next(heh1);
-    Utils::HalfEdgeHandle heh3 = table.next(heh2);
+    heds::HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
+    heds::HalfEdgeHandle heh1 = table.next(heh0);
+    heds::HalfEdgeHandle heh2 = table.next(heh1);
+    heds::HalfEdgeHandle heh3 = table.next(heh2);
 
     glm::vec3 a = table.getEndPoint(heh0);
     glm::vec3 b = table.getEndPoint(heh1);

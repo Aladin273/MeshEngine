@@ -7,7 +7,7 @@
 #include "ThirdParty/glm/gtc/constants.hpp"
 #include "ThirdParty/glm/gtx/transform.hpp"
 
-namespace Utils
+namespace heds
 {
     const int64_t invalid = -1;
 
@@ -124,8 +124,8 @@ namespace Utils
         const std::vector<HalfEdge>& getHalfEdges() const;
 
         friend HalfEdgeTable createCube(glm::vec3 center, float length);
-        friend HalfEdgeTable createCylinder(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
         friend HalfEdgeTable createCone(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
+        friend HalfEdgeTable createCylinder(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
         friend HalfEdgeTable createTorus(glm::vec3 dir, float minorRadius, float majorRadius, uint32_t majorSegments);
         friend HalfEdgeTable createArrow(glm::vec3 dir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions);
         friend HalfEdgeTable createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);

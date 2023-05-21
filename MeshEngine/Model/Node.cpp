@@ -2,7 +2,7 @@
 
 Node::Node()
 {
-    m_mesh = std::make_unique<Mesh>(Utils::HalfEdgeTable()); // empty mesh for valid
+    m_mesh = std::make_unique<Mesh>(heds::HalfEdgeTable()); // empty mesh for valid
 }
 
 Node::~Node()

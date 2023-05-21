@@ -222,7 +222,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
 
                 if (state == 0)
                 {
-                    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(Utils::createPlane(Settings::world_up,
+                    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(Settings::world_up,
                         view.getViewport().calcTargetPlaneWidth(), view.getViewport().calcTargetPlaneWidth(), Settings::plane));
                     
                     plane->attachMesh(std::move(mesh));

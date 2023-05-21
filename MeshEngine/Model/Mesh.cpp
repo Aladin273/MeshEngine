@@ -1,12 +1,12 @@
 #include "Mesh.h"
 
-Mesh::Mesh(const Utils::HalfEdgeTable& halfEdgeTable)
+Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
     update();
 }
 
-Mesh::Mesh(const Utils::HalfEdgeTable& halfEdgeTable, const Material& material)
+Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material)
     : m_table(halfEdgeTable), m_material(material)
 {
     update();
@@ -130,8 +130,8 @@ void Mesh::updateLines()
     m_lines.clear();
 
     glm::vec3 normal{ 0.0f };
-    std::set<Utils::HalfEdgeHandle> collection;
-    std::set<Utils::HalfEdgeHandle>::iterator it;
+    std::set<heds::HalfEdgeHandle> collection;
+    std::set<heds::HalfEdgeHandle>::iterator it;
 
     for (auto& halfedge : m_table.getHalfEdges())
     {
@@ -139,7 +139,7 @@ void Mesh::updateLines()
 
         if (it == collection.end())
         {
-            Utils::HalfEdgeHandle heh = m_table.handle(halfedge);
+            heds::HalfEdgeHandle heh = m_table.handle(halfedge);
 
             collection.emplace(heh);
 
@@ -157,14 +157,14 @@ void Mesh::updateHoles()
     m_holes.clear();
 
     glm::vec3 normal{ 0.0f };
-    std::set<Utils::HalfEdgeHandle> edges;
+    std::set<heds::HalfEdgeHandle> edges;
 
     for (auto& halfedge : m_table.getHalfEdges())
     {
-        if (halfedge.fh.index == Utils::invalid && edges.find(m_table.handle(halfedge)) == edges.end())
+        if (halfedge.fh.index == heds::invalid && edges.find(m_table.handle(halfedge)) == edges.end())
         {
-            Utils::HalfEdgeHandle start_heh = m_table.handle(halfedge);
-            Utils::HalfEdgeHandle next_heh = start_heh;
+            heds::HalfEdgeHandle start_heh = m_table.handle(halfedge);
+            heds::HalfEdgeHandle next_heh = start_heh;
 
             do
             {
@@ -188,10 +188,10 @@ void Mesh::updateTriangles()
 
     for (auto& face : m_table.getFaces())
     {
-        Utils::HalfEdgeHandle heh0 = face.heh;
-        Utils::HalfEdgeHandle heh1 = m_table.next(heh0);
-        Utils::HalfEdgeHandle heh2 = m_table.next(heh1);
-        Utils::HalfEdgeHandle heh3 = m_table.next(heh2);
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = m_table.next(heh0);
+        heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+        heds::HalfEdgeHandle heh3 = m_table.next(heh2);
 
         const glm::vec3& a = m_table.getEndPoint(heh0);
         const glm::vec3& b = m_table.getEndPoint(heh1);
@@ -222,15 +222,15 @@ void Mesh::updateBoundaryFaces()
 
     for (auto& face : m_table.getFaces())
     {
-        Utils::HalfEdgeHandle heh0 = face.heh;
-        Utils::HalfEdgeHandle heh1 = m_table.next(heh0);
-        Utils::HalfEdgeHandle heh2 = m_table.next(heh1);
-        Utils::HalfEdgeHandle heh3 = m_table.next(heh2);
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = m_table.next(heh0);
+        heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+        heds::HalfEdgeHandle heh3 = m_table.next(heh2);
 
-        if ((m_table.deref(m_table.twin(heh0)).fh.index == Utils::invalid) ||
-            (m_table.deref(m_table.twin(heh1)).fh.index == Utils::invalid) ||
-            (m_table.deref(m_table.twin(heh2)).fh.index == Utils::invalid) ||
-            (m_table.deref(m_table.twin(heh3)).fh.index == Utils::invalid))
+        if ((m_table.deref(m_table.twin(heh0)).fh.index == heds::invalid) ||
+            (m_table.deref(m_table.twin(heh1)).fh.index == heds::invalid) ||
+            (m_table.deref(m_table.twin(heh2)).fh.index == heds::invalid) ||
+            (m_table.deref(m_table.twin(heh3)).fh.index == heds::invalid))
         {
             const glm::vec3& a = m_table.getEndPoint(heh0);
             const glm::vec3& b = m_table.getEndPoint(heh1);
@@ -252,7 +252,7 @@ void Mesh::updateBoundaryFaces()
     }
 }
 
-void Mesh::applyTransformation(Utils::VertexHandle vh, const glm::mat4& trf)
+void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 {
     glm::vec3 center = m_table.getPoint(vh);
 
@@ -263,10 +263,10 @@ void Mesh::applyTransformation(Utils::VertexHandle vh, const glm::mat4& trf)
     update(center, m_table.getPoint(vh));
 }
 
-void Mesh::applyTransformation(Utils::FaceHandle fh, const glm::mat4& trf)
+void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 {
-    Utils::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
-    Utils::HalfEdgeHandle next_heh = start_heh;
+    heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+    heds::HalfEdgeHandle next_heh = start_heh;
     glm::vec3 center{ 0 }; float vertices = 0;
 
     do
@@ -293,13 +293,13 @@ void Mesh::applyTransformation(Utils::FaceHandle fh, const glm::mat4& trf)
     while (next_heh != start_heh);
 }
 
-void Mesh::deleteFace(Utils::FaceHandle fh)
+void Mesh::deleteFace(heds::FaceHandle fh)
 {
     m_table.deleteFace(fh);
     update();
 }
 
-const Utils::HalfEdgeTable& Mesh::getHalfEdgeTable() const
+const heds::HalfEdgeTable& Mesh::getHalfEdgeTable() const
 {
     return m_table;
 }

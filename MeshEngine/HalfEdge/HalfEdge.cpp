@@ -1,6 +1,6 @@
 ﻿#include "HalfEdge.h"
 
-using namespace Utils;
+using namespace heds;
 
 /////////////////////// Actions
 
@@ -417,19 +417,19 @@ const std::vector<HalfEdge>& HalfEdgeTable::getHalfEdges() const
     return m_halfEdges;
 }
 
-HalfEdgeTable Utils::createCube(glm::vec3 center, float length)
+HalfEdgeTable heds::createCube(glm::vec3 center, float length)
 {
-    Utils::HalfEdgeTable halfEdgeTable;
+    heds::HalfEdgeTable halfEdgeTable;
     float halfLength = length / 2;
 
-    Utils::VertexHandle vh0 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength, -halfLength } + center);
-    Utils::VertexHandle vh1 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength, -halfLength } + center);
-    Utils::VertexHandle vh2 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength, -halfLength } + center);
-    Utils::VertexHandle vh3 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength, -halfLength } + center);
-    Utils::VertexHandle vh4 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength,  halfLength } + center);
-    Utils::VertexHandle vh5 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength,  halfLength } + center);
-    Utils::VertexHandle vh6 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength,  halfLength } + center);
-    Utils::VertexHandle vh7 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength,  halfLength } + center);
+    heds::VertexHandle vh0 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength, -halfLength } + center);
+    heds::VertexHandle vh1 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength, -halfLength } + center);
+    heds::VertexHandle vh2 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength, -halfLength } + center);
+    heds::VertexHandle vh3 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength, -halfLength } + center);
+    heds::VertexHandle vh4 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength,  halfLength } + center);
+    heds::VertexHandle vh5 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength,  halfLength } + center);
+    heds::VertexHandle vh6 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength,  halfLength } + center);
+    heds::VertexHandle vh7 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength,  halfLength } + center);
 
     halfEdgeTable.addFace(vh0, vh1, vh2, vh3);
     halfEdgeTable.addFace(vh4, vh7, vh6, vh5);
@@ -443,13 +443,13 @@ HalfEdgeTable Utils::createCube(glm::vec3 center, float length)
     return halfEdgeTable;
 }
 
-HalfEdgeTable Utils::createCylinder(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+HalfEdgeTable heds::createCylinder(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -489,13 +489,13 @@ HalfEdgeTable Utils::createCylinder(glm::vec3 inDir, float R, float h, uint32_t 
     return table;
 }
 
-HalfEdgeTable Utils::createCone(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+HalfEdgeTable heds::createCone(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -530,13 +530,13 @@ HalfEdgeTable Utils::createCone(glm::vec3 inDir, float R, float h, uint32_t numS
     return table;
 }
 
-HalfEdgeTable Utils::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
+HalfEdgeTable heds::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(majorSegments);
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     auto mainSegmentAngleStep = glm::radians(360.0f / segments);
     auto tubeSegmentAngleStep = glm::radians(360.0f / segments);
@@ -605,26 +605,26 @@ HalfEdgeTable Utils::createTorus(glm::vec3 inDir, float minorRadius, float major
     return table;
 }
 
-HalfEdgeTable Utils::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
+HalfEdgeTable heds::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
 {
-    auto table1 = Utils::createCone(inDir, R1, h1, numSubdivisions);
-    auto table2 = Utils::createCylinder(inDir, R2, h2, numSubdivisions);
+    auto table1 = heds::createCone(inDir, R1, h1, numSubdivisions);
+    auto table2 = heds::createCylinder(inDir, R2, h2, numSubdivisions);
 
     glm::vec3 delta = inDir * h2;
 
     for (auto& face : table1.getFaces())
     {
-        Utils::HalfEdgeHandle heh0 = face.heh;
-        Utils::HalfEdgeHandle heh1 = table1.next(heh0);
-        Utils::HalfEdgeHandle heh2 = table1.next(heh1);
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = table1.next(heh0);
+        heds::HalfEdgeHandle heh2 = table1.next(heh1);
 
         glm::vec3 vec0{ table1.getEndPoint(heh0) }; vec0 += delta;
         glm::vec3 vec1{ table1.getEndPoint(heh1) }; vec1 += delta;
         glm::vec3 vec2{ table1.getEndPoint(heh2) }; vec2 += delta;
 
-        Utils::VertexHandle v0 = table2.addVertex(vec0);
-        Utils::VertexHandle v1 = table2.addVertex(vec1);
-        Utils::VertexHandle v2 = table2.addVertex(vec2);
+        heds::VertexHandle v0 = table2.addVertex(vec0);
+        heds::VertexHandle v1 = table2.addVertex(vec1);
+        heds::VertexHandle v2 = table2.addVertex(vec2);
 
         table2.addFace(v0, v1, v2);
     }
@@ -634,7 +634,7 @@ HalfEdgeTable Utils::createArrow(glm::vec3 inDir, float R1, float h1, float R2, 
     return table2;
 }
 
-HalfEdgeTable Utils::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
+HalfEdgeTable heds::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     int segments = glm::sqrt(numSubdivisions);
@@ -644,8 +644,8 @@ HalfEdgeTable Utils::createPlane(glm::vec3 inDir, float width, float heigth, uin
     float halfHeight = heigth / 2;
     float cx = 0.0f, cy = 0.0f, cz = 0.0f; 
 
-    std::vector<std::vector<Utils::VertexHandle>> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<std::vector<heds::VertexHandle>> vertices;
+    heds::HalfEdgeTable table;
 
     for (float i = -halfWidth; i <= halfWidth; i += stepW)
     {

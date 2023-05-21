@@ -12,7 +12,7 @@ enum class FilterValue
 
 struct Contact
 {
-    Utils::FaceHandle face;
+    heds::FaceHandle face;
     Node* node;
     float distance;
     glm::vec3 point;
