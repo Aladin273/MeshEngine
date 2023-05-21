@@ -18,10 +18,10 @@ public:
 
     void renderTriangles(const std::vector<Vertex>& vertices) override;
     void renderTriangles(const std::vector<Vertex>& vertices, glm::vec4 color) override;
-    void renderPolygons(const std::vector<Vertex>& vertices) override;
-    void renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color) override;
     void renderQuads(const std::vector<Vertex>& vertices) override;
     void renderQuads(const std::vector<Vertex>& vertices, glm::vec4 color) override;
+    void renderPolygons(const std::vector<Vertex>& vertices) override;
+    void renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color) override;
     
     void renderPoints(const std::vector<Vertex>& vertices, float size = -1.0f) override;
     void renderPoints(const std::vector<Vertex>& vertices, glm::vec4 color, float size = -1.0f) override;

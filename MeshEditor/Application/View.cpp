@@ -320,7 +320,7 @@ void View::decorateTriad(Triad& triad) const
     {
         glm::vec3 center = child->getRelativeTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         child->applyRelativeTransform(glm::translate(-center));
-        child->applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().distanceFromEyeToTarget() * Settings::sizeT)));
+        child->applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * Settings::sizeT)));
         child->applyRelativeTransform(glm::translate(center));
     }
 }
@@ -336,6 +336,6 @@ void View::decorateArrow(Manipulator& manipulator, glm::vec3 dir) const
     
     glm::vec3 center = manipulator.getRelativeTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     manipulator.applyRelativeTransform(glm::translate(-center));
-    manipulator.applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().distanceFromEyeToTarget() * Settings::sizeA)));
+    manipulator.applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * Settings::sizeA)));
     manipulator.applyRelativeTransform(glm::translate(center));
 }

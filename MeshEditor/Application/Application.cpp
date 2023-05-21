@@ -87,7 +87,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     m_views.back()->addOperator(KeyCode::F8, [](View& view, Action action, Modifier mods)
         {
             if (action == Action::Press)
-                view.getViewport().setParallelProjection(!view.getViewport().getParallelProjection());
+                view.getViewport().setOrthogonal(!view.getViewport().getOrthogonal());
         });
 
     m_views.back()->addOperator(KeyCode::F9, [](View& view, Action action, Modifier mods)

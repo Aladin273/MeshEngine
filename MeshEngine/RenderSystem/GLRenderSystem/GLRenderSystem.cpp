@@ -70,30 +70,6 @@ void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices, glm::v
     glEnd();
 }
 
-void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices)
-{
-    glBegin(GL_TRIANGLE_STRIP);
-    for (auto& vertex : vertices)
-    {
-        glColor4fv(glm::value_ptr(vertex.color));
-        glNormal3fv(glm::value_ptr(vertex.normal));
-        glVertex3fv(glm::value_ptr(vertex.position));
-    }
-    glEnd();
-}
-
-void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color)
-{
-    glBegin(GL_TRIANGLE_STRIP);
-    for (auto& vertex : vertices)
-    {
-        glColor4fv(glm::value_ptr(color));
-        glNormal3fv(glm::value_ptr(vertex.normal));
-        glVertex3fv(glm::value_ptr(vertex.position));
-    }
-    glEnd();
-}
-
 void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices)
 {
     glBegin(GL_QUADS);
@@ -109,6 +85,30 @@ void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices)
 void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices, glm::vec4 color)
 {
     glBegin(GL_QUADS);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices)
+{
+    glBegin(GL_TRIANGLE_STRIP);
+    for (auto& vertex : vertices)
+    {
+        glColor4fv(glm::value_ptr(vertex.color));
+        glNormal3fv(glm::value_ptr(vertex.normal));
+        glVertex3fv(glm::value_ptr(vertex.position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color)
+{
+    glBegin(GL_TRIANGLE_STRIP);
     for (auto& vertex : vertices)
     {
         glColor4fv(glm::value_ptr(color));
