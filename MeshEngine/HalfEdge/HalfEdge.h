@@ -131,7 +131,7 @@ namespace heds
         friend HalfEdgeTable createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
 
     private:
-        //Deletes fake twins
+        void createFakeTwins(std::vector<HalfEdgeHandle>& halfedges);
         void deleteFakeTwins();
 
         std::vector<Vertex> m_vertices;

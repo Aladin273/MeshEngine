@@ -71,87 +71,31 @@ void HalfEdgeTable::connectTwins()
 {
     deleteFakeTwins();
 
-    HalfEdgeHandle heh_empty{ invalid };
-    std::vector<HalfEdgeHandle> notwins;
     std::map<std::pair<VertexHandle, VertexHandle>, HalfEdgeHandle> collection;
-    std::map<std::pair<VertexHandle, VertexHandle>, HalfEdgeHandle>::iterator it;
+    std::vector<HalfEdgeHandle> notwins;
 
     // Prepare data
     for (auto& he : m_halfEdges)
     {
-        if (he.twin == heh_empty)
+        if (he.twin.index == invalid)
             collection.emplace(std::pair<VertexHandle, VertexHandle>(he.dst, deref(he.prev).dst), handle(he));
     }
 
     // Connecting twins
     for (auto& he : m_halfEdges)
     {
-        it = collection.find(std::pair<VertexHandle, VertexHandle>(deref(he.prev).dst, he.dst));
+        auto twin = collection.find(std::pair<VertexHandle, VertexHandle>(deref(he.prev).dst, he.dst));
 
-        if (it != collection.end())
+        if (twin != collection.end())
         {
-            he.twin = it->second;
-            deref(it->second).twin = handle(he);
+            he.twin = twin->second;
+            deref(twin->second).twin = handle(he);
         }
         else
             notwins.push_back(handle(he));
     }
 
-    m_fakeTwins = m_halfEdges.size();
-
-    // Building fake twins
-    for (auto& boundary : notwins)
-    {
-        if (deref(boundary).twin != heh_empty)
-            continue;
-
-        int64_t check1 = invalid;
-        int64_t check2 = invalid;
-        int64_t added = m_halfEdges.size();
-        FaceHandle fh_empty{};
-        HalfEdgeHandle start_heh = boundary;
-        HalfEdgeHandle previus = prev(boundary);
-
-        deref(boundary).twin.index = added;  // Add twin to boundary
-        m_halfEdges.push_back({ fh_empty, destVertex(previus), boundary, added + 1, added - 1 });
-
-        while ((destVertex(previus) != destVertex(start_heh)) && (check1 < m_fakeTwins)) // visiting all the halfedges directed to a specified Vertex
-        {   // Ideally, the first condition should always be met, 
-            // but if the model is non-valid, then something can go wrong, so I introduced a spare
-            ++check1;
-            added = m_halfEdges.size();
-
-            while ((twin(previus) != heh_empty) && (check2 < m_fakeTwins)) // find while prev not boundary
-            {
-                ++check2;
-                boundary = twin(previus);
-                previus = prev(boundary);
-            }
-            check2 = invalid;
-
-            deref(previus).twin.index = added;
-            m_halfEdges.push_back({ fh_empty, destVertex(prev(previus)), previus, added + 1, added - 1 });
-
-            boundary = previus;
-            previus = prev(boundary);
-        }
-        check1 = invalid;
-
-        deref(HalfEdgeHandle{ added }).next = twin(start_heh); // Connect start with end
-        deref(twin(start_heh)).prev.index = added;
-    }
-}
-
-void HalfEdgeTable::deleteFakeTwins()
-{
-    if (m_fakeTwins != invalid) // there is no need to do anything
-    {
-        for (size_t i = m_fakeTwins; i < m_halfEdges.size(); ++m_fakeTwins)
-            deref(m_halfEdges[i].twin).twin = { invalid };
-
-        m_halfEdges.erase(m_halfEdges.begin() + static_cast<int64_t>(m_fakeTwins), m_halfEdges.end());
-        m_fakeTwins = invalid;
-    }
+    createFakeTwins(notwins);
 }
 
 void HalfEdgeTable::deleteFace(FaceHandle fh)
@@ -296,6 +240,72 @@ void HalfEdgeTable::deleteFace(FaceHandle fh)
         face.heh = mapping_halfEdges[face.heh.index];
 }
 
+void HalfEdgeTable::createFakeTwins(std::vector<HalfEdgeHandle>& halfEdges)
+{
+    m_fakeTwins = m_halfEdges.size();
+
+    // Building fake twins
+    for (auto& boundary : halfEdges)
+    {
+        if (deref(boundary).twin.index != invalid)
+            continue;
+
+        int64_t checksPrimary = invalid;
+        int64_t checksSecondary = invalid;
+        int64_t added = m_halfEdges.size();
+        FaceHandle fh_empty{};
+        HalfEdgeHandle start_heh = boundary;
+        HalfEdgeHandle previus = prev(boundary);
+
+        // Add twin to boundary
+        deref(boundary).twin.index = added;
+        m_halfEdges.push_back({ fh_empty, destVertex(previus), boundary, added + 1, added - 1 });
+
+        // Visiting all the half-edges directed to a specified Vertex
+        // Ideally, the first condition should always be met, but anyway i introduced a spare
+        while ((destVertex(previus) != destVertex(start_heh)) && (checksPrimary < m_fakeTwins))
+        {
+            added = m_halfEdges.size();
+
+            // Find while prev not boundary
+            while ((twin(previus).index != invalid) && (checksSecondary < m_fakeTwins))
+            {
+                boundary = twin(previus);
+                previus = prev(boundary);
+
+                ++checksSecondary;
+            }
+            checksSecondary = invalid;
+
+            deref(previus).twin.index = added;
+            m_halfEdges.push_back({ fh_empty, destVertex(prev(previus)), previus, added + 1, added - 1 });
+
+            boundary = previus;
+            previus = prev(boundary);
+
+            ++checksPrimary;
+        }
+        checksPrimary = invalid;
+
+        // Connect start with end
+        deref(HalfEdgeHandle{ added }).next = twin(start_heh);
+        deref(twin(start_heh)).prev.index = added;
+    }
+}
+
+void HalfEdgeTable::deleteFakeTwins()
+{
+    // there is no need to do anything
+    if (m_fakeTwins != invalid)
+    {
+        for (size_t i = m_fakeTwins; i < m_halfEdges.size(); ++m_fakeTwins)
+            deref(m_halfEdges[i].twin).twin = { invalid };
+
+        m_halfEdges.erase(m_halfEdges.begin() + static_cast<int64_t>(m_fakeTwins), m_halfEdges.end());
+        m_fakeTwins = invalid;
+    }
+}
+
 /////////////////////// Helpers
 
 HalfEdgeHandle HalfEdgeTable::prev(HalfEdgeHandle heh) const
@@ -416,6 +426,8 @@ const std::vector<HalfEdge>& HalfEdgeTable::getHalfEdges() const
 {
     return m_halfEdges;
 }
+
+/////////////////////// Sample creators
 
 HalfEdgeTable heds::createCube(glm::vec3 center, float length)
 {
