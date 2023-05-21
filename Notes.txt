@@ -1,6 +1,6 @@
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Lab3
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Rework Cone
 Rework Cylinder
 Rework Torus
@@ -9,9 +9,9 @@ Filling holes
 Review 3 and 4 faces rendering support
 Optimize rendering data for moving vertices, faces
 Optimize rendering data by pointers, templates
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Lab4
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Review global optimization
 Implement Octree, Frustum Culling
 
@@ -19,9 +19,9 @@ Rework STLParser, ColladaParser
 Rework SaveModel
 Rework OperatorDispatcher
 Optimize calcAbsoluteTransform
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Lab5
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Rework scale manipulator
 Implement scale by axis
 In-scale manipulators, redraw temp
@@ -36,9 +36,9 @@ Rework EditFaceOperator
 Rework EditVertexOperator
 Rework EditNodeOperator
 Rework DeleteFaceOperator
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 General
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Exceptions
 Headers including
 
@@ -59,6 +59,7 @@ Replace vec3 to vec4
 Assimp
 Settings, json/xml
 Rework event system
+Add MeshEngine namespace
 Tick, delta, time and etc
 Viewport bbox, zoomtofit
 Lights architecture with types
@@ -87,9 +88,9 @@ Delete Operator
 Unite Operator
 Divide Operator
 Split Operator
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Plans
-----------------------------------------------------------------------
+-------------------------------------------------------------------------------
 Roadmaps
 Scene
 Terrain

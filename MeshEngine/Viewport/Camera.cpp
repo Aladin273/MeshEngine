@@ -20,11 +20,6 @@ glm::vec3 Camera::calcRight() const
     return glm::normalize(glm::cross(m_up, calcDirection()));
 }
 
-float Camera::distanceFromEyeToTarget() const
-{
-    return glm::length(m_target - m_eye);
-}
-
 const glm::vec3& Camera::getEye() const
 {
     return m_eye;
@@ -40,24 +35,27 @@ const glm::vec3& Camera::getUp() const
     return m_up;
 }
 
-void Camera::zoom(float factor)
+double Camera::getDistanceToTarget() const
 {
-    setDistanceToTarget(distanceFromEyeToTarget() / factor);
+    return glm::length(m_target - m_eye);
+}
+
+void Camera::setDistanceToTarget(double D)
+{
+    m_eye = m_target - calcForward() * static_cast<float>(D);
 }
 
 void Camera::orbit(glm::vec3 a, glm::vec3 b) // Takes a and b in [-ar;1] x [ar;-1] 
 {
-    float radius = 1.0f;
-
-    if (glm::length(a) >= radius)  // process value outside sphere
+    if (glm::length(a) >= 1.0f)  // process value outside sphere
         a = glm::normalize(a);
     else
-        a.z = glm::sqrt(radius - a.x * a.x - a.y * a.y);
+        a.z = glm::sqrt(1.0f - a.x * a.x - a.y * a.y);
 
-    if (glm::length(b) >= radius)  // process value outside sphere
+    if (glm::length(b) >= 1.0f)  // process value outside sphere
         b = glm::normalize(b);
     else
-        b.z = glm::sqrt(radius - b.x * b.x - b.y * b.y);
+        b.z = glm::sqrt(1.0f - b.x * b.x - b.y * b.y);
 
     float dot = glm::dot(a, b);
 
@@ -79,17 +77,22 @@ void Camera::orbit(glm::vec3 a, glm::vec3 b) // Takes a and b in [-ar;1] x [ar;-
     m_up = glm::normalize(orbit_matrix * glm::vec4(m_up, 0.0f));
 }
 
-void Camera::pan(float u, float v) // Takes u and v on target plane 
+void Camera::pan(double u, double v) // Takes u and v on target plane 
 {
-    glm::vec3 sum = calcRight() * u + m_up * v;
+    glm::vec3 delta = calcRight() * static_cast<float>(u) + m_up * static_cast<float>(v);
+    m_eye = m_eye + delta;
+    m_target = m_target + delta;
+}
 
-    m_eye = m_eye + sum;
-    m_target = m_target + sum;
+void Camera::look(double u, double v) // Takes u and v on target plane 
+{
+    glm::vec3 delta = calcRight() * static_cast<float>(u) + m_up * static_cast<float>(v);
+    m_target = m_target + delta;
 }
 
 void Camera::setFrontView()
 {
-    float D = distanceFromEyeToTarget();
+    double D = getDistanceToTarget();
     setEyeTargetUp(m_target + glm::vec3{ 0,0,1 }, m_target, { 0,1,0 });
     setDistanceToTarget(D);
 }
@@ -143,23 +146,23 @@ void Camera::translate(glm::vec3 delta)
     m_target += delta;
 }
 
-void Camera::setDistanceToTarget(float D)
-{
-    m_eye = m_target - calcForward() * D;
-}
-
-void Camera::transform(const glm::mat4& transform)
-{
-    m_eye = transform * glm::vec4{ m_eye, 1 };
-    m_target = transform * glm::vec4{ m_target, 1 };
-    m_up = transform * glm::vec4{ m_up, 0 };
-}
-
-void Camera::rotate(glm::vec3 point, glm::vec3 axis, float angle)
+void Camera::rotate(glm::vec3 point, glm::vec3 axis, double angle)
 {
     translate(glm::vec3{ 0.0f } - point);
-    transform(glm::rotate(glm::mat4(1.0f), angle, axis));
+    transform(glm::rotate(glm::mat4(1.0f), static_cast<float>(angle), axis));
     translate(point);
+}
+
+void Camera::zoom(double factor)
+{
+    setDistanceToTarget(getDistanceToTarget() / factor);
+}
+
+void Camera::transform(const glm::mat4& trf)
+{
+    m_eye = trf * glm::vec4{ m_eye, 1 };
+    m_target = trf * glm::vec4{ m_target, 1 };
+    m_up = trf * glm::vec4{ m_up, 0 };
 }
 
 void Camera::setEyeTargetUp(glm::vec3 newEye, glm::vec3 newTarget, glm::vec3 newUp)

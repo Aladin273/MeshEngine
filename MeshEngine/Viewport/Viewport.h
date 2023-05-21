@@ -20,18 +20,22 @@ public:
     void setFOV(double inFOV);
     void setZNear(double inZNear);
     void setZFar(double inZFar);
-    void setParallelProjection(bool use);
+    void setOrthogonal(bool enable);
 
     double getZNear() const;
     double getZFar() const;
     double getFov() const;
     double getWidth() const;
     double getHeight() const;
-    bool getParallelProjection() const;
+    bool getOrthogonal() const;
 
     void zoomToFit(glm::vec3 min, glm::vec3 max);
+    
+    glm::vec3 unproject(double x, double y) const;
     glm::vec3 unproject(double x, double y, double z) const;
+    
     ray calcCursorRay(double x, double y) const;
+    ray calcEyeRay(double x, double y) const;
 
     double calcTargetPlaneWidth() const;
     double calcTargetPlaneHeight() const;
@@ -42,11 +46,11 @@ public:
 
 private:
     Camera m_camera;
-    double m_znear = 0.01;
-    double m_zfar = 500;
+    double m_znear = 0.1;
+    double m_zfar = 1000;
     double m_fov = 60;
     double m_width = 1;
     double m_height = 1;
-    bool m_parallel = false;
+    bool m_orthogonal = false;
 };
 

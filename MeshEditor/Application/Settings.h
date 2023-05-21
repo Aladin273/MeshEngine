@@ -11,9 +11,9 @@ namespace Settings
     const int y = 0;
     const int width = 1920;
     const int height = 1080;
-    const float fov = 60.0f;
-    const float znear = 0.01f;
-    const float zfar = 100.0f;
+    const double fov = 60.0;
+    const double znear = 0.1;
+    const double zfar = 1000;
 
     // Remapper
     const float split = 2.0f;

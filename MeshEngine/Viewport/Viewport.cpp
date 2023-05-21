@@ -2,12 +2,11 @@
 
 glm::mat4 Viewport::calcProjectionMatrix() const
 {
-    if (m_parallel)
+    if (m_orthogonal)
     {
         double height = calcTargetPlaneHeight() / 2;
         double width = height * calcAspectRatio();
-
-        return glm::ortho(-width, width, -height, height, m_znear, m_zfar);
+        return glm::ortho(-width, width, -height, height, m_znear, m_zfar);       
     }
 
     double height = glm::tan(glm::radians(m_fov / 2)) * m_znear;
@@ -36,9 +35,9 @@ void Viewport::setZFar(double inZFar)
     m_zfar = inZFar;
 }
 
-void Viewport::setParallelProjection(bool use)
+void Viewport::setOrthogonal(bool enable)
 {
-    m_parallel = use;
+    m_orthogonal = enable;
 }
 
 double Viewport::getZNear() const
@@ -66,21 +65,26 @@ double Viewport::getHeight() const
     return m_height;
 }
 
-bool Viewport::getParallelProjection() const
+bool Viewport::getOrthogonal() const
 {
-    return m_parallel;
+    return m_orthogonal;
 }
 
 void Viewport::zoomToFit(glm::vec3 min, glm::vec3 max)
 {
     glm::vec3 center = (max + min) / 2.f;
-    float width = static_cast<float>(calcTargetPlaneWidth());
-    float height = static_cast<float>(calcTargetPlaneHeight());
-    float length = glm::length(max - min);
-    float current_length = (height < width) ? height : width;
+    double width = calcTargetPlaneWidth();
+    double height = calcTargetPlaneHeight();
+    double length = glm::length(max - min);
+    double currentLength = (height < width) ? height : width;
 
     m_camera.translate(center - m_camera.getTarget());
-    m_camera.zoom(current_length / length);
+    m_camera.zoom(currentLength / length);
+}
+
+glm::vec3 Viewport::unproject(double x, double y) const
+{
+    return unproject(x, y, 0);
 }
 
 glm::vec3 Viewport::unproject(double x, double y, double z) const
@@ -89,8 +93,9 @@ glm::vec3 Viewport::unproject(double x, double y, double z) const
     glm::mat4 proj = calcProjectionMatrix();
     glm::mat4 view = m_camera.calcViewMatrix();
 
-    point.x = (point.x / m_width);
-    point.y = (point.y / m_height);
+    // Map to [-1; 1]
+    point.x = point.x / static_cast<float>(m_width);
+    point.y = point.y / static_cast<float>(m_height);
     point = point * 2.0f - 1.0f;
 
     point = glm::inverse(proj * view) * point;
@@ -98,9 +103,17 @@ glm::vec3 Viewport::unproject(double x, double y, double z) const
 
     return point;
 }
+
 ray Viewport::calcCursorRay(double x, double y) const
 {
     glm::vec3 a = unproject(x, y, -1.0);
+    glm::vec3 b = unproject(x, y, 1.0);
+    return { a, glm::normalize(b - a) };
+}
+
+ray Viewport::calcEyeRay(double x, double y) const
+{
+    glm::vec3 a = m_camera.getEye();
     glm::vec3 b = unproject(x, y, 1.0);
     return { a, glm::normalize(b - a) };
 }
@@ -112,7 +125,7 @@ double Viewport::calcTargetPlaneWidth() const
 
 double Viewport::calcTargetPlaneHeight() const
 {
-    return 2.0 * m_camera.distanceFromEyeToTarget() * glm::tan(glm::radians(m_fov / 2.0));
+    return 2.0 * m_camera.getDistanceToTarget() * glm::tan(glm::radians(m_fov / 2.0));
 }
 
 double Viewport::calcAspectRatio() const
