@@ -15,8 +15,8 @@ struct bbox
 class Mesh
 {
 public:
-    Mesh(const Utils::HalfEdgeTable& halfEdgeTable);
-    Mesh(const Utils::HalfEdgeTable& halfEdgeTable, const Material& material);
+    Mesh(const heds::HalfEdgeTable& halfEdgeTable);
+    Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material);
 
     void render(IRenderSystem& rs);
 
@@ -30,14 +30,14 @@ public:
     void updateBoundaryFaces();
 
     // Center based
-    void applyTransformation(Utils::VertexHandle fh, const glm::mat4& trf);
+    void applyTransformation(heds::VertexHandle fh, const glm::mat4& trf);
     // Center based
-    void applyTransformation(Utils::FaceHandle fh, const glm::mat4& trf);
+    void applyTransformation(heds::FaceHandle fh, const glm::mat4& trf);
 
-    void deleteFace(Utils::FaceHandle fh);
+    void deleteFace(heds::FaceHandle fh);
 
     const bbox& getBoundingBox();
-    const Utils::HalfEdgeTable& getHalfEdgeTable() const;
+    const heds::HalfEdgeTable& getHalfEdgeTable() const;
 
     void setName(const std::string& name);
     void setMaterial(const Material& material);
@@ -73,7 +73,7 @@ private:
     bool m_drawLines = false;
     bool m_drawHoles = false;
 
-    Utils::HalfEdgeTable m_table;
+    heds::HalfEdgeTable m_table;
     std::vector<Vertex> m_lines;
     std::vector<Vertex> m_holes;
     std::vector<Vertex> m_triangles;

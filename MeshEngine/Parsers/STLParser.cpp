@@ -101,15 +101,15 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 {
     TriangleSoup soup = read(filename);
 
-    std::map<Vec, Utils::VertexHandle> vertices;
-    std::map<Vec, Utils::VertexHandle>::iterator it0;
-    std::map<Vec, Utils::VertexHandle>::iterator it1;
-    std::map<Vec, Utils::VertexHandle>::iterator it2;
+    std::map<Vec, heds::VertexHandle> vertices;
+    std::map<Vec, heds::VertexHandle>::iterator it0;
+    std::map<Vec, heds::VertexHandle>::iterator it1;
+    std::map<Vec, heds::VertexHandle>::iterator it2;
 
-    Utils::HalfEdgeTable halfEdgeTable;
-    Utils::VertexHandle vh0;
-    Utils::VertexHandle vh1;
-    Utils::VertexHandle vh2;
+    heds::HalfEdgeTable halfEdgeTable;
+    heds::VertexHandle vh0;
+    heds::VertexHandle vh1;
+    heds::VertexHandle vh2;
 
     for (auto& triangle : soup)
     {
@@ -164,14 +164,14 @@ std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 
 void STLParser::saveNode(TriangleSoup& soup, Node* node)
 {
-    const Utils::HalfEdgeTable& table = node->getMesh()->getHalfEdgeTable();
+    const heds::HalfEdgeTable& table = node->getMesh()->getHalfEdgeTable();
 
     for (auto& face : table.getFaces())
     {
-        Utils::HalfEdgeHandle heh0 = face.heh;
-        Utils::HalfEdgeHandle heh1 = table.next(heh0);
-        Utils::HalfEdgeHandle heh2 = table.next(heh1);
-        Utils::HalfEdgeHandle heh3 = table.next(heh2);
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = table.next(heh0);
+        heds::HalfEdgeHandle heh2 = table.next(heh1);
+        heds::HalfEdgeHandle heh3 = table.next(heh2);
 
         const glm::vec3& a = table.getEndPoint(heh0);
         const glm::vec3& b = table.getEndPoint(heh1);

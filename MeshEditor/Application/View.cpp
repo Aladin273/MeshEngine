@@ -191,10 +191,10 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
 
         for (auto& face : table.getFaces())
         {
-            Utils::HalfEdgeHandle heh0 = face.heh;
-            Utils::HalfEdgeHandle heh1 = table.next(heh0);
-            Utils::HalfEdgeHandle heh2 = table.next(heh1);
-            Utils::HalfEdgeHandle heh3 = table.next(heh2);
+            heds::HalfEdgeHandle heh0 = face.heh;
+            heds::HalfEdgeHandle heh1 = table.next(heh0);
+            heds::HalfEdgeHandle heh2 = table.next(heh1);
+            heds::HalfEdgeHandle heh3 = table.next(heh2);
 
             float t;
             glm::vec3 a = mat * glm::vec4(table.getEndPoint(heh0), 1.0f);
@@ -280,17 +280,17 @@ void View::decorateTriad(Triad& triad) const
 {
     using namespace Settings;
 
-    std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(Utils::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(Utils::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(Utils::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(heds::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(heds::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(heds::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
 
-    std::unique_ptr<Mesh> torusX = std::make_unique<Mesh>(Utils::createTorus(axisX, minorTR, majorTR, numSubs));
-    std::unique_ptr<Mesh> torusY = std::make_unique<Mesh>(Utils::createTorus(axisY, minorTR, majorTR, numSubs));
-    std::unique_ptr<Mesh> torusZ = std::make_unique<Mesh>(Utils::createTorus(axisZ, minorTR, majorTR, numSubs));
+    std::unique_ptr<Mesh> torusX = std::make_unique<Mesh>(heds::createTorus(axisX, minorTR, majorTR, numSubs));
+    std::unique_ptr<Mesh> torusY = std::make_unique<Mesh>(heds::createTorus(axisY, minorTR, majorTR, numSubs));
+    std::unique_ptr<Mesh> torusZ = std::make_unique<Mesh>(heds::createTorus(axisZ, minorTR, majorTR, numSubs));
 
-    std::unique_ptr<Mesh> cubeX = std::make_unique<Mesh>(Utils::createCube(axisX * cubeTL, cubeTR));
-    std::unique_ptr<Mesh> cubeY = std::make_unique<Mesh>(Utils::createCube(axisY * cubeTL, cubeTR));
-    std::unique_ptr<Mesh> cubeZ = std::make_unique<Mesh>(Utils::createCube(axisZ * cubeTL, cubeTR));
+    std::unique_ptr<Mesh> cubeX = std::make_unique<Mesh>(heds::createCube(axisX * cubeTL, cubeTR));
+    std::unique_ptr<Mesh> cubeY = std::make_unique<Mesh>(heds::createCube(axisY * cubeTL, cubeTR));
+    std::unique_ptr<Mesh> cubeZ = std::make_unique<Mesh>(heds::createCube(axisZ * cubeTL, cubeTR));
 
     arrowX->setMaterial(Settings::red);
     arrowY->setMaterial(Settings::green);
@@ -329,7 +329,7 @@ void View::decorateArrow(Manipulator& manipulator, glm::vec3 dir) const
 {
     using namespace Settings;
 
-    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(Utils::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs));
+    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs));
 
     mesh->setMaterial(Settings::blue);
     manipulator.attachMesh(std::move(mesh));

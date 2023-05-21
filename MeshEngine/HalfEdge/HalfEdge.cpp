@@ -1,6 +1,6 @@
 ﻿#include "HalfEdge.h"
 
-using namespace Utils;
+using namespace heds;
 
 /////////////////////// Actions
 
@@ -71,87 +71,31 @@ void HalfEdgeTable::connectTwins()
 {
     deleteFakeTwins();
 
-    HalfEdgeHandle heh_empty{ invalid };
-    std::vector<HalfEdgeHandle> notwins;
     std::map<std::pair<VertexHandle, VertexHandle>, HalfEdgeHandle> collection;
-    std::map<std::pair<VertexHandle, VertexHandle>, HalfEdgeHandle>::iterator it;
+    std::vector<HalfEdgeHandle> notwins;
 
     // Prepare data
     for (auto& he : m_halfEdges)
     {
-        if (he.twin == heh_empty)
+        if (he.twin.index == invalid)
             collection.emplace(std::pair<VertexHandle, VertexHandle>(he.dst, deref(he.prev).dst), handle(he));
     }
 
     // Connecting twins
     for (auto& he : m_halfEdges)
     {
-        it = collection.find(std::pair<VertexHandle, VertexHandle>(deref(he.prev).dst, he.dst));
+        auto twin = collection.find(std::pair<VertexHandle, VertexHandle>(deref(he.prev).dst, he.dst));
 
-        if (it != collection.end())
+        if (twin != collection.end())
         {
-            he.twin = it->second;
-            deref(it->second).twin = handle(he);
+            he.twin = twin->second;
+            deref(twin->second).twin = handle(he);
         }
         else
             notwins.push_back(handle(he));
     }
 
-    m_fakeTwins = m_halfEdges.size();
-
-    // Building fake twins
-    for (auto& boundary : notwins)
-    {
-        if (deref(boundary).twin != heh_empty)
-            continue;
-
-        int64_t check1 = invalid;
-        int64_t check2 = invalid;
-        int64_t added = m_halfEdges.size();
-        FaceHandle fh_empty{};
-        HalfEdgeHandle start_heh = boundary;
-        HalfEdgeHandle previus = prev(boundary);
-
-        deref(boundary).twin.index = added;  // Add twin to boundary
-        m_halfEdges.push_back({ fh_empty, destVertex(previus), boundary, added + 1, added - 1 });
-
-        while ((destVertex(previus) != destVertex(start_heh)) && (check1 < m_fakeTwins)) // visiting all the halfedges directed to a specified Vertex
-        {   // Ideally, the first condition should always be met, 
-            // but if the model is non-valid, then something can go wrong, so I introduced a spare
-            ++check1;
-            added = m_halfEdges.size();
-
-            while ((twin(previus) != heh_empty) && (check2 < m_fakeTwins)) // find while prev not boundary
-            {
-                ++check2;
-                boundary = twin(previus);
-                previus = prev(boundary);
-            }
-            check2 = invalid;
-
-            deref(previus).twin.index = added;
-            m_halfEdges.push_back({ fh_empty, destVertex(prev(previus)), previus, added + 1, added - 1 });
-
-            boundary = previus;
-            previus = prev(boundary);
-        }
-        check1 = invalid;
-
-        deref(HalfEdgeHandle{ added }).next = twin(start_heh); // Connect start with end
-        deref(twin(start_heh)).prev.index = added;
-    }
-}
-
-void HalfEdgeTable::deleteFakeTwins()
-{
-    if (m_fakeTwins != invalid) // there is no need to do anything
-    {
-        for (size_t i = m_fakeTwins; i < m_halfEdges.size(); ++m_fakeTwins)
-            deref(m_halfEdges[i].twin).twin = { invalid };
-
-        m_halfEdges.erase(m_halfEdges.begin() + static_cast<int64_t>(m_fakeTwins), m_halfEdges.end());
-        m_fakeTwins = invalid;
-    }
+    createFakeTwins(notwins);
 }
 
 void HalfEdgeTable::deleteFace(FaceHandle fh)
@@ -296,6 +240,72 @@ void HalfEdgeTable::deleteFace(FaceHandle fh)
         face.heh = mapping_halfEdges[face.heh.index];
 }
 
+void HalfEdgeTable::createFakeTwins(std::vector<HalfEdgeHandle>& halfEdges)
+{
+    m_fakeTwins = m_halfEdges.size();
+
+    // Building fake twins
+    for (auto& boundary : halfEdges)
+    {
+        if (deref(boundary).twin.index != invalid)
+            continue;
+
+        int64_t checksPrimary = invalid;
+        int64_t checksSecondary = invalid;
+        int64_t added = m_halfEdges.size();
+        FaceHandle fh_empty{};
+        HalfEdgeHandle start_heh = boundary;
+        HalfEdgeHandle previus = prev(boundary);
+
+        // Add twin to boundary
+        deref(boundary).twin.index = added;
+        m_halfEdges.push_back({ fh_empty, destVertex(previus), boundary, added + 1, added - 1 });
+
+        // Visiting all the half-edges directed to a specified Vertex
+        // Ideally, the first condition should always be met, but anyway i introduced a spare
+        while ((destVertex(previus) != destVertex(start_heh)) && (checksPrimary < m_fakeTwins))
+        {
+            added = m_halfEdges.size();
+
+            // Find while prev not boundary
+            while ((twin(previus).index != invalid) && (checksSecondary < m_fakeTwins))
+            {
+                boundary = twin(previus);
+                previus = prev(boundary);
+
+                ++checksSecondary;
+            }
+            checksSecondary = invalid;
+
+            deref(previus).twin.index = added;
+            m_halfEdges.push_back({ fh_empty, destVertex(prev(previus)), previus, added + 1, added - 1 });
+
+            boundary = previus;
+            previus = prev(boundary);
+
+            ++checksPrimary;
+        }
+        checksPrimary = invalid;
+
+        // Connect start with end
+        deref(HalfEdgeHandle{ added }).next = twin(start_heh);
+        deref(twin(start_heh)).prev.index = added;
+    }
+}
+
+void HalfEdgeTable::deleteFakeTwins()
+{
+    // there is no need to do anything
+    if (m_fakeTwins != invalid)
+    {
+        for (size_t i = m_fakeTwins; i < m_halfEdges.size(); ++m_fakeTwins)
+            deref(m_halfEdges[i].twin).twin = { invalid };
+
+        m_halfEdges.erase(m_halfEdges.begin() + static_cast<int64_t>(m_fakeTwins), m_halfEdges.end());
+        m_fakeTwins = invalid;
+    }
+}
+
 /////////////////////// Helpers
 
 HalfEdgeHandle HalfEdgeTable::prev(HalfEdgeHandle heh) const
@@ -417,19 +427,21 @@ const std::vector<HalfEdge>& HalfEdgeTable::getHalfEdges() const
     return m_halfEdges;
 }
 
-HalfEdgeTable Utils::createCube(glm::vec3 center, float length)
+/////////////////////// Sample creators
+
+HalfEdgeTable heds::createCube(glm::vec3 center, float length)
 {
-    Utils::HalfEdgeTable halfEdgeTable;
+    heds::HalfEdgeTable halfEdgeTable;
     float halfLength = length / 2;
 
-    Utils::VertexHandle vh0 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength, -halfLength } + center);
-    Utils::VertexHandle vh1 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength, -halfLength } + center);
-    Utils::VertexHandle vh2 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength, -halfLength } + center);
-    Utils::VertexHandle vh3 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength, -halfLength } + center);
-    Utils::VertexHandle vh4 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength,  halfLength } + center);
-    Utils::VertexHandle vh5 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength,  halfLength } + center);
-    Utils::VertexHandle vh6 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength,  halfLength } + center);
-    Utils::VertexHandle vh7 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength,  halfLength } + center);
+    heds::VertexHandle vh0 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength, -halfLength } + center);
+    heds::VertexHandle vh1 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength, -halfLength } + center);
+    heds::VertexHandle vh2 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength, -halfLength } + center);
+    heds::VertexHandle vh3 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength, -halfLength } + center);
+    heds::VertexHandle vh4 = halfEdgeTable.addVertex(glm::vec3{  halfLength,  halfLength,  halfLength } + center);
+    heds::VertexHandle vh5 = halfEdgeTable.addVertex(glm::vec3{  halfLength, -halfLength,  halfLength } + center);
+    heds::VertexHandle vh6 = halfEdgeTable.addVertex(glm::vec3{ -halfLength, -halfLength,  halfLength } + center);
+    heds::VertexHandle vh7 = halfEdgeTable.addVertex(glm::vec3{ -halfLength,  halfLength,  halfLength } + center);
 
     halfEdgeTable.addFace(vh0, vh1, vh2, vh3);
     halfEdgeTable.addFace(vh4, vh7, vh6, vh5);
@@ -443,13 +455,13 @@ HalfEdgeTable Utils::createCube(glm::vec3 center, float length)
     return halfEdgeTable;
 }
 
-HalfEdgeTable Utils::createCylinder(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+HalfEdgeTable heds::createCylinder(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -489,13 +501,13 @@ HalfEdgeTable Utils::createCylinder(glm::vec3 inDir, float R, float h, uint32_t 
     return table;
 }
 
-HalfEdgeTable Utils::createCone(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+HalfEdgeTable heds::createCone(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -530,13 +542,13 @@ HalfEdgeTable Utils::createCone(glm::vec3 inDir, float R, float h, uint32_t numS
     return table;
 }
 
-HalfEdgeTable Utils::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
+HalfEdgeTable heds::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
 {
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(majorSegments);
 
-    std::vector<Utils::VertexHandle> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable table;
 
     auto mainSegmentAngleStep = glm::radians(360.0f / segments);
     auto tubeSegmentAngleStep = glm::radians(360.0f / segments);
@@ -605,26 +617,26 @@ HalfEdgeTable Utils::createTorus(glm::vec3 inDir, float minorRadius, float major
     return table;
 }
 
-HalfEdgeTable Utils::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
+HalfEdgeTable heds::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
 {
-    auto table1 = Utils::createCone(inDir, R1, h1, numSubdivisions);
-    auto table2 = Utils::createCylinder(inDir, R2, h2, numSubdivisions);
+    auto table1 = heds::createCone(inDir, R1, h1, numSubdivisions);
+    auto table2 = heds::createCylinder(inDir, R2, h2, numSubdivisions);
 
     glm::vec3 delta = inDir * h2;
 
     for (auto& face : table1.getFaces())
     {
-        Utils::HalfEdgeHandle heh0 = face.heh;
-        Utils::HalfEdgeHandle heh1 = table1.next(heh0);
-        Utils::HalfEdgeHandle heh2 = table1.next(heh1);
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = table1.next(heh0);
+        heds::HalfEdgeHandle heh2 = table1.next(heh1);
 
         glm::vec3 vec0{ table1.getEndPoint(heh0) }; vec0 += delta;
         glm::vec3 vec1{ table1.getEndPoint(heh1) }; vec1 += delta;
         glm::vec3 vec2{ table1.getEndPoint(heh2) }; vec2 += delta;
 
-        Utils::VertexHandle v0 = table2.addVertex(vec0);
-        Utils::VertexHandle v1 = table2.addVertex(vec1);
-        Utils::VertexHandle v2 = table2.addVertex(vec2);
+        heds::VertexHandle v0 = table2.addVertex(vec0);
+        heds::VertexHandle v1 = table2.addVertex(vec1);
+        heds::VertexHandle v2 = table2.addVertex(vec2);
 
         table2.addFace(v0, v1, v2);
     }
@@ -634,7 +646,7 @@ HalfEdgeTable Utils::createArrow(glm::vec3 inDir, float R1, float h1, float R2, 
     return table2;
 }
 
-HalfEdgeTable Utils::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
+HalfEdgeTable heds::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     int segments = glm::sqrt(numSubdivisions);
@@ -644,8 +656,8 @@ HalfEdgeTable Utils::createPlane(glm::vec3 inDir, float width, float heigth, uin
     float halfHeight = heigth / 2;
     float cx = 0.0f, cy = 0.0f, cz = 0.0f; 
 
-    std::vector<std::vector<Utils::VertexHandle>> vertices;
-    Utils::HalfEdgeTable table;
+    std::vector<std::vector<heds::VertexHandle>> vertices;
+    heds::HalfEdgeTable table;
 
     for (float i = -halfWidth; i <= halfWidth; i += stepW)
     {
