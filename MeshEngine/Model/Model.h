@@ -30,6 +30,6 @@ public:
 
 private:
     std::vector<std::unique_ptr<Node>> m_nodes;
-    std::string m_name;
+    std::string m_name = "Model";
 };
 

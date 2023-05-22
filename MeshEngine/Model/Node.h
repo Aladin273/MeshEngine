@@ -49,7 +49,7 @@ public:
     }
 
 protected:
-    std::string m_name = "node";
+    std::string m_name = "Node";
     glm::mat4 m_transform = glm::mat4(1.0f);
 
     Node* m_parent = nullptr;
