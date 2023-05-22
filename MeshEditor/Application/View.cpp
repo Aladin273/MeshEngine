@@ -58,8 +58,7 @@ void View::update()
 {
     std::vector<Node*> postRender;
 
-    m_renderSystem->clearDisplay(Settings::gray.r, Settings::gray.g, Settings::gray.b);
-    m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
+    m_renderSystem->clearDisplay(Settings::colorBackground.r, Settings::colorBackground.g, Settings::colorBackground.b, Settings::colorBackground.a);
     m_renderSystem->setViewMatrix(m_viewport.getCamera().calcViewMatrix());
     m_renderSystem->setProjMatrix(m_viewport.calcProjectionMatrix());
 

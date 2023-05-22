@@ -61,9 +61,14 @@ namespace Settings
     const uint32_t numSubs = 64;
 
     // Colors
-    const glm::vec4 gray = { 0.5f, 0.5f, 0.5f, 1.0f};
-    const glm::vec4 white = { 1.0f, 1.0f, 1.0f, 1.0f};
-    const glm::vec4 black = { 0.0f, 0.0f, 0.0f, 1.0f};
+    const glm::vec4 colorBackground = { 0.5f, 0.5f, 0.5f, 0.5f };
+    const glm::vec4 colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f};
+    const glm::vec4 colorGray = { 0.5f, 0.5f, 0.5f, 1.0f};
+    const glm::vec4 colorBlack = { 0.0f, 0.0f, 0.0f, 1.0f};
+
+    const glm::vec4 colorRed = { 1.0f, 0.0f, 0.0f, 0.5f };
+    const glm::vec4 colorGreen = { 0.0f, 1.0f, 0.0f, 0.5f };
+    const glm::vec4 colorBlue = { 0.0f, 0.0f, 1.0f, 0.5f };
 
     // Materials
     const Material ruby{ glm::vec3(1.07, 0.01, 0.01), glm::vec4(0.61, 0.04, 0.04, 0.85), glm::vec3(0.72, 0.62, 0.62), glm::vec3(0.0), 75.f };

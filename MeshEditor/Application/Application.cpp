@@ -136,15 +136,13 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             {
                 view.getModel()->processRecursive([](Node& node)
                     {
-                        if (node.getMesh()->getColorLines() == Settings::white)
+                        if (node.getMesh()->colorLines == Settings::colorWhite)
                         {
-                            node.getMesh()->setColorLines(Settings::black);
-                            node.getMesh()->updateLines();
+                            node.getMesh()->colorLines = Settings::colorBlack;
                         }
                         else
                         {
-                            node.getMesh()->setColorLines(Settings::white);
-                            node.getMesh()->updateLines();
+                            node.getMesh()->colorLines = Settings::colorWhite;
                         }
                     });;
             }
@@ -171,8 +169,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             {
                 view.getModel()->processRecursive([](Node& node)
                     {
-                        node.getMesh()->setDrawHoles(!node.getMesh()->getDrawHoles());
-                        node.getMesh()->updateHoles();
+                        node.getMesh()->renderHoles = !node.getMesh()->renderHoles;
                     });
             }
         });
@@ -183,8 +180,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             {
                 view.getModel()->processRecursive([](Node& node)
                     {
-                        node.getMesh()->setDrawLines(!node.getMesh()->getDrawLines());
-                        node.getMesh()->updateLines();
+                        node.getMesh()->renderLines = !node.getMesh()->renderLines;
                     });
             }
         });
@@ -195,8 +191,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             {
                 view.getModel()->processRecursive([](Node& node)
                     {
-                        node.getMesh()->setDrawTriangles(!node.getMesh()->getDrawTriangles());
-                        node.getMesh()->updateTriangles();
+                        node.getMesh()->renderTriangles = !node.getMesh()->renderTriangles;
                     });
             }
         });
@@ -207,8 +202,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             {
                 view.getModel()->processRecursive([](Node& node)
                     {
-                        node.getMesh()->setDrawBoundaries(!node.getMesh()->getDrawBoundaries());
-                        node.getMesh()->updateBoundaryFaces();;
+                        node.getMesh()->renderBoundaries = !node.getMesh()->renderBoundaries;
                     });
             }
         });
@@ -226,34 +220,21 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
                         view.getViewport().calcTargetPlaneWidth(), view.getViewport().calcTargetPlaneWidth(), Settings::plane));
                     
                     plane->attachMesh(std::move(mesh));
-                    plane->getMesh()->setColorLines(Settings::white);
-                    plane->getMesh()->setDrawTriangles(false);
-                    plane->getMesh()->setDrawLines(true);
-                    plane->getMesh()->updateLines();
+                    plane->getMesh()->colorLines = Settings::colorWhite;
+                    plane->getMesh()->renderTriangles = false;
+                    plane->getMesh()->renderLines = true;
                     ++state;
                 }
                 else if (state == 1)
                 {
-                    plane->getMesh()->setColorLines(Settings::black);
-                    plane->getMesh()->updateLines();
+                    plane->getMesh()->colorLines = Settings::colorBlack;
                     ++state;
                 }
                 else
                 {
-                    plane->getMesh()->setDrawLines(false);
+                    plane->getMesh()->renderLines = false;
                     state = 0;
                 }
-            }
-        });
-
-    m_views.back()->addOperator(KeyCode::U, [](View& view, Action action, Modifier mods)
-        {
-            if (action == Action::Press)
-            {
-                view.getModel()->processRecursive([](Node& node)
-                    {
-                        node.getMesh()->update();
-                    });;
             }
         });
 
