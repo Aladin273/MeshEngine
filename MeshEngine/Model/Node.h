@@ -16,13 +16,13 @@ public:
     Node();
     virtual ~Node();
 
-    void setName(const std::string& inName);
+    void setName(const std::string& name);
     const std::string& getName() const;
 
-    void attachMesh(std::unique_ptr<Mesh> inMesh);
+    void attachMesh(std::unique_ptr<Mesh> mesh);
     Mesh* getMesh() const;
 
-    void setParent(Node* inParent);
+    void setParent(Node* parent);
     Node* getParent() const;
 
     void setRelativeTransform(const glm::mat4& trf);
@@ -34,7 +34,7 @@ public:
 
     glm::mat4 calcAbsoluteTransform() const;
 
-    void attachNode(std::unique_ptr<Node> newNode);
+    void attachNode(std::unique_ptr<Node> node);
     void deleteFromParent();
 
     template<class Lambda>
@@ -42,7 +42,7 @@ public:
     {
         lambda(*this);
 
-        for (auto& child : m_childs)
+        for (auto& child : m_children)
         {
             child->processRecursive(lambda);
         }
@@ -54,5 +54,5 @@ protected:
 
     Node* m_parent = nullptr;
     std::unique_ptr<Mesh> m_mesh;
-    std::vector<std::unique_ptr<Node>> m_childs;
+    std::vector<std::unique_ptr<Node>> m_children;
 };
