@@ -427,6 +427,3 @@ FodyWeavers.xsd
 *.stl
 *.dae
 
-# Artifacts
-
-!glfw3.lib

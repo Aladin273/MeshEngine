@@ -9,9 +9,9 @@ Node::~Node()
 {
 }
 
-void Node::setName(const std::string& inName)
+void Node::setName(const std::string& name)
 {
-    m_name = inName;
+    m_name = name;
 }
 
 const std::string& Node::getName() const
@@ -19,9 +19,9 @@ const std::string& Node::getName() const
     return m_name;
 }
 
-void Node::attachMesh(std::unique_ptr<Mesh> inMesh)
+void Node::attachMesh(std::unique_ptr<Mesh> mesh)
 {
-    m_mesh = std::move(inMesh);
+    m_mesh = std::move(mesh);
 }
 
 Mesh* Node::getMesh() const
@@ -29,9 +29,9 @@ Mesh* Node::getMesh() const
     return m_mesh.get();
 }
 
-void Node::setParent(Node* inParent)
+void Node::setParent(Node* parent)
 {
-    m_parent = inParent;
+    m_parent = parent;
 }
 
 Node* Node::getParent() const
@@ -56,7 +56,7 @@ void Node::applyRelativeTransform(const glm::mat4& trf)
 
 const std::vector<std::unique_ptr<Node>>& Node::getChildren() const
 {
-    return m_childs;
+    return m_children;
 }
 
 glm::mat4 Node::calcAbsoluteTransform() const
@@ -73,22 +73,22 @@ glm::mat4 Node::calcAbsoluteTransform() const
     return absolute;
 }
 
-void Node::attachNode(std::unique_ptr<Node> newNode)
+void Node::attachNode(std::unique_ptr<Node> node)
 {
-    if (newNode->getParent() != nullptr)
+    if (node->getParent() != nullptr)
         throw;
 
-    newNode->setParent(this);
-    m_childs.push_back(std::move(newNode));
+    node->setParent(this);
+    m_children.push_back(std::move(node));
 }
 
 void Node::deleteFromParent()
 {
     if (m_parent)
     {
-        m_parent->m_childs.erase(std::find_if(m_parent->m_childs.begin(), m_parent->m_childs.end(), [&](std::unique_ptr<Node>& node)
-            {
-                return node.get() == this;
-            }));
+        m_parent->m_children.erase(std::find_if(m_parent->m_children.begin(), m_parent->m_children.end(), [&](std::unique_ptr<Node>& node)
+        {
+            return node.get() == this;
+        }));
     }
 }
