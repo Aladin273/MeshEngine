@@ -8,7 +8,7 @@ Filling holes
 
 Review 3 and 4 faces rendering support
 Optimize rendering data for moving vertices, faces
-Optimize rendering data by pointers, templates
+Optimize rendering data by pointers, templates, indices
 -------------------------------------------------------------------------------
 Lab4
 -------------------------------------------------------------------------------
@@ -92,6 +92,7 @@ Split Operator
 Plans
 -------------------------------------------------------------------------------
 Roadmaps
+Shaders
 Scene
 Terrain
 Texture

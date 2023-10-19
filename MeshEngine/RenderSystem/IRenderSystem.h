@@ -49,11 +49,21 @@ public:
     virtual void renderQuads(const std::vector<Vertex>& vertices, glm::vec4 color) = 0;
     virtual void renderPolygons(const std::vector<Vertex>& vertices) = 0;
     virtual void renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color) = 0;
-    
     virtual void renderPoints(const std::vector<Vertex>& vertices, float size = -1.0f) = 0;
     virtual void renderPoints(const std::vector<Vertex>& vertices, glm::vec4 color, float size = -1.0f) = 0;
     virtual void renderLines(const std::vector<Vertex>& vertices, float size = -1.0f) = 0;
     virtual void renderLines(const std::vector<Vertex>& vertices, glm::vec4 color, float size = -1.0f) = 0;
+
+    virtual void renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
+    virtual void renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) = 0;
+    virtual void renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
+    virtual void renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) = 0;
+    virtual void renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
+    virtual void renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) = 0;
+    virtual void renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size = -1.0f) = 0;
+    virtual void renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size = -1.0f) = 0;
+    virtual void renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size = -1.0f) = 0;
+    virtual void renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size = -1.0f) = 0;
 
     virtual void setupMaterial(const Material& material, Face face = Face::Front) = 0;
     virtual void setupLightDir(uint32_t index, glm::vec3 position, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is) = 0;

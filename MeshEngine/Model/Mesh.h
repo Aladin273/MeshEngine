@@ -62,4 +62,11 @@ private:
     std::vector<Vertex> m_triangles;
     std::vector<Vertex> m_boundaries;
     std::vector<Vertex> m_bboxData;
+
+    std::vector<Vertex> m_vertices;
+    std::vector<uint32_t> m_linesIndices;
+    std::vector<uint32_t> m_holesIndices;
+    std::vector<uint32_t> m_trianglesIndices;
+    std::vector<uint32_t> m_boundariesIndices;
+    std::vector<uint32_t> m_bboxDataIndices;
 };

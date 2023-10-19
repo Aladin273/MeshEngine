@@ -206,6 +206,14 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
         }
     });
 
+    m_views.back()->addOperator(KeyCode::O, [](View& view, Action action, Modifier mods)
+    {
+        if (action == Action::Press)
+        {
+            view.m_renderSystem->setSmooth(!view.m_renderSystem->getSmooth());
+        }
+    });
+
     m_views.back()->addOperator(KeyCode::P, [](View& view, Action action, Modifier mods)
     {
         if (action == Action::Press)

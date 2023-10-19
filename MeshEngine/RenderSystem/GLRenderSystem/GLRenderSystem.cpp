@@ -186,6 +186,146 @@ void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, glm::vec4 
     glLineWidth(m_lineSize);
 }
 
+void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+{
+    glBegin(GL_TRIANGLES);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(vertices[index].color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color)
+{
+    glBegin(GL_TRIANGLES);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+{
+    glBegin(GL_QUADS);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(vertices[index].color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color)
+{
+    glBegin(GL_QUADS);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+{
+    glBegin(GL_TRIANGLE_STRIP);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(vertices[index].color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color)
+{
+    glBegin(GL_TRIANGLE_STRIP);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+}
+
+void GLRenderSystem::renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size)
+{
+    if (size >= 0.0)
+        glPointSize(size);
+
+    glBegin(GL_POINTS);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(vertices[index].color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+
+    glPointSize(m_pointSize);
+}
+
+void GLRenderSystem::renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size)
+{
+    if (size >= 0.0)
+        glPointSize(size);
+
+    glBegin(GL_POINTS);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+
+    glPointSize(m_pointSize);
+}
+
+void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size)
+{
+    if (size >= 0.0)
+        glLineWidth(size);
+
+    glBegin(GL_LINES);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(vertices[index].color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+
+    glLineWidth(m_lineSize);
+}
+
+void GLRenderSystem::renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size)
+{
+    if (size >= 0.0)
+        glLineWidth(size);
+
+    glBegin(GL_LINES);
+    for (const auto& index : indices)
+    {
+        glColor4fv(glm::value_ptr(color));
+        glNormal3fv(glm::value_ptr(vertices[index].normal));
+        glVertex3fv(glm::value_ptr(vertices[index].position));
+    }
+    glEnd();
+
+    glLineWidth(m_lineSize);
+}
+
 void GLRenderSystem::setupMaterial(const Material& material, Face face)
 {
     int faceIndex = static_cast<int>(face);

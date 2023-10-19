@@ -22,11 +22,21 @@ public:
     void renderQuads(const std::vector<Vertex>& vertices, glm::vec4 color) override;
     void renderPolygons(const std::vector<Vertex>& vertices) override;
     void renderPolygons(const std::vector<Vertex>& vertices, glm::vec4 color) override;
-    
     void renderPoints(const std::vector<Vertex>& vertices, float size = -1.0f) override;
     void renderPoints(const std::vector<Vertex>& vertices, glm::vec4 color, float size = -1.0f) override;
     void renderLines(const std::vector<Vertex>& vertices, float size = -1.0f) override;
     void renderLines(const std::vector<Vertex>& vertices, glm::vec4 color, float size = -1.0f) override;
+
+    void renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) override;
+    void renderTriangles(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) override;
+    void renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) override;
+    void renderQuads(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) override;
+    void renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) override;
+    void renderPolygons(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color) override;
+    void renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size = -1.0f) override;
+    void renderPoints(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size = -1.0f) override;
+    void renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, float size = -1.0f) override;
+    void renderLines(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, glm::vec4 color, float size = -1.0f) override;
 
     void setupMaterial(const Material& material, Face face = Face::Front) override;
     void setupLightDir(uint32_t index, glm::vec3 position, glm::vec3 Ia, glm::vec3 Id, glm::vec3 Is) override;

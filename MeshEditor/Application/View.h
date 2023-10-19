@@ -54,13 +54,13 @@ public:
     Node* getPlane();
     const Node* getPlane() const;
 
+    IRenderSystem* m_renderSystem = nullptr;
 private:
     std::unique_ptr<Node> m_plane;
 
     Model* m_model = nullptr;
     Viewport m_viewport;
 
-    IRenderSystem* m_renderSystem = nullptr;
     std::unique_ptr<IWindow> m_window;
 
     OperatorDispatcher m_operatorDispatcher;
