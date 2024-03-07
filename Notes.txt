@@ -88,6 +88,9 @@ Delete Operator
 Unite Operator
 Divide Operator
 Split Operator
+
+NodeComponent, RenderComponent
+Properties, RenderSystem, Shader, Parse
 -------------------------------------------------------------------------------
 Plans
 -------------------------------------------------------------------------------
