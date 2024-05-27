@@ -3,8 +3,8 @@
 #include <set>
 #include <string>
 
-#include "RenderSystem/IRenderSystem.h"
-#include "HalfEdge/HalfEdge.h"
+#include "MeshEngine/RenderSystem/RenderSystem.h"
+#include "MeshEngine/HalfEdge/HalfEdge.h"
 
 struct bbox
 {
@@ -31,7 +31,7 @@ public:
     Mesh(const heds::HalfEdgeTable& halfEdgeTable);
     Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material);
 
-    void render(IRenderSystem& rs);
+    void render(RenderSystem& rs);
 
     void applyTransformation(heds::FaceHandle fh, const glm::mat4& trf);
     void applyTransformation(heds::VertexHandle fh, const glm::mat4& trf);

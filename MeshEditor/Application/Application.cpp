@@ -277,17 +277,17 @@ void Application::run()
     }
 }
 
-IWindow* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
+Window* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
 {;
     return MeshEngine::createWindow(title, width, height);
 }
 
-IGuiSystem* Application::createGuiSystem(IWindow* window)
+GuiSystem* Application::createGuiSystem(Window* window)
 {;
     return MeshEngine::createGuiSystem(window);
 }
 
-IRenderSystem* Application::createRenderSystem()
+RenderSystem* Application::createRenderSystem()
 {;
     return MeshEngine::createRenderSystem();
 }

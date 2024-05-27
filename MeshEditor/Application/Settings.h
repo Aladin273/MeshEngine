@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ThirdParty/glm/vec3.hpp>
-#include <ThirdParty/glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Settings
 {
@@ -87,20 +87,20 @@ namespace Settings
     const Material yellow{ glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
 
     // Models
-    const std::string model1 = "../Data/Cube.stl";
-    const std::string model2 = "../Data/Sphere.stl";
-    const std::string model3 = "../Data/Rhino.stl";
-    const std::string model4 = "../Data/RhinoHoles.stl";
-    const std::string model5 = "../Data/PudgeBig.stl";
-    const std::string model6 = "../Data/Torus.stl";
+    const std::string model1 = "Cube.stl";
+    const std::string model2 = "Sphere.stl";
+    const std::string model3 = "Rhino.stl";
+    const std::string model4 = "RhinoHoles.stl";
+    const std::string model5 = "PudgeBig.stl";
+    const std::string model6 = "Torus.stl";
 
-    const std::string model7 = "../Data/Cube.dae";
-    const std::string model8 = "../Data/Sphere.dae";
-    const std::string model9 = "../Data/M4A1.dae";
-    const std::string model10 = "../Data/Duck.dae";
-    const std::string model11 = "../Data/Sword.dae";
-    const std::string model12 = "../Data/Cat.dae";
-    const std::string model13 = "../Data/CubeTree.dae";
+    const std::string model7 = "Cube.dae";
+    const std::string model8 = "Sphere.dae";
+    const std::string model9 = "M4A1.dae";
+    const std::string model10 = "Duck.dae";
+    const std::string model11 = "Sword.dae";
+    const std::string model12 = "Cat.dae";
+    const std::string model13 = "CubeTree.dae";
 
     // Application
     const std::string title = "MeshEditor";

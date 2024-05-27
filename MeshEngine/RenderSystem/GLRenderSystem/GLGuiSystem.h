@@ -1,19 +1,21 @@
+/*
+
 #pragma once
 
 #include <map>
 
-//#include "ThirdParty/glfw/glfw3.h"
-//#include "ThirdParty/imgui/imgui.h"
-//#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
-//#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
+#include "ThirdParty/glfw/glfw3.h"
+#include "ThirdParty/imgui/imgui.h"
+#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
+#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
 
-#include "RenderSystem/IWindow.h"
-#include "RenderSystem/IGuiSystem.h"
+#include "RenderSystem/Window.h"
+#include "RenderSystem/GuiSystem.h"
 
-class GLGuiSystem : public IGuiSystem
+class GLGuiSystem : public GuiSystem
 {
 public:
-    GLGuiSystem(IWindow* window);
+    GLGuiSystem(Window* window);
     virtual ~GLGuiSystem();
 
     void init() override;
@@ -35,7 +37,8 @@ public:
     bool wantCapture() override;
 
 private:
-    IWindow* m_window;
+    Window* m_window;
     std::map<uint32_t, IGuiLayer*> m_layers;
 };
 
+*/

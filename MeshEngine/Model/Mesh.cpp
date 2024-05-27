@@ -12,7 +12,7 @@ Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material)
     update();
 }
 
-void Mesh::render(IRenderSystem& rs)
+void Mesh::render(RenderSystem& rs)
 {
     if (renderTriangles)
     {

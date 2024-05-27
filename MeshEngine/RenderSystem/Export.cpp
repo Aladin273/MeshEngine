@@ -6,17 +6,17 @@
 
 #ifdef OGL_RENDER_SYSTEM_API_DLL
 
-__declspec(dllimport) IRenderSystem* createRenderSystem()
+__declspec(dllimport) RenderSystem* createRenderSystem()
 {
     return new GLRenderSystem();
 }
 
-__declspec(dllimport) IGuiSystem* createGuiSystem(IWindow* window)
+__declspec(dllimport) GuiSystem* createGuiSystem(Window* window)
 {
     return new GLGuiSystem(window);
 }
 
-__declspec(dllimport) IWindow* createWindow(const std::string& title, uint32_t width, uint32_t height)
+__declspec(dllimport) Window* createWindow(const std::string& title, uint32_t width, uint32_t height)
 {
     return new GLWindow(title, width, height);
 }
@@ -31,12 +31,12 @@ __declspec(dllimport) void pollEvents()
     glfwPollEvents();
 }
 
-__declspec(dllimport) void swapDisplayBuffers(IWindow* window)
+__declspec(dllimport) void swapDisplayBuffers(Window* window)
 {
     glfwSwapBuffers(reinterpret_cast<GLFWwindow*>(window->getHandle()));
 }
 
-__declspec(dllimport) bool windowShouldClose(IWindow* window)
+__declspec(dllimport) bool windowShouldClose(Window* window)
 {
     return glfwWindowShouldClose(reinterpret_cast<GLFWwindow*>(window->getHandle()));
 }
@@ -45,17 +45,18 @@ __declspec(dllimport) bool windowShouldClose(IWindow* window)
 
 #ifdef OGL_RENDER_SYSTEM_API_STATIC
 
-IRenderSystem* MeshEngine::createRenderSystem()
+RenderSystem* MeshEngine::createRenderSystem()
 {
     return new GLRenderSystem();
 }
 
-IGuiSystem* MeshEngine::createGuiSystem(IWindow* window)
+GuiSystem* MeshEngine::createGuiSystem(Window* window)
 {
-    return new GLGuiSystem(window);
+    return nullptr;
+    //return new GLGuiSystem(window);
 }
 
-IWindow* MeshEngine::createWindow(const std::string& title, uint32_t width, uint32_t height)
+Window* MeshEngine::createWindow(const std::string& title, uint32_t width, uint32_t height)
 {
     return new GLWindow(title, width, height);
 }
@@ -70,12 +71,12 @@ void MeshEngine::pollEvents()
     glfwPollEvents();
 }
 
-void MeshEngine::swapDisplayBuffers(IWindow* window)
+void MeshEngine::swapDisplayBuffers(Window* window)
 {
     glfwSwapBuffers(reinterpret_cast<GLFWwindow*>(window->getHandle()));
 }
 
-bool MeshEngine::windowShouldClose(IWindow* window)
+bool MeshEngine::windowShouldClose(Window* window)
 {
     return glfwWindowShouldClose(reinterpret_cast<GLFWwindow*>(window->getHandle()));
 }

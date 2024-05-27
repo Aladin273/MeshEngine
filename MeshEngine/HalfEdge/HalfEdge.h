@@ -3,9 +3,9 @@
 #include <vector>
 #include <map>
 
-#include "ThirdParty/glm/glm.hpp"
-#include "ThirdParty/glm/gtc/constants.hpp"
-#include "ThirdParty/glm/gtx/transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace heds
 {

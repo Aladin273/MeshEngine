@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ThirdParty/glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace glm
 {

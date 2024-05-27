@@ -5,9 +5,9 @@
 #include <string>
 #include <algorithm>
 
-#include "MeshEngine/RenderSystem/IWindow.h"
-#include "MeshEngine/RenderSystem/IGuiSystem.h"
-#include "MeshEngine/RenderSystem/IRenderSystem.h"
+#include "MeshEngine/RenderSystem/Window.h"
+#include "MeshEngine/RenderSystem/GuiSystem.h"
+#include "MeshEngine/RenderSystem/RenderSystem.h"
 
 #include "MeshEngine/Viewport/Viewport.h"
 #include "MeshEngine/Model/Model.h"
@@ -20,7 +20,7 @@
 class View
 {
 public:
-    View(IRenderSystem* rs, const std::string& title, uint32_t width, uint32_t height);
+    View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height);
     ~View();
 
     void update();
@@ -48,8 +48,8 @@ public:
     Viewport& getViewport();
     const Viewport& getViewport() const;
 
-    IWindow* getWindow();
-    const IWindow* getWindow() const;
+    Window* getWindow();
+    const Window* getWindow() const;
 
     Node* getPlane();
     const Node* getPlane() const;
@@ -60,8 +60,8 @@ private:
     Model* m_model = nullptr;
     Viewport m_viewport;
 
-    IRenderSystem* m_renderSystem = nullptr;
-    std::unique_ptr<IWindow> m_window;
+    RenderSystem* m_renderSystem = nullptr;
+    std::unique_ptr<Window> m_window;
 
     OperatorDispatcher m_operatorDispatcher;
 };

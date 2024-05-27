@@ -9,12 +9,12 @@
 #include "MeshEngine/Parsers/STLParser.h"
 #include "MeshEngine/Model/Model.h"
 
-#include "Operators/View/Pan.h"
-#include "Operators/View/Arcball.h"
-#include "Operators/Edit/EditNodeOperator.h"
-#include "Operators/Edit/EditFaceOperator.h"
-#include "Operators/Edit/EditVertexOperator.h"
-#include "Operators/Delete/DeleteFaceOperator.h"
+#include "../Operators/View/Pan.h"
+#include "../Operators/View/Arcball.h"
+#include "../Operators/Edit/EditNodeOperator.h"
+#include "../Operators/Edit/EditFaceOperator.h"
+#include "../Operators/Edit/EditVertexOperator.h"
+#include "../Operators/Delete/DeleteFaceOperator.h"
 
 #include "Settings.h"
 #include "View.h"
@@ -29,9 +29,9 @@ public:
 
     void run();
 
-    IWindow* createWindow(const std::string&, uint32_t, uint32_t);
-    IGuiSystem* createGuiSystem(IWindow*);
-    IRenderSystem* createRenderSystem();
+    Window* createWindow(const std::string&, uint32_t, uint32_t);
+    GuiSystem* createGuiSystem(Window*);
+    RenderSystem* createRenderSystem();
 
     static Application* instance();
 
@@ -41,7 +41,7 @@ private:
     Application(Application& other) = delete;
     void operator=(const Application&) = delete;
 
-    std::unique_ptr<IRenderSystem> m_renderSystem;
+    std::unique_ptr<RenderSystem> m_renderSystem;
     std::vector<std::unique_ptr<View>> m_views;
 
     STLParser m_stl;
@@ -49,7 +49,7 @@ private:
 
     std::function<void()> m_waitEvents;
     std::function<void()> m_pollEvents;
-    std::function<void(IWindow*)> m_swapDisplayBuffers;
-    std::function<bool(IWindow*)> m_windowShouldClose;
+    std::function<void(Window*)> m_swapDisplayBuffers;
+    std::function<bool(Window*)> m_windowShouldClose;
 };
 

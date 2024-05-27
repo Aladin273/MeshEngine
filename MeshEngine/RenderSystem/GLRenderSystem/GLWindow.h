@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ThirdParty/glad/glad.h"
-#include "ThirdParty/glfw/glfw3.h"
+#include <glad/gl.h>
+#include <glfw/glfw3.h>
 
-#include "RenderSystem/IWindow.h"
+#include "MeshEngine/RenderSystem/Window.h"
 
-class GLWindow : public IWindow
+class GLWindow : public Window
 {
 public:
     GLWindow(const std::string& title, uint32_t width, uint32_t height);

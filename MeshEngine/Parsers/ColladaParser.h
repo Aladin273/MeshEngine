@@ -6,8 +6,8 @@
 #include <memory>
 #include <functional>
 
-#include "ThirdParty/tinyxml2/tinyxml2.h"
-#include "Model/Model.h"
+#include <tinyxml2/tinyxml2.h>
+#include "MeshEngine/Model/Model.h"
 
 class ColladaParser
 {

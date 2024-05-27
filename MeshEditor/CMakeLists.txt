@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.10)
+project(MeshEditor)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(MESH_EDITOR_HEADERS
+    Application/Application.h
+    Application/View.h
+    Application/Settings.h
+
+    Operators/Contact.h
+    Operators/Operator.h
+    Operators/OperatorDispatcher.h
+
+    Operators/Delete/DeleteFaceOperator.h
+    Operators/Delete/DeleteFaceOperator.cpp
+
+    Operators/Edit/EditFaceOperator.cpp
+    Operators/Edit/EditFaceOperator.h
+    Operators/Edit/EditNodeOperator.cpp
+    Operators/Edit/EditNodeOperator.h
+    Operators/Edit/EditVertexOperator.cpp
+    Operators/Edit/EditVertexOperator.h
+
+    Operators/View/Arcball.cpp
+    Operators/View/Arcball.h
+    Operators/View/Pan.cpp
+    Operators/View/Pan.h
+)
+
+set(MESH_EDITOR_SOURCES
+    Application/Application.cpp
+    Application/View.cpp
+    
+    Operators/OperatorDispatcher.cpp
+    
+    Main.cpp
+)
+
+add_compile_definitions(DATA_PATH="../../../Data/")
+add_compile_definitions(SHADERS_PATH="../../../Shaders/")
+
+add_executable(MeshEditor ${MESH_EDITOR_HEADERS} ${MESH_EDITOR_SOURCES})
+target_link_libraries(MeshEditor PRIVATE MeshEngine)
+
+if (${SHIPPING_MODE})
+    add_compile_definitions(DATA_PATH="Data/")
+    add_compile_definitions(SHADERS_PATH="Shaders/")
+
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/"Data/" ${CMAKE_CURRENT_BINARY_DIR}/"Data/")
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/"Shaders/" ${CMAKE_CURRENT_BINARY_DIR}/"Shaders/")
+
+    if (WIN32)
+        target_link_options(MeshEditor PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
+    else()
+        target_link_options(MeshEditor PRIVATE "-mwindows")
+    endif()
+endif()

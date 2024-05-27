@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "IWindow.h"
-#include "IGuiSystem.h"
-#include "IRenderSystem.h"
+#include "Window.h"
+#include "GuiSystem.h"
+#include "RenderSystem.h"
 
 #ifndef OGL_RENDER_SYSTEM_EXPORT_DLL
 #define OGL_RENDER_SYSTEM_EXPORT_STATIC
@@ -22,25 +22,25 @@ namespace MeshEngine
 {
     #ifdef OGL_RENDER_SYSTEM_API_DLL
 
-        extern "C" __declspec(dllimport) IRenderSystem * createRenderSystem();
-        extern "C" __declspec(dllimport) IGuiSystem * createGuiSystem(IWindow * window);
-        extern "C" __declspec(dllimport) IWindow * createWindow(const std::string & title, uint32_t width, uint32_t height);
+        extern "C" __declspec(dllimport) RenderSystem* createRenderSystem();
+        extern "C" __declspec(dllimport) GuiSystem* createGuiSystem(Window* window);
+        extern "C" __declspec(dllimport) Window* createWindow(const std::string& title, uint32_t width, uint32_t height);
         extern "C" __declspec(dllimport) void waitEvents();
         extern "C" __declspec(dllimport) void pollEvents();
-        extern "C" __declspec(dllimport) void swapDisplayBuffers(IWindow * window);
-        extern "C" __declspec(dllimport) bool windowShouldClose(IWindow * window);
+        extern "C" __declspec(dllimport) void swapDisplayBuffers(Window* window);
+        extern "C" __declspec(dllimport) bool windowShouldClose(Window* window);
 
     #endif
     
     #ifdef OGL_RENDER_SYSTEM_API_STATIC
 
-        IRenderSystem* createRenderSystem();
-        IGuiSystem* createGuiSystem(IWindow* window);
-        IWindow* createWindow(const std::string& title, uint32_t width, uint32_t height);
+        RenderSystem* createRenderSystem();
+        GuiSystem* createGuiSystem(Window* window);
+        Window* createWindow(const std::string& title, uint32_t width, uint32_t height);
         void waitEvents();
         void pollEvents();
-        void swapDisplayBuffers(IWindow* window);
-        bool windowShouldClose(IWindow* window);
+        void swapDisplayBuffers(Window* window);
+        bool windowShouldClose(Window* window);
 
     #endif
 }

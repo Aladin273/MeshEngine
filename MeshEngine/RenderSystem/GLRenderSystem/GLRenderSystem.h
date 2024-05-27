@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ThirdParty/glad/glad.h"
-#include "ThirdParty/glm/gtc/type_ptr.hpp"
+#include <glad/gl.h>
+#include <glm/gtc/type_ptr.hpp>
 
-#include "RenderSystem/IRenderSystem.h"
+#include "MeshEngine/RenderSystem/RenderSystem.h"
 
-class GLRenderSystem : public IRenderSystem
+class GLRenderSystem : public RenderSystem
 {
 public:
     virtual ~GLRenderSystem();

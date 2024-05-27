@@ -2,7 +2,7 @@
 #include "Settings.h"
 #include "Application.h"
 
-View::View(IRenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
+View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height));
 
@@ -255,12 +255,12 @@ const Viewport& View::getViewport() const
     return m_viewport;
 }
 
-IWindow* View::getWindow()
+Window* View::getWindow()
 {
     return m_window.get();
 }
 
-const IWindow* View::getWindow() const
+const Window* View::getWindow() const
 {
     return m_window.get();
 }
