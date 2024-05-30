@@ -2,6 +2,9 @@
 #include "Settings.h"
 #include "Application.h"
 
+std::string dataPath = std::string(DATA_PATH);
+std::string shadersPath = std::string(SHADERS_PATH);
+
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height));
@@ -9,8 +12,8 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_renderSystem = rs;
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
-    m_renderSystem->setupLightDir(Settings::source, Settings::eye, Settings::ambient, Settings::diffuse, Settings::specular);
-    m_renderSystem->setLight(Settings::source, true);
+
+    m_shader = Application::instance()->createShader(shadersPath + "vertex.glsl", shadersPath + "fragment.glsl");
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);
@@ -19,6 +22,10 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_viewport.setZFar(Settings::zfar);
 
     m_plane = std::make_unique<Node>();
+    m_origin = std::make_unique<Triad>();
+
+    decoratePlane(*m_plane);
+    decorateOrigin(*m_origin);
 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)
         {
@@ -58,33 +65,53 @@ void View::update()
 {
     std::vector<Node*> postRender;
 
+    m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
     m_renderSystem->clearDisplay(Settings::colorBackground.r, Settings::colorBackground.g, Settings::colorBackground.b, Settings::colorBackground.a);
-    m_renderSystem->setViewMatrix(m_viewport.getCamera().calcViewMatrix());
-    m_renderSystem->setProjMatrix(m_viewport.calcProjectionMatrix());
+    
+    m_shader->setMat4("view", m_viewport.getCamera().calcViewMatrix());
+    m_shader->setMat4("projection", m_viewport.calcProjectionMatrix());
+
+    m_shader->setInt("numDirLights", 1);
+    m_shader->setInt("numPointLights", 0);
+    m_shader->setInt("numSpotLights", 0);
+
+    m_shader->setVec3("dirLights[0].direction", m_viewport.getCamera().calcForward());
+    m_shader->setVec3("dirLights[0].ambient", 0.0f, 0.0f, 0.0f);
+    m_shader->setVec3("dirLights[0].diffuse", 1.0f, 1.0f, 1.0f);
+    m_shader->setVec3("dirLights[0].specular", 1.0f, 1.0f, 1.0f);
 
     // Plane render
-    m_renderSystem->setWorldMatrix(m_plane->calcAbsoluteTransform());
-    m_plane->getMesh()->render(*m_renderSystem);
+    m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
+    m_shader->setMat4("model", m_plane->calcAbsoluteTransform());
+    m_plane->getMesh()->render(*m_renderSystem, *m_shader);
 
     // Model render
     m_model->processRecursive([&](Node& node)
         {
             if (dynamic_cast<Manipulator*>(&node) == nullptr)
             {
-                m_renderSystem->setWorldMatrix(node.calcAbsoluteTransform());
-                node.getMesh()->render(*m_renderSystem);
+                m_shader->setMat4("model", node.calcAbsoluteTransform());
+                node.getMesh()->render(*m_renderSystem, *m_shader);
             }
-            else 
+            else
                 postRender.push_back(&node);
         });
 
     m_renderSystem->clearDepth();
 
+    // Origin render
+    m_origin->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * 0.15f)));
+    m_origin->processRecursive([&](Node& node)
+        {
+            m_shader->setMat4("model", node.calcAbsoluteTransform());
+            node.getMesh()->render(*m_renderSystem, *m_shader);
+        });
+
     // Post Render
     for (auto& node : postRender)
     {
-        m_renderSystem->setWorldMatrix(node->calcAbsoluteTransform());
-        node->getMesh()->render(*m_renderSystem);
+        m_shader->setMat4("model", node->calcAbsoluteTransform());
+        node->getMesh()->render(*m_renderSystem, *m_shader);
     }
 }
 
@@ -127,7 +154,7 @@ void View::zoomToFit()
 
             if (node)
             {
-                bbox start_bbox = node->getMesh()->getBoundingBox();
+                BoundaryBox start_bbox = node->getMesh()->getBoundingBox();
                 const glm::mat4& start_mat = node->calcAbsoluteTransform();
 
                 start_bbox.min = start_mat * glm::vec4(start_bbox.min, 1.0f);
@@ -135,7 +162,7 @@ void View::zoomToFit()
 
                 m_model->processRecursive([&](Node& node)
                     {
-                        bbox bbox = node.getMesh()->getBoundingBox();
+                        BoundaryBox bbox = node.getMesh()->getBoundingBox();
                         const glm::mat4& mat = node.calcAbsoluteTransform();
 
                         bbox.min = mat * glm::vec4(bbox.min, 1.0f);
@@ -167,7 +194,7 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
 {
     std::vector<Node*> candidates;
     std::vector<Contact> contacts;
-    ray ray = m_viewport.calcCursorRay(x, y);
+    Ray ray = m_viewport.calcCursorRay(x, y);
 
     // Broad Phase TODO Octree
     m_model->processRecursive([&](Node& node)
@@ -273,6 +300,37 @@ Node* View::getPlane()
 const Node* View::getPlane() const
 {
     return m_plane.get();
+}
+
+void View::decoratePlane(Node& plane) const
+{
+    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(
+        Settings::world_up, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384));
+
+    plane.attachMesh(std::move(mesh));
+    plane.getMesh()->colorLines = Settings::colorGray;
+    plane.getMesh()->renderTriangles = false;
+}
+
+void View::decorateOrigin(Node& origin) const
+{
+    using namespace Settings;
+
+    std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(heds::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(heds::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(heds::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+
+    arrowX->setMaterial(Settings::red);
+    arrowY->setMaterial(Settings::green);
+    arrowZ->setMaterial(Settings::blue);
+
+    origin.attachNode(std::make_unique<Node>());
+    origin.attachNode(std::make_unique<Node>());
+    origin.attachNode(std::make_unique<Node>());
+
+    origin.getChildren()[0]->attachMesh(std::move(arrowX));
+    origin.getChildren()[1]->attachMesh(std::move(arrowY));
+    origin.getChildren()[2]->attachMesh(std::move(arrowZ));
 }
 
 void View::decorateTriad(Triad& triad) const

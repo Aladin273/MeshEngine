@@ -6,7 +6,6 @@ GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
     m_handle = glfwCreateWindow(m_width, m_height, m_title.data(), nullptr, glfwGetCurrentContext());
     glfwMakeContextCurrent(m_handle);

@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include <numeric>
+
 Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
@@ -12,86 +14,186 @@ Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material)
     update();
 }
 
-void Mesh::render(RenderSystem& rs)
+void Mesh::render(RenderSystem& rs, Shader& shader)
 {
-    if (renderTriangles)
+    if (m_vertices.empty())
+        return;
+
+    if (m_bufferData)
     {
-        rs.setupMaterial(m_material);
-        rs.renderTriangles(m_triangles, colorTriangles);
+        m_bufferData = false;
+        
+        rs.unbufferData(m_bufferTriangles);
+        rs.unbufferData(m_bufferLines);
+        rs.unbufferData(m_bufferHoles);
+        rs.unbufferData(m_bufferBoundaries);
+       
+        m_bufferTriangles = rs.bufferData(m_vertices, m_triangles);
+        m_bufferLines = rs.bufferData(m_vertices, m_lines);
+        m_bufferHoles = rs.bufferData(m_vertices, m_holes);
+        m_bufferBoundaries = rs.bufferData(m_vertices, m_boundaries);
     }
 
-    bool light = rs.getLighting();
-    rs.setLighting(false);
+    if (m_bufferSubData)
+    {
+        m_bufferSubData = false;
 
-    if (renderLines)
-        rs.renderLines(m_lines, colorLines);
-    if (renderHoles)
-        rs.renderLines(m_holes, colorHoles);
-    if (renderBoundaries)
-        rs.renderTriangles(m_boundaries, colorBoundaries);
+        for (auto& indice : m_subDataIndices)
+        {
+            rs.bufferSubData(m_bufferTriangles, indice, m_vertices[indice]);
+            rs.bufferSubData(m_bufferLines, indice, m_vertices[indice]);
+            rs.bufferSubData(m_bufferHoles, indice, m_vertices[indice]);
+            rs.bufferSubData(m_bufferBoundaries, indice, m_vertices[indice]);
+        }
+    }
+    
+    shader.bind();
+    
+    if (renderTriangles && !m_triangles.empty())
+    {
+        shader.setVec3("material.ambient", m_material.ambient);
+        shader.setVec3("material.diffuse", glm::vec3(m_material.diffuse));
+        shader.setVec3("material.specular", m_material.specular);
+        shader.setVec3("material.emission", m_material.emission);
+        shader.setFloat("material.shininess", m_material.shininess);
 
-    rs.setLighting(light);
+        rs.bindBuffer(m_bufferTriangles);
+        rs.renderTriangles();
+    }
+
+    if (renderLines && !m_lines.empty())
+    {
+        shader.setVec3("material.ambient", glm::vec3(0.f));
+        shader.setVec3("material.diffuse", glm::vec3(0.f));
+        shader.setVec3("material.specular", glm::vec3(0.f));
+        shader.setVec3("material.emission", colorLines);
+        shader.setFloat("material.shininess", 0);
+
+        rs.bindBuffer(m_bufferLines);
+        
+        rs.setLineSize(2.0f);
+        rs.renderLines();
+    }
+
+    if (renderHoles && !m_holes.empty())
+    {
+        shader.setVec3("material.ambient", glm::vec3(0.f));
+        shader.setVec3("material.diffuse", glm::vec3(0.f));
+        shader.setVec3("material.specular", glm::vec3(0.f));
+        shader.setVec3("material.emission", colorHoles);
+        shader.setFloat("material.shininess", 0);
+
+        rs.bindBuffer(m_bufferHoles);
+
+        rs.setLineSize(4.0f);
+        rs.renderLines();
+    }
+
+    if (renderBoundaries && !m_boundaries.empty())
+    {
+        shader.setVec3("material.ambient", glm::vec3(0.f));
+        shader.setVec3("material.diffuse", glm::vec3(0.f));
+        shader.setVec3("material.specular", glm::vec3(0.f));
+        shader.setVec3("material.emission", colorBoundaries);
+        shader.setFloat("material.shininess", 0);
+
+        rs.bindBuffer(m_bufferBoundaries);
+        rs.renderTriangles();
+    }
+
+    rs.unbindBuffer();
+
+    //shader.setInt("material.diffuseMap", 0);
+    //shader.setInt("material.specularMap", 1);
+    //shader.setInt("material.emissionMap", 2);
+
+    //rs.bindTexture(0, m_material.diffuseMap);
+    //rs.bindTexture(1, m_material.specularMap);
+    //rs.bindTexture(2, m_material.emissionMap);
+    
+    //rs.unbindTexture();
 }
 
 void Mesh::update()
-{    
-    if (!m_table.getVertices().empty())
-        m_bbox = { m_table.getVertices().front().data,  m_table.getVertices().front().data };
+{
+    if (m_table.getVertices().empty()) return;
 
+    const auto& vertices = m_table.getVertices();
+    const auto& faces = m_table.getFaces();
+
+    m_vertices.clear();
     m_triangles.clear();
     m_lines.clear();
     m_holes.clear();
     m_boundaries.clear();
 
-    std::vector<heds::HalfEdgeHandle> hehs(4);
-    std::vector<glm::vec3> vertices(4);
+    m_vertices.reserve(vertices.size());
+    m_triangles.reserve(faces.size() * 6);
+    m_lines.reserve(faces.size() * 8);
+    m_holes.reserve(faces.size() * 8);
+    m_boundaries.reserve(faces.size() * 6);
 
-    for (auto& face : m_table.getFaces())
+    m_bbox.min = m_bbox.max = vertices.front().data;
+
+    for (const auto& vertex : vertices)
     {
-        for (size_t i = 0; i < 4; ++i)
-            hehs[i] = i == 0 ? face.heh : m_table.next(hehs[i-1]);
+        const auto& position = vertex.data;
 
-        for (size_t i = 0; i < 4; ++i)
-            vertices[i] = m_table.getStartPoint(hehs[i]);
+        m_bbox.min.x = std::min(m_bbox.min.x, position.x);
+        m_bbox.min.y = std::min(m_bbox.min.y, position.y);
+        m_bbox.min.z = std::min(m_bbox.min.z, position.z);
 
-        for (const auto& vertex : vertices)
+        m_bbox.max.x = std::max(m_bbox.max.x, position.x);
+        m_bbox.max.y = std::max(m_bbox.max.y, position.y);
+        m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+
+        m_vertices.push_back({ position, {}, {} });
+    }
+
+    std::vector<std::pair<glm::vec3, float>> normalsMap{ 0 };
+    normalsMap.resize(vertices.size());
+
+    for (const auto& face : faces)
+    {
+        heds::VertexHandle vhs[4];
+        heds::HalfEdgeHandle hehs[4];
+
+        hehs[0] = face.heh;
+        for (int i = 1; i < 4; ++i) 
+            hehs[i] = m_table.next(hehs[i - 1]);
+
+        for (int i = 0; i < 4; ++i)
+            vhs[i] = m_table.sourceVertex(hehs[i]);
+
+        glm::vec3 ab = m_vertices[vhs[1]].position - m_vertices[vhs[0]].position;
+        glm::vec3 bc = m_vertices[vhs[2]].position - m_vertices[vhs[1]].position;
+        glm::vec3 normal = glm::cross(ab, bc);
+
+        for (const auto& vh : vhs)
         {
-            if (vertex.x < m_bbox.min.x)
-                m_bbox.min.x = vertex.x;
-            if (vertex.y < m_bbox.min.y)
-                m_bbox.min.y = vertex.y;
-            if (vertex.z < m_bbox.min.z)
-                m_bbox.min.z = vertex.z;
-
-            if (vertex.x > m_bbox.max.x)
-                m_bbox.max.x = vertex.x;
-            if (vertex.y > m_bbox.max.y)
-                m_bbox.max.y = vertex.y;
-            if (vertex.z > m_bbox.max.z)
-                m_bbox.max.z = vertex.z;
+            normalsMap[vh].first += normal;
+            normalsMap[vh].second += 1;
         }
 
-        glm::vec3 normal = glm::normalize(glm::cross(vertices[1] - vertices[0], vertices[2] - vertices[1]));
+        m_triangles.push_back(vhs[0]);
+        m_triangles.push_back(vhs[1]);
+        m_triangles.push_back(vhs[2]);
 
-        m_triangles.push_back({ vertices[0], normal, colorTriangles });
-        m_triangles.push_back({ vertices[1], normal, colorTriangles });
-        m_triangles.push_back({ vertices[2], normal, colorTriangles });
-
-        m_lines.push_back({ vertices[0], normal, colorLines });
-        m_lines.push_back({ vertices[1], normal, colorLines });
-        m_lines.push_back({ vertices[1], normal, colorLines });
-        m_lines.push_back({ vertices[2], normal, colorLines });
-        m_lines.push_back({ vertices[2], normal, colorLines });
-        m_lines.push_back({ vertices[3], normal, colorLines });
+        m_lines.push_back(vhs[0]);
+        m_lines.push_back(vhs[1]);
+        m_lines.push_back(vhs[1]);
+        m_lines.push_back(vhs[2]);
+        m_lines.push_back(vhs[2]);
+        m_lines.push_back(vhs[3]);
 
         if (hehs[3] != hehs[0])
         {
-            m_triangles.push_back({ vertices[2], normal, colorTriangles });
-            m_triangles.push_back({ vertices[3], normal, colorTriangles });
-            m_triangles.push_back({ vertices[0], normal, colorTriangles });
+            m_triangles.push_back(vhs[2]);
+            m_triangles.push_back(vhs[3]);
+            m_triangles.push_back(vhs[0]);
 
-            m_lines.push_back({ vertices[3], normal, colorLines });
-            m_lines.push_back({ vertices[0], normal, colorLines });
+            m_lines.push_back(vhs[3]);
+            m_lines.push_back(vhs[0]);
         }
 
         bool boundary = false;
@@ -100,62 +202,98 @@ void Mesh::update()
         {
             if (m_table.deref(m_table.twin(hehs[i])).fh.index == heds::invalid)
             {
-                m_holes.push_back({ vertices[i], normal, colorHoles });
-                m_holes.push_back({ vertices[i == 3 ? 0 : i + 1], normal, colorHoles });
                 boundary = true;
+
+                m_holes.push_back(vhs[i]);
+                m_holes.push_back(vhs[i == 3 ? 0 : i + 1]);
             }
         }
 
         if (boundary)
         {
-            m_boundaries.push_back({ vertices[0], normal, colorBoundaries });
-            m_boundaries.push_back({ vertices[1], normal, colorBoundaries });
-            m_boundaries.push_back({ vertices[2], normal, colorBoundaries });
-            m_boundaries.push_back({ vertices[2], normal, colorBoundaries });
-            m_boundaries.push_back({ vertices[3], normal, colorBoundaries });
-            m_boundaries.push_back({ vertices[0], normal, colorBoundaries });
+            m_boundaries.push_back(vhs[0]);
+            m_boundaries.push_back(vhs[1]);
+            m_boundaries.push_back(vhs[2]);
+            m_boundaries.push_back(vhs[2]);
+            m_boundaries.push_back(vhs[3]);
+            m_boundaries.push_back(vhs[0]);
         }
     }
+
+    for (size_t i = 0; i < normalsMap.size(); ++i)
+        m_vertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
+
+    m_bufferData = true;
 }
 
 void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 {
+    m_bufferSubData = true;
+    m_subDataIndices.clear();
+
+    glm::vec3 center{ 0 }; uint32_t vertices = 0;
+    
     heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
     heds::HalfEdgeHandle next_heh = start_heh;
-    glm::vec3 center{ 0 }; float vertices = 0;
 
     do
     {
+        ++vertices;
         center += m_table.getEndPoint(next_heh);
         next_heh = m_table.next(next_heh);
-        ++vertices;
+
     } while (next_heh != start_heh);
 
-    center /= vertices;
+    center /= static_cast<float>(vertices);
 
     do
     {
-        glm::vec3 vertex = m_table.getEndPoint(next_heh);
+        heds::VertexHandle vh = m_table.destVertex(next_heh);
 
-        m_table.setEndPoint(next_heh, glm::translate(-center) * glm::vec4(m_table.getEndPoint(next_heh), 1.0f));
-        m_table.setEndPoint(next_heh, trf * glm::vec4(m_table.getEndPoint(next_heh), 1.0f));
-        m_table.setEndPoint(next_heh, glm::translate(center) * glm::vec4(m_table.getEndPoint(next_heh), 1.0f));
+        glm::vec4 position = glm::vec4(m_table.getPoint(vh), 1.0f);
+        position = glm::translate(-center) * position;
+        position = trf * position;
+        position = glm::translate(center) * position;
+
+        m_table.setPoint(vh, position);
+
+        m_bbox.min.x = std::min(m_bbox.min.x, position.x);
+        m_bbox.min.y = std::min(m_bbox.min.y, position.y);
+        m_bbox.min.z = std::min(m_bbox.min.z, position.z);
+
+        m_bbox.max.x = std::max(m_bbox.max.x, position.x);
+        m_bbox.max.y = std::max(m_bbox.max.y, position.y);
+        m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+
+        m_vertices[vh].position = position;
+        m_subDataIndices.push_back(vh);
 
         next_heh = m_table.next(next_heh);
-    } while (next_heh != start_heh);
 
-    update();
+    } while (next_heh != start_heh);
 }
 
 void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 {
+    m_bufferSubData = true;
+    m_subDataIndices.clear();
+    
     glm::vec3 center = m_table.getPoint(vh);
+    glm::vec4 position = glm::vec4(m_table.getPoint(vh), 1.0f);
+    position = glm::translate(-center) * position;
+    position = trf * position;
+    position = glm::translate(center) * position;
 
-    m_table.setPoint(vh, glm::translate(-center) * glm::vec4(m_table.getPoint(vh), 1.0f));
-    m_table.setPoint(vh, trf * glm::vec4(m_table.getPoint(vh), 1.0f));
-    m_table.setPoint(vh, glm::translate(center) * glm::vec4(m_table.getPoint(vh), 1.0f));
+    m_bbox.min.x = std::min(m_bbox.min.x, position.x);
+    m_bbox.min.y = std::min(m_bbox.min.y, position.y);
+    m_bbox.min.z = std::min(m_bbox.min.z, position.z);
 
-    update();
+    m_bbox.max.x = std::max(m_bbox.max.x, position.x);
+    m_bbox.max.y = std::max(m_bbox.max.y, position.y);
+    m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+
+    m_vertices[vh].position = position;
+    m_subDataIndices.push_back(vh);
 }
 
 void Mesh::deleteFace(heds::FaceHandle fh)
@@ -164,18 +302,12 @@ void Mesh::deleteFace(heds::FaceHandle fh)
     update();
 }
 
-void Mesh::deleteVertex(heds::VertexHandle fh)
-{
-    //m_table.deleteFace(fh);
-    //update();
-}
-
 const heds::HalfEdgeTable& Mesh::getHalfEdgeTable() const
 {
     return m_table;
 }
 
-const bbox& Mesh::getBoundingBox()
+const BoundaryBox& Mesh::getBoundingBox()
 {
     return m_bbox;
 }

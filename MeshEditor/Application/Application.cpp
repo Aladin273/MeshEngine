@@ -210,30 +210,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            static size_t state = 0;
-            Node* plane = view.getPlane();
-
-            if (state == 0)
-            {
-                std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(Settings::world_up,
-                    view.getViewport().calcTargetPlaneWidth(), view.getViewport().calcTargetPlaneWidth(), Settings::plane));
-                
-                plane->attachMesh(std::move(mesh));
-                plane->getMesh()->colorLines = Settings::colorWhite;
-                plane->getMesh()->renderTriangles = false;
-                plane->getMesh()->renderLines = true;
-                ++state;
-            }
-            else if (state == 1)
-            {
-                plane->getMesh()->colorLines = Settings::colorBlack;
-                ++state;
-            }
-            else
-            {
-                plane->getMesh()->renderLines = false;
-                state = 0;
-            }
+            view.getPlane()->getMesh()->renderLines = !view.getPlane()->getMesh()->renderLines;
         }
     });
 
@@ -290,4 +267,9 @@ GuiSystem* Application::createGuiSystem(Window* window)
 RenderSystem* Application::createRenderSystem()
 {;
     return MeshEngine::createRenderSystem();
+}
+
+Shader* Application::createShader(const std::string& vertPath, const std::string& fragPath)
+{
+    return MeshEngine::createShader(vertPath, fragPath);
 }

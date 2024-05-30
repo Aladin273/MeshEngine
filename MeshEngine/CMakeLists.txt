@@ -31,10 +31,12 @@ set(MESH_ENGINE_HEADERS
     RenderSystem/GuiSystem.h
     RenderSystem/RenderSystem.h
     RenderSystem/Window.h
+    RenderSystem/Shader.h
 
-    RenderSystem/GLRenderSystem/GLGuiSystem.h
-    RenderSystem/GLRenderSystem/GLRenderSystem.h
-    RenderSystem/GLRenderSystem/GLWindow.h
+    RenderSystem/OpenGL/GLGuiSystem.h
+    RenderSystem/OpenGL/GLRenderSystem.h
+    RenderSystem/OpenGL/GLShader.h
+    RenderSystem/OpenGL/GLWindow.h
 
     Viewport/Camera.h
     Viewport/Viewport.h
@@ -64,9 +66,10 @@ set(MESH_ENGINE_SOURCES
 
     RenderSystem/Export.cpp
 
-    RenderSystem/GLRenderSystem/GLGuiSystem.cpp
-    RenderSystem/GLRenderSystem/GLRenderSystem.cpp
-    RenderSystem/GLRenderSystem/GLWindow.cpp
+    RenderSystem/OpenGL/GLGuiSystem.cpp
+    RenderSystem/OpenGL/GLRenderSystem.cpp
+    RenderSystem/OpenGL/GLShader.cpp
+    RenderSystem/OpenGL/GLWindow.cpp
 
     Viewport/Camera.cpp
     Viewport/Viewport.cpp
@@ -76,4 +79,4 @@ add_subdirectory(ThirdParty)
 add_library(MeshEngine STATIC ${MESH_ENGINE_SOURCES})
 
 target_include_directories(MeshEngine PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(MeshEngine PUBLIC glfw glad glm tinyxml2)
+target_link_libraries(MeshEngine PUBLIC glfw glad glm tinyxml2 stb)

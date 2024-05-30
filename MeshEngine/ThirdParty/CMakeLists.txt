@@ -12,21 +12,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL        OFF CACHE BOOL "" FORCE)
 add_subdirectory(${GLFW_LIB_NAME})
 
-#set(ASSIMP_LIB_NAME assimp)
-#set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
-#add_subdirectory(${ASSIMP_LIB_NAME})
-
 set(GLAD_LIB_NAME glad)
 set(GLAD_SRC_PATH ${GLAD_LIB_NAME}/src)
 set(GLAD_INC_PATH ${GLAD_LIB_NAME}/include)
 add_library(${GLAD_LIB_NAME} STATIC ${GLAD_SRC_PATH}/gl.c)
 target_include_directories(${GLAD_LIB_NAME} PUBLIC ${GLAD_INC_PATH})
-
-#set(STB_LIB_NAME stb)
-#set(STB_SRC_PATH ${STB_LIB_NAME}/src)
-#set(STB_INC_PATH ${STB_LIB_NAME}/include)
-#add_library(${STB_LIB_NAME} STATIC ${STB_SRC_PATH}/stb_image.cpp)
-#target_include_directories(${STB_LIB_NAME} PUBLIC ${STB_INC_PATH})
 
 set(GLM_LIB_NAME glm)
 set(GLM_INC_PATH ${GLM_LIB_NAME})
@@ -39,6 +29,16 @@ set(TINYXML2_SRC_PATH ${TINYXML2_LIB_NAME}/src)
 set(TINYXML2_INC_PATH ${TINYXML2_LIB_NAME}/include)
 add_library(${TINYXML2_LIB_NAME} STATIC ${TINYXML2_SRC_PATH}/tinyxml2.cpp)
 target_include_directories(${TINYXML2_LIB_NAME} PUBLIC ${TINYXML2_INC_PATH})
+
+set(STB_LIB_NAME stb)
+set(STB_SRC_PATH ${STB_LIB_NAME}/src)
+set(STB_INC_PATH ${STB_LIB_NAME}/include)
+add_library(${STB_LIB_NAME} STATIC ${STB_SRC_PATH}/stb_image.cpp)
+target_include_directories(${STB_LIB_NAME} PUBLIC ${STB_INC_PATH})
+
+#set(ASSIMP_LIB_NAME assimp)
+#set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
+#add_subdirectory(${ASSIMP_LIB_NAME})
 
 #set(SPDLOG_LIB_NAME spdlog)
 #set(SPDLOG_SRC_PATH ${SPDLOG_LIB_NAME}/src)

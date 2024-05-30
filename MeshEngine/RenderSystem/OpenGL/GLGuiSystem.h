@@ -1,16 +1,14 @@
-/*
-
 #pragma once
 
 #include <map>
 
-#include "ThirdParty/glfw/glfw3.h"
-#include "ThirdParty/imgui/imgui.h"
-#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
-#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
+//#include "ThirdParty/glfw/glfw3.h"
+//#include "ThirdParty/imgui/imgui.h"
+//#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
+//#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
 
-#include "RenderSystem/Window.h"
-#include "RenderSystem/GuiSystem.h"
+#include <MeshEngine/RenderSystem/Window.h>
+#include <MeshEngine/RenderSystem/GuiSystem.h>
 
 class GLGuiSystem : public GuiSystem
 {
@@ -40,5 +38,3 @@ private:
     Window* m_window;
     std::map<uint32_t, IGuiLayer*> m_layers;
 };
-
-*/

@@ -19,6 +19,7 @@ namespace heds
         bool operator!=(const HalfEdgeHandle& b) const { return index != b.index; };
         bool operator<(const HalfEdgeHandle& b) const { return index < b.index; };
         bool operator>(const HalfEdgeHandle& b) const { return index > b.index; };
+        operator int() const { return index; };
     };
 
     struct VertexHandle
@@ -29,6 +30,7 @@ namespace heds
         bool operator!=(const VertexHandle& b) const { return index != b.index; };
         bool operator<(const VertexHandle& b) const { return index < b.index; };
         bool operator>(const VertexHandle& b) const { return index > b.index; };
+        operator int() const { return index; };
     };
 
     struct FaceHandle
@@ -39,6 +41,7 @@ namespace heds
         bool operator!=(const FaceHandle& b) const { return index != b.index; };
         bool operator<(const FaceHandle& b) const { return index < b.index; };
         bool operator>(const FaceHandle& b) const { return index > b.index; };
+        operator int() const { return index; };
     };
 
     struct HalfEdge
@@ -55,17 +58,17 @@ namespace heds
         HalfEdgeHandle prev;
     };
 
-    struct Face
-    {
-        //One of the HalfEdges belonging to the Face, always valid
-        HalfEdgeHandle heh;
-    };
-
     struct Vertex
     {
         //An outgoing HalfEdge from this vertex. It is == -1 if the vertex is isolated
         HalfEdgeHandle heh;
-        glm::vec3 data;
+        glm::vec3 data{ 1.0f };
+    };
+
+    struct Face
+    {
+        //One of the HalfEdges belonging to the Face, always valid
+        HalfEdgeHandle heh;
     };
 
     class HalfEdgeTable

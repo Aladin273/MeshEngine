@@ -2,9 +2,10 @@
 
 #include <string>
 
-#include "Window.h"
 #include "GuiSystem.h"
 #include "RenderSystem.h"
+#include "Shader.h"
+#include "Window.h"
 
 #ifndef OGL_RENDER_SYSTEM_EXPORT_DLL
 #define OGL_RENDER_SYSTEM_EXPORT_STATIC
@@ -34,8 +35,9 @@ namespace MeshEngine
     
     #ifdef OGL_RENDER_SYSTEM_API_STATIC
 
-        RenderSystem* createRenderSystem();
         GuiSystem* createGuiSystem(Window* window);
+        RenderSystem* createRenderSystem();
+        Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath);
         Window* createWindow(const std::string& title, uint32_t width, uint32_t height);
         void waitEvents();
         void pollEvents();

@@ -30,7 +30,6 @@ namespace Settings
     const glm::vec3 specular = { 1,1,1 };
 
     // Camera
-    const int plane = 256;
     const glm::vec3 eye = { 0,0,10 };
     const glm::vec3 target = { 0,0,0 };
     const glm::vec3 up = { 0,1,0 };
@@ -61,14 +60,14 @@ namespace Settings
     const uint32_t numSubs = 64;
 
     // Colors
-    const glm::vec4 colorBackground = { 0.5f, 0.5f, 0.5f, 0.5f };
+    const glm::vec4 colorBackground = { 0.25f, 0.25f, 0.25f, 1.0f };
     const glm::vec4 colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f};
     const glm::vec4 colorGray = { 0.5f, 0.5f, 0.5f, 1.0f};
     const glm::vec4 colorBlack = { 0.0f, 0.0f, 0.0f, 1.0f};
 
-    const glm::vec4 colorRed = { 1.0f, 0.0f, 0.0f, 0.5f };
-    const glm::vec4 colorGreen = { 0.0f, 1.0f, 0.0f, 0.5f };
-    const glm::vec4 colorBlue = { 0.0f, 0.0f, 1.0f, 0.5f };
+    const glm::vec4 colorRed = { 1.0f, 0.0f, 0.0f, 1.0f };
+    const glm::vec4 colorGreen = { 0.0f, 1.0f, 0.0f, 1.0f };
+    const glm::vec4 colorBlue = { 0.0f, 0.0f, 1.0f, 1.0f };
 
     // Materials
     const Material ruby{ glm::vec3(1.07, 0.01, 0.01), glm::vec4(0.61, 0.04, 0.04, 0.85), glm::vec3(0.72, 0.62, 0.62), glm::vec3(0.0), 75.f };
@@ -81,10 +80,10 @@ namespace Settings
     const Material dark{ glm::vec3(0.15f), glm::vec4(0.15f, 0.15f, 0.15f, 1.0f), glm::vec3(0.15f), glm::vec3(0.0f), 128.f };
     const Material clear{ glm::vec3(0.0f), glm::vec4(1.0f), glm::vec3(1.0f), glm::vec3(0.0f), 128.f };
     
-    const Material red{ glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material green{ glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material blue{ glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material yellow{ glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
+    const Material red    { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 128.f };
+    const Material green  { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 128.f };
+    const Material blue   { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 128.f };
+    const Material yellow { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 1.0f), 128.f };
 
     // Models
     const std::string model1 = "Cube.stl";
@@ -100,7 +99,6 @@ namespace Settings
     const std::string model10 = "Duck.dae";
     const std::string model11 = "Sword.dae";
     const std::string model12 = "Cat.dae";
-    const std::string model13 = "CubeTree.dae";
 
     // Application
     const std::string title = "MeshEditor";

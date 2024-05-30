@@ -37,9 +37,6 @@ public:
         m_operatorDispatcher.addOperator(key, lambda);
     }
 
-    void decorateTriad(Triad& triad) const;
-    void decorateArrow(Manipulator& manipulator, glm::vec3 dir) const;
-
     void zoomToFit();
     std::vector<Contact> raycast(double x, double y, FilterValue filterValues);
 
@@ -54,13 +51,20 @@ public:
     Node* getPlane();
     const Node* getPlane() const;
 
+    void decoratePlane(Node& plane) const;
+    void decorateOrigin(Node& origin) const;
+    void decorateTriad(Triad& triad) const;
+    void decorateArrow(Manipulator& manipulator, glm::vec3 dir) const;
+
 private:
     std::unique_ptr<Node> m_plane;
+    std::unique_ptr<Node> m_origin;
 
     Model* m_model = nullptr;
     Viewport m_viewport;
 
     RenderSystem* m_renderSystem = nullptr;
+    Shader* m_shader = nullptr;
     std::unique_ptr<Window> m_window;
 
     OperatorDispatcher m_operatorDispatcher;

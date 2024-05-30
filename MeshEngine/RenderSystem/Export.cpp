@@ -1,8 +1,9 @@
 #include "Export.h"
 
-#include "GLRenderSystem/GLRenderSystem.h"
-#include "GLRenderSystem/GLGuiSystem.h"
-#include "GLRenderSystem/GLWindow.h"
+#include "OpenGL/GLRenderSystem.h"
+#include "OpenGL/GLGuiSystem.h"
+#include "OpenGL/GLShader.h"
+#include "OpenGL/GLWindow.h"
 
 #ifdef OGL_RENDER_SYSTEM_API_DLL
 
@@ -54,6 +55,11 @@ GuiSystem* MeshEngine::createGuiSystem(Window* window)
 {
     return nullptr;
     //return new GLGuiSystem(window);
+}
+
+Shader* MeshEngine::createShader(const std::string& vertexPath, const std::string& fragmentPath)
+{
+    return new GLShader(vertexPath, fragmentPath);
 }
 
 Window* MeshEngine::createWindow(const std::string& title, uint32_t width, uint32_t height)

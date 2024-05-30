@@ -32,6 +32,7 @@ public:
     Window* createWindow(const std::string&, uint32_t, uint32_t);
     GuiSystem* createGuiSystem(Window*);
     RenderSystem* createRenderSystem();
+    Shader* createShader(const std::string& vertPath, const std::string& fragPath);
 
     static Application* instance();
 
