@@ -42,6 +42,8 @@ General
 Exceptions
 Headers including
 
+Adjust normals
+
 Filling holes
 Editor drawables, bbox, plane
 Multi-mesh objects

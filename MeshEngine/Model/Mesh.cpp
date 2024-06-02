@@ -116,16 +116,17 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
 
 void Mesh::update()
 {
-    if (m_table.getVertices().empty()) return;
-
-    const auto& vertices = m_table.getVertices();
-    const auto& faces = m_table.getFaces();
-
+    m_bufferData = true;
     m_vertices.clear();
     m_triangles.clear();
     m_lines.clear();
     m_holes.clear();
     m_boundaries.clear();
+
+    if (m_table.getVertices().empty()) return;
+
+    const auto& vertices = m_table.getVertices();
+    const auto& faces = m_table.getFaces();
 
     m_vertices.reserve(vertices.size());
     m_triangles.reserve(faces.size() * 6);
@@ -222,8 +223,6 @@ void Mesh::update()
 
     for (size_t i = 0; i < normalsMap.size(); ++i)
         m_vertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
-
-    m_bufferData = true;
 }
 
 void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
@@ -266,11 +265,86 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
         m_bbox.max.z = std::max(m_bbox.max.z, position.z);
 
         m_vertices[vh].position = position;
-        m_subDataIndices.push_back(vh);
 
         next_heh = m_table.next(next_heh);
 
     } while (next_heh != start_heh);
+
+
+    // Calculate normals
+    std::set<heds::FaceHandle> affectedFaces;
+    std::set<heds::VertexHandle> affectedVertices;
+
+    do
+    {
+        heds::VertexHandle vh = m_table.destVertex(next_heh);
+
+        heds::HalfEdgeHandle inner_start_heh = m_table.deref(vh).heh;
+        heds::HalfEdgeHandle inner_next_heh = inner_start_heh;
+
+        do
+        {
+            affectedFaces.insert(m_table.deref(inner_next_heh).fh);
+            inner_next_heh = m_table.next(m_table.twin(inner_next_heh));
+
+        } while (inner_next_heh != inner_start_heh);
+
+        next_heh = m_table.next(next_heh);
+
+    } while (next_heh != start_heh);
+
+    for (auto& fh : affectedFaces)
+    {
+        if (fh != heds::invalid)
+        {
+            heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+            heds::HalfEdgeHandle next_heh = start_heh;
+
+            do
+            {
+                affectedVertices.insert(m_table.destVertex(next_heh));
+                next_heh = m_table.next(next_heh);
+
+            } while (next_heh != start_heh);
+        }
+    }
+
+    for (auto& vh : affectedVertices)
+    {
+        if (vh != heds::invalid)
+        {
+            std::set<heds::FaceHandle> adjacentFaces;
+
+            heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+            heds::HalfEdgeHandle next_heh = start_heh;
+
+            do
+            {
+                adjacentFaces.insert(m_table.deref(next_heh).fh);
+                next_heh = m_table.next(m_table.twin(next_heh));
+
+            } while (next_heh != start_heh);
+
+            glm::vec3 normalsSum(0.f);
+
+            for (auto& fh : adjacentFaces)
+            {
+                if (fh != heds::invalid)
+                {
+                    heds::HalfEdgeHandle heh0 = m_table.deref(fh).heh;
+                    heds::HalfEdgeHandle heh1 = m_table.next(heh0);
+                    heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+
+                    glm::vec3 ab = m_vertices[m_table.sourceVertex(heh1)].position - m_vertices[m_table.sourceVertex(heh0)].position;
+                    glm::vec3 bc = m_vertices[m_table.sourceVertex(heh2)].position - m_vertices[m_table.sourceVertex(heh1)].position;
+                    normalsSum += glm::cross(ab, bc);
+                }
+            }
+
+            m_vertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
+            m_subDataIndices.push_back(vh);
+        }
+    }
 }
 
 void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
@@ -279,10 +353,13 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     m_subDataIndices.clear();
     
     glm::vec3 center = m_table.getPoint(vh);
+
     glm::vec4 position = glm::vec4(m_table.getPoint(vh), 1.0f);
     position = glm::translate(-center) * position;
     position = trf * position;
     position = glm::translate(center) * position;
+
+    m_table.setPoint(vh, position);
 
     m_bbox.min.x = std::min(m_bbox.min.x, position.x);
     m_bbox.min.y = std::min(m_bbox.min.y, position.y);
@@ -293,7 +370,73 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     m_bbox.max.z = std::max(m_bbox.max.z, position.z);
 
     m_vertices[vh].position = position;
-    m_subDataIndices.push_back(vh);
+    
+    // Calculate normals
+    std::set<heds::FaceHandle> affectedFaces;
+    std::set<heds::VertexHandle> affectedVertices;
+
+    heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+    heds::HalfEdgeHandle next_heh = start_heh;
+
+    do
+    {
+        affectedFaces.insert(m_table.deref(next_heh).fh);
+        next_heh = m_table.next(m_table.twin(next_heh));
+
+    } while (next_heh != start_heh);
+
+    for (auto& fh : affectedFaces)
+    {
+        if (fh != heds::invalid)
+        {
+            heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+            heds::HalfEdgeHandle next_heh = start_heh;
+
+            do
+            {
+                affectedVertices.insert(m_table.destVertex(next_heh));
+                next_heh = m_table.next(next_heh);
+
+            } while (next_heh != start_heh);
+        }
+    }
+
+    for (auto& vh : affectedVertices)
+    {
+        if (vh != heds::invalid)
+        {
+            std::set<heds::FaceHandle> adjacentFaces;
+
+            heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+            heds::HalfEdgeHandle next_heh = start_heh;
+
+            do
+            {
+                adjacentFaces.insert(m_table.deref(next_heh).fh);
+                next_heh = m_table.next(m_table.twin(next_heh));
+
+            } while (next_heh != start_heh);
+
+            glm::vec3 normalsSum(0.f);
+
+            for (auto& fh : adjacentFaces)
+            {
+                if (fh != heds::invalid)
+                {
+                    heds::HalfEdgeHandle heh0 = m_table.deref(fh).heh;
+                    heds::HalfEdgeHandle heh1 = m_table.next(heh0);
+                    heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+
+                    glm::vec3 ab = m_vertices[m_table.sourceVertex(heh1)].position - m_vertices[m_table.sourceVertex(heh0)].position;
+                    glm::vec3 bc = m_vertices[m_table.sourceVertex(heh2)].position - m_vertices[m_table.sourceVertex(heh1)].position;
+                    normalsSum += glm::cross(ab, bc);
+                }
+            }
+
+            m_vertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
+            m_subDataIndices.push_back(vh);
+        }
+    }
 }
 
 void Mesh::deleteFace(heds::FaceHandle fh)
