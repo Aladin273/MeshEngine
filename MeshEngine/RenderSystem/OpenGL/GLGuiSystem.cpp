@@ -3,6 +3,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+#include <spdlog/spdlog.h>
+
 GLGuiSystem::GLGuiSystem(Window* window)
     : m_window(window)
 {
@@ -38,6 +40,8 @@ void GLGuiSystem::init()
 
     ImGui_ImplGlfw_InitForOpenGL(reinterpret_cast<GLFWwindow*>(m_window->getHandle()), true);
     ImGui_ImplOpenGL3_Init();
+
+    spdlog::info("GLGuiSystem inited successful");
 }
 
 void GLGuiSystem::render()

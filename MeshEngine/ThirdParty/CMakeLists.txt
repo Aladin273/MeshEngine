@@ -36,6 +36,17 @@ set(STB_INC_PATH ${STB_LIB_NAME}/include)
 add_library(${STB_LIB_NAME} STATIC ${STB_SRC_PATH}/stb_image.cpp)
 target_include_directories(${STB_LIB_NAME} PUBLIC ${STB_INC_PATH})
 
+#set(ASSIMP_LIB_NAME assimp)
+#set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
+#add_subdirectory(${ASSIMP_LIB_NAME})
+
+set(SPDLOG_LIB_NAME spdlog)
+set(SPDLOG_SRC_PATH ${SPDLOG_LIB_NAME}/src)
+set(SPDLOG_INC_PATH ${SPDLOG_LIB_NAME}/include)
+add_library(${SPDLOG_LIB_NAME} STATIC ${SPDLOG_SRC_PATH}/spdlog.cpp)
+target_include_directories(${SPDLOG_LIB_NAME} PUBLIC ${SPDLOG_INC_PATH})
+target_compile_definitions(${SPDLOG_LIB_NAME} PRIVATE SPDLOG_COMPILED_LIB)
+
 set(IMGUI_LIB_NAME imgui)
 set(IMGUI_INC_PATH ${IMGUI_LIB_NAME})
 set(IMGUI_SRC_PATH ${IMGUI_LIB_NAME})
@@ -67,14 +78,3 @@ set(IMGUI_SOURCES
 add_library(${IMGUI_LIB_NAME} STATIC ${IMGUI_HEADERS} ${IMGUI_SOURCES})
 target_include_directories(${IMGUI_LIB_NAME} PUBLIC ${IMGUI_INC_PATH})
 target_link_libraries(${IMGUI_LIB_NAME} PUBLIC ${GLFW_LIB_NAME})
-
-#set(ASSIMP_LIB_NAME assimp)
-#set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
-#add_subdirectory(${ASSIMP_LIB_NAME})
-
-#set(SPDLOG_LIB_NAME spdlog)
-#set(SPDLOG_SRC_PATH ${SPDLOG_LIB_NAME}/src)
-#set(SPDLOG_INC_PATH ${SPDLOG_LIB_NAME}/include)
-#add_library(${SPDLOG_LIB_NAME} STATIC ${SPDLOG_SRC_PATH}/spdlog.cpp)
-#target_include_directories(${SPDLOG_LIB_NAME} PUBLIC ${SPDLOG_INC_PATH})
-#target_compile_definitions(${SPDLOG_LIB_NAME} PRIVATE SPDLOG_COMPILED_LIB)

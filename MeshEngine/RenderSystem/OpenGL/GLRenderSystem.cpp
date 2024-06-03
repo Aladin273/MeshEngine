@@ -3,6 +3,8 @@
 #include <glad/gl.h>
 #include <stb/stb_image.h>
 
+#include <spdlog/spdlog.h>
+
 GLRenderSystem::~GLRenderSystem()
 {
 
@@ -30,6 +32,8 @@ void GLRenderSystem::init()
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, textureId);
     }
+
+    spdlog::info("GLRenderSystem inited successful");
 }
 
 void GLRenderSystem::setViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

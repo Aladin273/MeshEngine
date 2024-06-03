@@ -1,9 +1,13 @@
 #include "ColladaParser.h"
 
+#include <spdlog/spdlog.h>
+
 using namespace tinyxml2;
 
 std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // Refact
 {
+    spdlog::info("ColladaParser loading from {:}", filename);
+
     GeometryMap geometries;
     std::unique_ptr<Model> model = std::make_unique<Model>();
 
@@ -240,6 +244,8 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
 
 void ColladaParser::saveModel(const Model& model, const std::string& filename) // Refact
 {
+    spdlog::info("ColladaParser saving to {:}", filename);
+
     if (model.getNodes().empty())
         return;
 

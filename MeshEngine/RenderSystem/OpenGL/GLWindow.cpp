@@ -1,5 +1,7 @@
 ﻿#include "GLWindow.h"
 
+#include <spdlog/spdlog.h>
+
 GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     : m_title(title), m_width(width), m_height(height)
 {
@@ -15,7 +17,8 @@ GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     if (!initGLAD)
     {
         initGLAD = true;
-        gladLoadGL(glfwGetProcAddress);
+        int version = gladLoadGL(glfwGetProcAddress);
+        spdlog::info("GLWindow created successful. OpenGL Core version: {:}.{:}", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
     }
 
     glfwSetWindowUserPointer(m_handle, this);

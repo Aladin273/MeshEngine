@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include <glad/gl.h>
+#include <spdlog/spdlog.h>
 
 GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPath)
 {
@@ -31,7 +32,7 @@ GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPat
     }
     catch (std::ifstream::failure& e)
     {
-        //spdlog::error("SHADER::FILE_NOT_SUCCESFULLY_READ");
+        spdlog::error("SHADER::FILE_NOT_SUCCESFULLY_READ");
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
@@ -52,7 +53,11 @@ GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPat
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
-    checkCompileErrors(ID, "PROGRAM");
+    
+    if (checkCompileErrors(ID, "PROGRAM"))
+        spdlog::info("GLShader created successful. {:} {:}", vertexPath, fragmentPath);
+    else
+        spdlog::info("GLShader created not successful. {:} {:}", vertexPath, fragmentPath);
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
@@ -126,7 +131,7 @@ void GLShader::setMat4(const std::string& name, const glm::mat4& mat) const
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void GLShader::checkCompileErrors(unsigned int shader, std::string type)
+bool GLShader::checkCompileErrors(unsigned int shader, std::string type)
 {
     int success;
     char infoLog[1024];
@@ -137,7 +142,9 @@ void GLShader::checkCompileErrors(unsigned int shader, std::string type)
         if (!success)
         {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            //spdlog::error("PROGRAM_LINKING_ERROR: {:}\n{:}", type, infoLog);
+            spdlog::error("PROGRAM_LINKING_ERROR: {:}\n{:}", type, infoLog);
+
+            return false;
         }
     }
     else
@@ -146,8 +153,12 @@ void GLShader::checkCompileErrors(unsigned int shader, std::string type)
         if (!success)
         {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            //spdlog::error("SHADER_COMPILATION_ERROR: {:}\n{:}", type, infoLog);
+            spdlog::error("SHADER_COMPILATION_ERROR: {:}\n{:}", type, infoLog);
+
+            return false;
         }
     }
+
+    return true;
 }
 

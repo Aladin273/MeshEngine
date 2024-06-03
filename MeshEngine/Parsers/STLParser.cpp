@@ -1,5 +1,7 @@
 #include "STLParser.h"
 
+#include <spdlog/spdlog.h>
+
 STLParser::TriangleSoup STLParser::read(const std::string& filename)
 {
     TriangleSoup soup;
@@ -155,6 +157,8 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
 std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 {
+    spdlog::info("STLParser loading from {:}", filename);
+
     std::unique_ptr<Model> model = std::make_unique<Model>();
     model->attachNode(loadNode(filename));
     model->setName(filename);
@@ -194,6 +198,8 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
 
 void STLParser::saveModel(const Model& model, const std::string& filename)
 {
+    spdlog::info("STLParser saving to {:}", filename);
+
     TriangleSoup soup;
 
     for (auto& node : model.getNodes())
