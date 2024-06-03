@@ -2,10 +2,10 @@
 
 #include <map>
 
-//#include "ThirdParty/glfw/glfw3.h"
-//#include "ThirdParty/imgui/imgui.h"
-//#include "ThirdParty/imgui/backends/imgui_impl_glfw.h"
-//#include "ThirdParty/imgui/backends/imgui_impl_opengl2.h"
+#define GLFW_INCLUDE_NONE
+
+#include <glfw/glfw3.h>
+#include <imgui.h>
 
 #include <MeshEngine/RenderSystem/Window.h>
 #include <MeshEngine/RenderSystem/GuiSystem.h>
@@ -16,25 +16,21 @@ public:
     GLGuiSystem(Window* window);
     virtual ~GLGuiSystem();
 
-    void init() override;
+    virtual void init() override;
 
-    void begin() override;
-    void end() override;
-    void render() override;
-    void render(IGuiLayer&) override;
+    virtual void begin() override;
+    virtual void end() override;
 
-    void setContext(void*) override;
-    void* getContext() override;
+    virtual void render() override;
+    virtual void render(GuiLayer&) override;
 
-    void pushLayer(uint32_t index, IGuiLayer& layer) override;
-    void popLayer(uint32_t index) override;
+    virtual void pushLayer(uint32_t index, GuiLayer& layer) override;
+    virtual void popLayer(uint32_t index) override;
 
-    void turnDocking(bool enable) override;
-    void turnVieports(bool enable) override;
-
-    bool wantCapture() override;
+    virtual bool wantCaptureMouse() override;
+    virtual bool wantCaptureKeyboard() override;
 
 private:
     Window* m_window;
-    std::map<uint32_t, IGuiLayer*> m_layers;
+    std::map<uint32_t, GuiLayer*> m_layers;
 };

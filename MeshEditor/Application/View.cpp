@@ -2,18 +2,24 @@
 #include "Settings.h"
 #include "Application.h"
 
-std::string dataPath = std::string(DATA_PATH);
-std::string shadersPath = std::string(SHADERS_PATH);
-
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height));
+    m_guiSystem.reset(Application::instance()->createGuiSystem(m_window.get()));
 
     m_renderSystem = rs;
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
+    m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
 
-    m_shader = Application::instance()->createShader(shadersPath + "vertex.glsl", shadersPath + "fragment.glsl");
+    m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
+
+    m_guiSystem->init();
+    m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
+    m_consoleLayer = std::make_unique<ConsoleLayer>(this);
+    m_propertiesLayer = std::make_unique<PropertiesLayer>(this);
+    m_viewportLayer = std::make_unique<ViewportLayer>(this);
+    m_treeLayer = std::make_unique<TreeLayer>(this);
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);
@@ -29,30 +35,48 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)
         {
+            if (m_guiSystem->wantCaptureKeyboard()) return;
             m_operatorDispatcher.processKeyboardInput(*this, key, action, mods);
         });
 
     m_window->setMouseCallback([&](ButtonCode button, Action action, Modifier mods, double x, double y)
         {
-            m_operatorDispatcher.processMouseInput(*this, button, action, mods, x, y);
+            if (m_guiSystem->wantCaptureMouse())
+            {
+                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
+                    m_operatorDispatcher.processMouseInput(*this, button, action, mods, x, y);
+            }
         });
 
     m_window->setCursorPosCallback([&](double x, double y)
         {
-            m_operatorDispatcher.processMouseMove(*this, x, y);
+            if (m_guiSystem->wantCaptureMouse())
+            {
+                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
+                    m_operatorDispatcher.processMouseMove(*this, x, y);
+            }
+        });
+
+    m_window->setScrollCallback([&](double x, double y)
+        {
+            if (m_guiSystem->wantCaptureMouse())
+            {
+                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
+                {
+                    if (y > Settings::invalid)
+                        m_viewport.getCamera().zoom(Settings::zoomIn);
+                    else
+                        m_viewport.getCamera().zoom(Settings::zoomOut);
+                }
+            }
         });
 
     m_window->setFramebufferSizeCallback([&](int width, int height)
         {
             m_viewport.setViewportSize(width, height);
-        });
 
-    m_window->setScrollCallback([&](double x, double y)
-        {
-            if (y > Settings::invalid)
-                m_viewport.getCamera().zoom(Settings::zoom_in);
-            else
-                m_viewport.getCamera().zoom(Settings::zoom_out);
+            m_renderSystem->unbufferFrame(m_frametextureId);
+            m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
         });
 }
 
@@ -63,6 +87,8 @@ View::~View()
 
 void View::update()
 {
+    m_renderSystem->bindFrame(m_framebufferId);
+
     std::vector<Node*> postRender;
 
     m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
@@ -76,9 +102,9 @@ void View::update()
     m_shader->setInt("numSpotLights", 0);
 
     m_shader->setVec3("dirLights[0].direction", m_viewport.getCamera().calcForward());
-    m_shader->setVec3("dirLights[0].ambient", 0.0f, 0.0f, 0.0f);
-    m_shader->setVec3("dirLights[0].diffuse", 1.0f, 1.0f, 1.0f);
-    m_shader->setVec3("dirLights[0].specular", 1.0f, 1.0f, 1.0f);
+    m_shader->setVec3("dirLights[0].ambient", Settings::ambient);
+    m_shader->setVec3("dirLights[0].diffuse", Settings::diffuse);
+    m_shader->setVec3("dirLights[0].specular", Settings::specular);
 
     // Plane render
     m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
@@ -113,6 +139,29 @@ void View::update()
         m_shader->setMat4("model", node->calcAbsoluteTransform());
         node->getMesh()->render(*m_renderSystem, *m_shader);
     }
+
+    m_renderSystem->unbindFrame();
+
+    // UI 
+    m_guiSystem->begin();
+
+    m_dockpaneLayer->render();
+    m_dockpaneLayer->update();
+    
+    m_propertiesLayer->render();
+    m_propertiesLayer->update();
+    
+    m_treeLayer->render();
+    m_treeLayer->update();
+    
+    m_consoleLayer->render();
+    m_consoleLayer->update();
+
+    m_viewportLayer->attach(m_frametextureId, m_viewport.getWidth(), m_viewport.getHeight());
+    m_viewportLayer->render();
+    m_viewportLayer->update();
+
+    m_guiSystem->end();
 }
 
 void View::setModel(Model* model)
@@ -302,10 +351,20 @@ const Node* View::getPlane() const
     return m_plane.get();
 }
 
+Node* View::getOrigin()
+{
+    return m_origin.get();
+}
+
+const Node* View::getOrigin() const
+{
+    return m_origin.get();
+}
+
 void View::decoratePlane(Node& plane) const
 {
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(
-        Settings::world_up, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384));
+        Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384));
 
     plane.attachMesh(std::move(mesh));
     plane.getMesh()->colorLines = Settings::colorGray;

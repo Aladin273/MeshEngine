@@ -36,6 +36,38 @@ set(STB_INC_PATH ${STB_LIB_NAME}/include)
 add_library(${STB_LIB_NAME} STATIC ${STB_SRC_PATH}/stb_image.cpp)
 target_include_directories(${STB_LIB_NAME} PUBLIC ${STB_INC_PATH})
 
+set(IMGUI_LIB_NAME imgui)
+set(IMGUI_INC_PATH ${IMGUI_LIB_NAME})
+set(IMGUI_SRC_PATH ${IMGUI_LIB_NAME})
+
+set(IMGUI_HEADERS
+    ${IMGUI_INC_PATH}/imconfig.h
+    ${IMGUI_INC_PATH}/imgui.h
+    ${IMGUI_INC_PATH}/imgui_internal.h
+    ${IMGUI_INC_PATH}/imstb_rectpack.h
+    ${IMGUI_INC_PATH}/imstb_textedit.h
+    ${IMGUI_INC_PATH}/imstb_truetype.h
+
+    ${IMGUI_INC_PATH}/backends/imgui_impl_glfw.h
+    ${IMGUI_INC_PATH}/backends/imgui_impl_opengl3.h
+    ${IMGUI_INC_PATH}/backends/imgui_impl_opengl3_loader.h
+)
+
+set(IMGUI_SOURCES
+    ${IMGUI_SRC_PATH}/imgui.cpp
+    ${IMGUI_SRC_PATH}/imgui_demo.cpp
+    ${IMGUI_SRC_PATH}/imgui_draw.cpp
+    ${IMGUI_SRC_PATH}/imgui_tables.cpp
+    ${IMGUI_SRC_PATH}/imgui_widgets.cpp
+
+    ${IMGUI_SRC_PATH}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_SRC_PATH}/backends/imgui_impl_opengl3.cpp
+)
+
+add_library(${IMGUI_LIB_NAME} STATIC ${IMGUI_HEADERS} ${IMGUI_SOURCES})
+target_include_directories(${IMGUI_LIB_NAME} PUBLIC ${IMGUI_INC_PATH})
+target_link_libraries(${IMGUI_LIB_NAME} PUBLIC ${GLFW_LIB_NAME})
+
 #set(ASSIMP_LIB_NAME assimp)
 #set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
 #add_subdirectory(${ASSIMP_LIB_NAME})

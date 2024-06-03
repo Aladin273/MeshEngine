@@ -30,12 +30,18 @@ public:
     virtual uint32_t bufferTexture(const std::string& texturePath) override;
     virtual void unbufferTexture(uint32_t textureId) override;
 
+    virtual void bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) override;
+    virtual void unbufferFrame(uint32_t bufferId) override;
+
     // Bind
     virtual void bindBuffer(uint32_t bufferId) override;
     virtual void unbindBuffer() override;
 
     virtual void bindTexture(uint32_t activeId, uint32_t textureId) override;
     virtual void unbindTexture() override;
+
+    virtual void bindFrame(uint32_t bufferId) override;
+    virtual void unbindFrame() override;
 
     // Render
     virtual void renderTriangles() override;

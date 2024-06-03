@@ -5,8 +5,10 @@
 
 namespace Settings
 {
-    // Viewport
+    // General
     const int invalid = -1;
+
+    // Viewport
     const int x = 0;
     const int y = 0;
     const int width = 1920;
@@ -20,20 +22,19 @@ namespace Settings
     const float range = 1.0f;
 
     // Zoom
-    const float zoom_in = 1.1f;
-    const float zoom_out = 0.9f;
+    const float zoomIn = 1.1f;
+    const float zoomOut = 0.9f;
 
     // Light
-    const int source = 0;
-    const glm::vec3 ambient = { 0,0,0 };
-    const glm::vec3 diffuse = { 1,1,1 };
-    const glm::vec3 specular = { 1,1,1 };
+    const glm::vec3 ambient = { 0.2f, 0.2f, 0.2f };
+    const glm::vec3 diffuse = { 1.f, 1.f, 1.f };
+    const glm::vec3 specular = { 1.f, 1.f, 1.f };
 
     // Camera
     const glm::vec3 eye = { 0,0,10 };
     const glm::vec3 target = { 0,0,0 };
     const glm::vec3 up = { 0,1,0 };
-    const glm::vec3 world_up = { 0,1,0 };
+    const glm::vec3 worldUp = { 0,1,0 };
 
     // Axes
     const glm::vec3 axisX = { 1.0f, 0.0f, 0.0f };
@@ -57,10 +58,10 @@ namespace Settings
     const float cubeTR = 0.1f;
     const float cubeTL = 0.6f;
     const float sizeT = 0.15f;
-    const uint32_t numSubs = 64;
+    const uint32_t numSubs = 32;
 
     // Colors
-    const glm::vec4 colorBackground = { 0.25f, 0.25f, 0.25f, 1.0f };
+    const glm::vec4 colorBackground = { 0.15f, 0.15f, 0.15f, 1.0f };
     const glm::vec4 colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f};
     const glm::vec4 colorGray = { 0.5f, 0.5f, 0.5f, 1.0f};
     const glm::vec4 colorBlack = { 0.0f, 0.0f, 0.0f, 1.0f};
@@ -103,4 +104,8 @@ namespace Settings
     // Application
     const std::string title = "MeshEditor";
     const std::string dll = "RenderSystem.dll";
+
+    // Paths
+    const std::string dataPath = DATA_PATH;
+    const std::string shadersPath = SHADERS_PATH;
 };

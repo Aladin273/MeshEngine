@@ -17,6 +17,12 @@
 #include "MeshEditor/Operators/Contact.h"
 #include "MeshEditor/Operators/OperatorDispatcher.h"
 
+#include "../UI/ConsoleLayer.h"
+#include "../UI/DockpaneLayer.h"
+#include "../UI/PropertiesLayer.h"
+#include "../UI/TreeLayer.h"
+#include "../UI/ViewportLayer.h"
+
 class View
 {
 public:
@@ -51,6 +57,9 @@ public:
     Node* getPlane();
     const Node* getPlane() const;
 
+    Node* getOrigin();
+    const Node* getOrigin() const;
+
     void decoratePlane(Node& plane) const;
     void decorateOrigin(Node& origin) const;
     void decorateTriad(Triad& triad) const;
@@ -60,12 +69,24 @@ private:
     std::unique_ptr<Node> m_plane;
     std::unique_ptr<Node> m_origin;
 
-    Model* m_model = nullptr;
     Viewport m_viewport;
+    Model* m_model = nullptr;
 
-    RenderSystem* m_renderSystem = nullptr;
     Shader* m_shader = nullptr;
-    std::unique_ptr<Window> m_window;
+    RenderSystem* m_renderSystem = nullptr;
+    
+    uint32_t m_framebufferId;
+    uint32_t m_framerenderId;
+    uint32_t m_frametextureId;
 
+    std::unique_ptr<Window> m_window;
+    std::unique_ptr<GuiSystem> m_guiSystem;
+
+    std::unique_ptr<ConsoleLayer> m_consoleLayer;
+    std::unique_ptr<DockpaneLayer> m_dockpaneLayer;
+    std::unique_ptr<PropertiesLayer> m_propertiesLayer;
+    std::unique_ptr<TreeLayer> m_treeLayer;
+    std::unique_ptr<ViewportLayer> m_viewportLayer;
+    
     OperatorDispatcher m_operatorDispatcher;
 };

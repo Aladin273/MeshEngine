@@ -180,6 +180,38 @@ void GLRenderSystem::unbufferTexture(uint32_t textureId)
     glDeleteTextures(1, &textureId);
 }
 
+void GLRenderSystem::bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height)
+{
+    // Create Framebuffer
+    glGenFramebuffers(1, &bufferId);
+    glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+
+    // Create Texture
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+
+    // Create Renderbuffer Object for depth and stencil attachment
+    glGenRenderbuffers(1, &renderId);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderId);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderId);
+
+    // Check if framebuffer is complete
+    //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        //std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void GLRenderSystem::unbufferFrame(uint32_t bufferId)
+{
+    glDeleteFramebuffers(1, &bufferId);
+}
+
 void GLRenderSystem::bindBuffer(uint32_t bufferId)
 {
     glBindVertexArray(bufferId);
@@ -199,6 +231,16 @@ void GLRenderSystem::bindTexture(uint32_t activeId, uint32_t textureId)
 void GLRenderSystem::unbindTexture()
 {
     glActiveTexture(GL_TEXTURE0);
+}
+
+void GLRenderSystem::bindFrame(uint32_t bufferId)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+}
+
+void GLRenderSystem::unbindFrame()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void GLRenderSystem::renderTriangles()

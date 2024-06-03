@@ -1,12 +1,9 @@
 ﻿#include "Application/Application.h"
 
-const std::string dataPath = DATA_PATH;
-const std::string shadersPath = SHADERS_PATH;
-
 int main()
 {
     Application* app = Application::instance();
-    std::unique_ptr<Model> model = app->loadModel(dataPath + Settings::model9);
+    std::unique_ptr<Model> model = app->loadModel(Settings::dataPath + Settings::model9);
     View* view = app->createView(Settings::title, Settings::width, Settings::height);
 
     view->setModel(model.get());

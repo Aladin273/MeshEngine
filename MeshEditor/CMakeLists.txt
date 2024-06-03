@@ -14,19 +14,20 @@ set(MESH_EDITOR_HEADERS
     Operators/OperatorDispatcher.h
 
     Operators/Delete/DeleteFaceOperator.h
-    Operators/Delete/DeleteFaceOperator.cpp
 
-    Operators/Edit/EditFaceOperator.cpp
     Operators/Edit/EditFaceOperator.h
-    Operators/Edit/EditNodeOperator.cpp
     Operators/Edit/EditNodeOperator.h
-    Operators/Edit/EditVertexOperator.cpp
     Operators/Edit/EditVertexOperator.h
 
-    Operators/View/Arcball.cpp
     Operators/View/Arcball.h
-    Operators/View/Pan.cpp
     Operators/View/Pan.h
+
+    UI/BaseLayer.h
+    UI/DockpaneLayer.h
+    UI/ConsoleLayer.h
+    UI/PropertiesLayer.h
+    UI/TreeLayer.h
+    UI/ViewportLayer.h
 )
 
 set(MESH_EDITOR_SOURCES
@@ -34,6 +35,22 @@ set(MESH_EDITOR_SOURCES
     Application/View.cpp
     
     Operators/OperatorDispatcher.cpp
+
+    Operators/Delete/DeleteFaceOperator.cpp
+    
+    Operators/Edit/EditFaceOperator.cpp
+    Operators/Edit/EditNodeOperator.cpp
+    Operators/Edit/EditVertexOperator.cpp
+
+    Operators/View/Arcball.cpp
+    Operators/View/Pan.cpp
+
+    UI/BaseLayer.cpp
+    UI/DockpaneLayer.cpp
+    UI/ConsoleLayer.cpp
+    UI/PropertiesLayer.cpp
+    UI/TreeLayer.cpp
+    UI/ViewportLayer.cpp
     
     Main.cpp
 )

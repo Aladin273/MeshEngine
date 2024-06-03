@@ -1,6 +1,7 @@
-/*
-
 #include "GLGuiSystem.h"
+
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
 
 GLGuiSystem::GLGuiSystem(Window* window)
     : m_window(window)
@@ -10,7 +11,7 @@ GLGuiSystem::GLGuiSystem(Window* window)
 
 GLGuiSystem::~GLGuiSystem()
 {
-    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
@@ -20,6 +21,8 @@ void GLGuiSystem::init()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
 
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
@@ -34,7 +37,7 @@ void GLGuiSystem::init()
     }
 
     ImGui_ImplGlfw_InitForOpenGL(reinterpret_cast<GLFWwindow*>(m_window->getHandle()), true);
-    ImGui_ImplOpenGL2_Init();
+    ImGui_ImplOpenGL3_Init();
 }
 
 void GLGuiSystem::render()
@@ -43,36 +46,24 @@ void GLGuiSystem::render()
 
     for (auto layer : m_layers)
     {
-        layer.second->context(getContext());
         layer.second->render();
+        layer.second->update();
     }
 
     end();
 }
 
-void GLGuiSystem::render(IGuiLayer& layer)
+void GLGuiSystem::render(GuiLayer& layer)
 {
     begin();
-
-    layer.context(getContext());
     layer.render();
-
+    layer.update();
     end();
-}
-
-void GLGuiSystem::setContext(void* context)
-{
-    ImGui::SetCurrentContext(reinterpret_cast<ImGuiContext*>(context));
-}
-
-void* GLGuiSystem::getContext()
-{
-    return ImGui::GetCurrentContext();
 }
 
 void GLGuiSystem::begin()
 {
-    ImGui_ImplOpenGL2_NewFrame();
+    ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
@@ -83,7 +74,7 @@ void GLGuiSystem::end()
     io.DisplaySize = ImVec2(static_cast<float>(m_window->getWidth()), static_cast<float>(m_window->getHeight()));
 
     ImGui::Render();
-    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -94,7 +85,7 @@ void GLGuiSystem::end()
     }
 }
 
-void GLGuiSystem::pushLayer(uint32_t index, IGuiLayer& layer)
+void GLGuiSystem::pushLayer(uint32_t index, GuiLayer& layer)
 {
     m_layers.emplace(index, &layer);
 }
@@ -107,27 +98,12 @@ void GLGuiSystem::popLayer(uint32_t index)
         m_layers.erase(index);
 }
 
-void GLGuiSystem::turnDocking(bool enable)
+bool GLGuiSystem::wantCaptureMouse()
 {
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    if (enable)
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    else
-        io.ConfigFlags &= ImGuiConfigFlags_DockingEnable;
+    return ImGui::GetIO().WantCaptureMouse;
 }
 
-void GLGuiSystem::turnVieports(bool enable)
+bool GLGuiSystem::wantCaptureKeyboard()
 {
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    if (enable)
-        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-    else
-        io.ConfigFlags &= ImGuiConfigFlags_ViewportsEnable;
+    return ImGui::GetIO().WantCaptureKeyboard;
 }
-
-bool GLGuiSystem::wantCapture()
-{
-    return ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard;
-}
-
-*/

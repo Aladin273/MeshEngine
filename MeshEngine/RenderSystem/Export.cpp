@@ -53,8 +53,7 @@ RenderSystem* MeshEngine::createRenderSystem()
 
 GuiSystem* MeshEngine::createGuiSystem(Window* window)
 {
-    return nullptr;
-    //return new GLGuiSystem(window);
+    return new GLGuiSystem(window);
 }
 
 Shader* MeshEngine::createShader(const std::string& vertexPath, const std::string& fragmentPath)

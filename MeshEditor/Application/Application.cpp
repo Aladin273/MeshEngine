@@ -214,6 +214,17 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
         }
     });
 
+    m_views.back()->addOperator(KeyCode::O, [](View& view, Action action, Modifier mods)
+        {
+            if (action == Action::Press)
+            {
+                view.getOrigin()->processRecursive([](Node& node)
+                    {
+                        node.getMesh()->renderTriangles = !node.getMesh()->renderTriangles;
+                    });
+            }
+        });
+
     return m_views.back().get();
 }
 
