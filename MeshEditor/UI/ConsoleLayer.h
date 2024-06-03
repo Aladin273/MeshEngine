@@ -7,5 +7,9 @@ class ConsoleLayer : public BaseLayer
 public:
     ConsoleLayer(View* view);
 
-    virtual void render() override;
+    void render() override;
+
+private:
+    void clear();
+    void copy();
 };
