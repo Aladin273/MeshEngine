@@ -470,7 +470,17 @@ const std::string& Mesh::getName() const
     return m_name;
 }
 
+std::string& Mesh::getName()
+{
+    return m_name;
+}
+
 const Material& Mesh::getMaterial() const
+{
+    return m_material;
+}
+
+Material& Mesh::getMaterial()
 {
     return m_material;
 }

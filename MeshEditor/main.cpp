@@ -14,7 +14,7 @@ int main()
     spdlog::default_logger()->sinks().push_back(engineLogger);
 
     Application* app = Application::instance();
-    std::unique_ptr<Model> model = app->loadModel(Settings::dataPath + Settings::model9);
+    std::unique_ptr<Model> model = app->loadModel(Settings::dataPath + Settings::model5);
     View* view = app->createView(Settings::title, Settings::width, Settings::height);
 
     view->setModel(model.get());

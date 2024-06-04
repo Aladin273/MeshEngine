@@ -54,11 +54,14 @@ public:
     const BoundaryBox& getBoundingBox();
     const heds::HalfEdgeTable& getHalfEdgeTable() const;
 
+    const std::string& getName() const;
+    std::string& getName();
+    
+    const Material& getMaterial() const;
+    Material& getMaterial();
+
     void setName(const std::string& name);
     void setMaterial(const Material& material);
-
-    const std::string& getName() const;
-    const Material& getMaterial() const;
 
 private:
     void update();
