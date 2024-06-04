@@ -1,12 +1,12 @@
 #include "ColladaParser.h"
 
-#include <spdlog/spdlog.h>
+#include "MeshEngine/Logger/Logger.h"
 
 using namespace tinyxml2;
 
 std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // Refact
 {
-    spdlog::info("ColladaParser loading from {:}", filename);
+    MeshEngine::Logger::info("ColladaParser loading from {:}", filename);
 
     GeometryMap geometries;
     std::unique_ptr<Model> model = std::make_unique<Model>();
@@ -296,7 +296,7 @@ void ColladaParser::saveModel(const Model& model, const std::string& filename) /
 
     doc.SaveFile((file).c_str());
 
-    spdlog::info("ColladaParser saving to {:}", file);
+    MeshEngine::Logger::info("ColladaParser saving to {:}", file);
 }
 
 void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)

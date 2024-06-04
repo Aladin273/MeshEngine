@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(MESH_ENGINE_HEADERS
     HalfEdge/HalfEdge.h
 
-    Logger/mesh_engine_sink.h
+    Logger/Logger.h
 
     Manipulators/Manipulator.h
     Manipulators/RotationManipulator.h

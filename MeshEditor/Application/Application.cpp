@@ -8,6 +8,8 @@ Application* Application::instance()
 
 Application::Application()
 {
+    MeshEngine::Logger::init("Logs/MeshEditor.txt", 23, 55);
+
     m_renderSystem.reset(createRenderSystem());
 
     m_waitEvents = MeshEngine::waitEvents;
@@ -111,7 +113,8 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            static int i = 0;
+            static int i = -1; 
+            i = (i + 1) % 6;
 
             view.getModel()->processRecursive([](Node& node)
             {
@@ -126,8 +129,6 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
                 case 6: node.getMesh()->setMaterial(Settings::clear); break;
                 }
             });
-
-            i = i == 6 ? 0 : i + 1;
         }
     });
 

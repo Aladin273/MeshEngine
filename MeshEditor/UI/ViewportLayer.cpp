@@ -3,8 +3,6 @@
 #include "ViewportLayer.h"
 #include "../Application/View.h"
 
-#include <spdlog/spdlog.h>
-
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 

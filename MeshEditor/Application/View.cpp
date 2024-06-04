@@ -2,8 +2,6 @@
 #include "Settings.h"
 #include "Application.h"
 
-#include <spdlog/spdlog.h>
-
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height));

@@ -1,23 +1,17 @@
 #pragma once
 
 #include "ConsoleLayer.h"
-#include "../Application/View.h"
-
-#include <spdlog/spdlog.h>
-#include <MeshEngine/Logger/mesh_engine_sink.h>
 
 #include <imgui_internal.h>
 
-std::shared_ptr<spdlog::sinks::mesh_engine_sink_mt> g_sink;
+#include "../Application/View.h"
+#include "MeshEngine/Logger/Logger.h"
+
+std::shared_ptr<MeshEngine::Logger::ringbuffer_sink_mt> g_sink;
 
 ConsoleLayer::ConsoleLayer(View* view) : BaseLayer(view)
 {
-    auto it = std::find_if(spdlog::default_logger()->sinks().begin(), spdlog::default_logger()->sinks().end(), [](const auto& sink)
-    {
-        return dynamic_cast<spdlog::sinks::mesh_engine_sink_mt*>(sink.get()) != nullptr;
-    });
-
-    g_sink = std::dynamic_pointer_cast<spdlog::sinks::mesh_engine_sink_mt>(*it);
+    g_sink = MeshEngine::Logger::ringbuffer_sink();
 }
 
 void ConsoleLayer::render()
@@ -27,25 +21,21 @@ void ConsoleLayer::render()
         char inputBuffer[256];
         inputBuffer[0] = '\0';
 
-        // Calculate available width for InputText
-        float availableWidth = ImGui::GetContentRegionAvail().x - 115;
-
-        // Adjust InputText to fill the available width
-        if (ImGui::InputTextEx("##ConsoleInput", nullptr, inputBuffer, IM_ARRAYSIZE(inputBuffer), ImVec2(availableWidth, 20), ImGuiInputTextFlags_EnterReturnsTrue))
+        if (ImGui::InputTextEx("##ConsoleInput", nullptr, inputBuffer, IM_ARRAYSIZE(inputBuffer), ImVec2(ImGui::GetContentRegionAvail().x * 0.8f, 20.f), ImGuiInputTextFlags_EnterReturnsTrue))
         {
-            spdlog::info(inputBuffer);
+            MeshEngine::Logger::info(inputBuffer);
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Clear", { 50, 20 }))
+        if (ImGui::Button("Clear", ImVec2(ImGui::GetContentRegionAvail().x * 0.5, 20.f)))
         {
             g_sink->clear();
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Copy", { 50, 20 }))
+        if (ImGui::Button("Copy", ImVec2(ImGui::GetContentRegionAvail().x, 20.f)))
         {
             std::string logs;
             for (const auto& log : g_sink->formatted())
@@ -62,10 +52,9 @@ void ConsoleLayer::render()
             ImGui::TextUnformatted(item.c_str());
         }
 
-        if (g_sink->scrollToBottom)
+        if (g_sink->updated())
         {
             ImGui::SetScrollHereY(1.0f);
-            g_sink->scrollToBottom = false;
         }
 
         ImGui::EndChild();

@@ -1,6 +1,6 @@
 #include "STLParser.h"
 
-#include <spdlog/spdlog.h>
+#include "MeshEngine/Logger/Logger.h"
 
 STLParser::TriangleSoup STLParser::read(const std::string& filename)
 {
@@ -157,7 +157,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
 std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 {
-    spdlog::info("STLParser loading from {:}", filename);
+    MeshEngine::Logger::info("STLParser loading from {:}", filename);
 
     std::unique_ptr<Model> model = std::make_unique<Model>();
     model->attachNode(loadNode(filename));
@@ -214,7 +214,7 @@ void STLParser::saveModel(const Model& model, const std::string& filename)
 
     write(soup, file);
 
-    spdlog::info("STLParser saving to {:}", file);
+    MeshEngine::Logger::info("STLParser saving to {:}", file);
 }
 
 bool STLParser::approximatelyEqual(double a, double b, double epsilon)
