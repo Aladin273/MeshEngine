@@ -12,8 +12,3 @@ void BaseLayer::render()
 {
 
 }
-
-void BaseLayer::update()
-{
-        
-}

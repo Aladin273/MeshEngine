@@ -164,6 +164,11 @@ void View::update()
     m_guiSystem->end();
 }
 
+Model* View::getModel() const
+{
+    return m_model;
+}
+
 void View::setModel(Model* model)
 {
     if (model)
@@ -173,9 +178,14 @@ void View::setModel(Model* model)
     }
 }
 
-Model* View::getModel() const
+Node* View::getSelected() const
 {
-    return m_model;
+    return m_selected;
+}
+
+void View::setSelected(Node* selected)
+{
+    m_selected = selected;
 }
 
 void View::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)

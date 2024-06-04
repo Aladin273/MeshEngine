@@ -2,10 +2,17 @@
 
 #include "BaseLayer.h"
 
+class Node;
+
 class TreeLayer : public BaseLayer
 {
 public:
     TreeLayer(View* view);
 
-    virtual void render() override;
+    void render() override;
+
+private:
+    void renderNode(Node* node, Node*& selected);
+
+    Node* m_selectedNode = nullptr;
 };

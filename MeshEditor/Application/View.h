@@ -31,7 +31,11 @@ public:
 
     void update();
 
+    Model* getModel() const;
     void setModel(Model* model);
+    
+    Node* getSelected() const;
+    void setSelected(Node* selected);
 
     void addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op);
     void addOperator(ButtonCode button, std::unique_ptr<Operator> op);
@@ -45,8 +49,6 @@ public:
 
     void zoomToFit();
     std::vector<Contact> raycast(double x, double y, FilterValue filterValues);
-
-    Model* getModel() const;
 
     Viewport& getViewport();
     const Viewport& getViewport() const;
@@ -69,8 +71,10 @@ private:
     std::unique_ptr<Node> m_plane;
     std::unique_ptr<Node> m_origin;
 
-    Viewport m_viewport;
     Model* m_model = nullptr;
+    Node* m_selected = nullptr;
+    
+    Viewport m_viewport;
 
     Shader* m_shader = nullptr;
     RenderSystem* m_renderSystem = nullptr;
