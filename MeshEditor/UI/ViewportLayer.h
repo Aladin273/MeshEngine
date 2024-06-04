@@ -2,29 +2,36 @@
 
 #include "BaseLayer.h"
 
+#include <functional>
+
 class ViewportLayer : public BaseLayer
 {
 public:
-    ViewportLayer(View* view);
+    using FramebufferSizeCallback = std::function<void(double, double)>;
 
-    virtual void attach(uint32_t textureId, uint32_t width, uint32_t height);
+    ViewportLayer(View* view);
 
     virtual void render() override;
 
-    glm::vec2 getSize() const;
-    glm::vec2 getPosition() const;
+    void attach(uint32_t textureId);
 
-    glm::vec2 getMin() const;
-    glm::vec2 getMax() const;
+    bool wantCaptureMouse() const;
+    void remapToRelative(double& x, double& y);
+
+    void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
 private:
     uint32_t m_textureId;
+
     uint32_t m_width;
     uint32_t m_height;
 
-    glm::vec2 m_size;
+    glm::vec2 m_mouse;
     glm::vec2 m_position;
-
+    
     glm::vec2 m_min;
     glm::vec2 m_max;
+
+    bool m_wantCaptureMouse;
+    std::vector<FramebufferSizeCallback> m_sizeCallbacks;
 };

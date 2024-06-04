@@ -56,7 +56,10 @@ public:
 
 private:
     // Store VAO, VBO, EBO
-    std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_bufferMap;
+    std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_dataMap;
+
+    // Store Frame, Render, Texture
+    std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_frameMap;
 };
 
 

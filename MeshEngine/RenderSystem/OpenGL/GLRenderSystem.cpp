@@ -105,15 +105,15 @@ uint32_t GLRenderSystem::bufferData(const std::vector<Vertex>& vertices, const s
 
     glBindVertexArray(0);
 
-    m_bufferMap[VAO] = std::make_tuple(VAO, VBO, EBO);
+    m_dataMap[VAO] = std::make_tuple(VAO, VBO, EBO);
     return VAO;
 }
 
 void GLRenderSystem::unbufferData(uint32_t id)
 {
-    auto it = m_bufferMap.find(id);
+    auto it = m_dataMap.find(id);
 
-    if (it != m_bufferMap.end())
+    if (it != m_dataMap.end())
     {
         unsigned int VAO = std::get<0>(it->second);
         unsigned int VBO = std::get<1>(it->second);
@@ -123,15 +123,15 @@ void GLRenderSystem::unbufferData(uint32_t id)
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
 
-        m_bufferMap.erase(it);
+        m_dataMap.erase(it);
     }
 }
 
 void GLRenderSystem::bufferSubData(uint32_t bufferId, uint32_t index, const Vertex& vertex)
 {
-    auto it = m_bufferMap.find(bufferId);
+    auto it = m_dataMap.find(bufferId);
 
-    if (it != m_bufferMap.end())
+    if (it != m_dataMap.end())
     {
         unsigned int VBO = std::get<1>(it->second);
 
@@ -209,11 +209,26 @@ void GLRenderSystem::bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_
         //std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_frameMap[bufferId] = std::make_tuple(bufferId, renderId, textureId);
 }
 
 void GLRenderSystem::unbufferFrame(uint32_t bufferId)
 {
-    glDeleteFramebuffers(1, &bufferId);
+    auto it = m_frameMap.find(bufferId);
+
+    if (it != m_frameMap.end())
+    {
+        unsigned int frame = std::get<0>(it->second);
+        unsigned int render = std::get<1>(it->second);
+        unsigned int texture = std::get<2>(it->second);
+
+        glDeleteFramebuffers(1, &frame);
+        glDeleteRenderbuffers(1, &render);
+        glDeleteTextures(1, &texture);
+
+        m_frameMap.erase(it);
+    }
 }
 
 void GLRenderSystem::bindBuffer(uint32_t bufferId)

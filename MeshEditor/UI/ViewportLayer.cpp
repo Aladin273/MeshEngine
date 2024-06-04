@@ -3,83 +3,65 @@
 #include "ViewportLayer.h"
 #include "../Application/View.h"
 
+#include <spdlog/spdlog.h>
+
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 
-}
-
-void ViewportLayer::attach(uint32_t textureId, uint32_t width, uint32_t height)
-{
-    m_textureId = textureId;
-    m_width = width;
-    m_height = height;
 }
 
 void ViewportLayer::render()
 {
     ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoScrollbar);
 
+    auto mouse = ImGui::GetMousePos();
+    auto position = ImGui::GetWindowPos();
     auto min = ImGui::GetWindowContentRegionMin();
     auto max = ImGui::GetWindowContentRegionMax();
 
-    auto size = ImGui::GetWindowSize();
-    auto position = ImGui::GetWindowPos();
+    m_mouse = { mouse.x, mouse.y };
+    m_position = { position.x, position.y };
 
-    m_size.x = size.x;
-    m_size.y = size.y;
-    m_position.x = position.x;
-    m_position.y = position.y;
+    m_min = glm::vec2(min.x, min.y) + m_position;
+    m_max = glm::vec2(max.x, max.y) + m_position;
 
-    m_min.x = min.x + position.x;
-    m_min.y = min.y + position.y;
-    m_max.x = max.x + position.x;
-    m_max.y = max.y + position.y;
+    auto size = m_max - m_min;
 
-    ImGui::GetForegroundDrawList()->AddRect({m_min.x, m_min.y }, { m_max.x, m_max.y }, IM_COL32(255, 255, 0, 255));
-
-    // Get the current size of the ImGui window
-    ImVec2 imguiWindowSize = ImGui::GetWindowSize();
-
-    // Calculate the aspect ratio of the window and the texture
-    float windowAspectRatio = imguiWindowSize.x / imguiWindowSize.y;
-    float textureAspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
-
-    // Calculate the size of the image to be displayed
-    ImVec2 imageSize;
-    if (windowAspectRatio > textureAspectRatio) 
+    if (size.x != m_width || size.y != m_height)
     {
-        // If window is wider than texture, adjust height to fit window
-        imageSize.x = imguiWindowSize.y * textureAspectRatio;
-        imageSize.y = imguiWindowSize.y;
-    }
-    else {
-        // If window is taller than texture, adjust width to fit window
-        imageSize.x = imguiWindowSize.x;
-        imageSize.y = imguiWindowSize.x / textureAspectRatio;
+        for (auto& callback : m_sizeCallbacks)
+        {
+            callback(size.x, size.y);
+        }
+
+        m_width = size.x;
+        m_height = size.y;
     }
 
-    // Display the rendered texture with flipped UV coordinates and adjusted size
-    ImGui::Image((void*)(intptr_t)m_textureId, imageSize, ImVec2(0, 1), ImVec2(1, 0));
+    m_wantCaptureMouse = (m_mouse.x >= m_min.x && m_mouse.x <= m_max.x) && (m_mouse.y >= m_min.y && m_mouse.y <= m_max.y);
 
+    ImGui::Image((void*)(intptr_t)m_textureId, { (float)m_width, (float)m_height}, ImVec2(0, 1), ImVec2(1, 0));
+   
     ImGui::End();
 }
 
-glm::vec2 ViewportLayer::getSize() const
+void ViewportLayer::attach(uint32_t textureId)
 {
-    return m_size;
+    m_textureId = textureId;
 }
 
-glm::vec2 ViewportLayer::getPosition() const
+bool ViewportLayer::wantCaptureMouse() const
 {
-    return m_position;
+    return m_wantCaptureMouse;
 }
 
-glm::vec2 ViewportLayer::getMin() const
+void ViewportLayer::remapToRelative(double& x, double& y)
 {
-    return m_min;
+    x = m_mouse.x - m_min.x;
+    y = m_height - (m_mouse.y - m_min.y);
 }
 
-glm::vec2 ViewportLayer::getMax() const
+void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
 {
-    return m_max;
+    m_sizeCallbacks.push_back(callback);
 }

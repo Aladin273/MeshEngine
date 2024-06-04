@@ -2,6 +2,8 @@
 #include "Settings.h"
 #include "Application.h"
 
+#include <spdlog/spdlog.h>
+
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height));
@@ -36,46 +38,52 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)
         {
             if (m_guiSystem->wantCaptureKeyboard()) return;
+
             m_operatorDispatcher.processKeyboardInput(*this, key, action, mods);
         });
 
     m_window->setMouseCallback([&](ButtonCode button, Action action, Modifier mods, double x, double y)
         {
-            if (m_guiSystem->wantCaptureMouse())
+            if (m_guiSystem->wantCaptureMouse() && m_viewportLayer->wantCaptureMouse())
             {
-                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
-                    m_operatorDispatcher.processMouseInput(*this, button, action, mods, x, y);
+                m_viewportLayer->remapToRelative(x, y);
+                m_operatorDispatcher.processMouseInput(*this, button, action, mods, x, y);
             }
         });
 
     m_window->setCursorPosCallback([&](double x, double y)
         {
-            if (m_guiSystem->wantCaptureMouse())
+            if (m_guiSystem->wantCaptureMouse() && m_viewportLayer->wantCaptureMouse())
             {
-                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
-                    m_operatorDispatcher.processMouseMove(*this, x, y);
+                m_viewportLayer->remapToRelative(x, y);
+                m_operatorDispatcher.processMouseMove(*this, x, y);
             }
         });
 
     m_window->setScrollCallback([&](double x, double y)
         {
-            if (m_guiSystem->wantCaptureMouse())
+            if (m_viewportLayer->wantCaptureMouse())
             {
-                if ((x >= m_viewportLayer->getMin().x && x <= m_viewportLayer->getMax().x) && (y >= m_viewportLayer->getMin().y && y <= m_viewportLayer->getMax().y))
-                {
-                    if (y > Settings::invalid)
-                        m_viewport.getCamera().zoom(Settings::zoomIn);
-                    else
-                        m_viewport.getCamera().zoom(Settings::zoomOut);
-                }
+                if (y > Settings::invalid)
+                    m_viewport.getCamera().zoom(Settings::zoomIn);
+                else
+                    m_viewport.getCamera().zoom(Settings::zoomOut);
             }
         });
 
     m_window->setFramebufferSizeCallback([&](int width, int height)
         {
+            //m_viewport.setViewportSize(width, height);
+            //
+            //m_renderSystem->unbufferFrame(m_framebufferId);
+            //m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
+        });
+
+    m_viewportLayer->setFramebufferSizeCallback([&](int width, int height)
+        {
             m_viewport.setViewportSize(width, height);
 
-            m_renderSystem->unbufferFrame(m_frametextureId);
+            m_renderSystem->unbufferFrame(m_framebufferId);
             m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
         });
 }
@@ -150,14 +158,14 @@ void View::update()
     
     m_propertiesLayer->render();
     m_propertiesLayer->update();
-    
+
     m_treeLayer->render();
     m_treeLayer->update();
-    
+
     m_consoleLayer->render();
     m_consoleLayer->update();
 
-    m_viewportLayer->attach(m_frametextureId, m_viewport.getWidth(), m_viewport.getHeight());
+    m_viewportLayer->attach(m_frametextureId);
     m_viewportLayer->render();
     m_viewportLayer->update();
 
