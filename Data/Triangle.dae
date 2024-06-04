@@ -1,0 +1,39 @@
+<collada>
+
+  <library_geometries>
+    <geometry id="Cube-mesh">
+      <mesh>
+        <source id="Cube-mesh-positions">   
+          <float_array id="Cube-mesh-positions-array" count="9">
+            1 1 -1 1 -1 -1 -1 -1 -1
+          </float_array>
+        </source>
+
+        <vertices id="Cube-mesh-vertices">
+          <input semantic="POSITION" source="#Cube-mesh-positions" />
+        </vertices>
+        
+        <polylist material="Material1" count="1">
+          <input semantic="VERTEX" source="#Cube-mesh-vertices" offset="0"/>
+          <vcount>3</vcount>
+          <p>0 1 2</p>
+        </polylist>
+      </mesh>
+    </geometry>
+
+
+
+  </library_geometries>
+ 
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+        
+      <node id="Cube" type="NODE">
+        <instance_geometry url="#Cube-mesh"></instance_geometry>
+        <translate>32 42 16</translate>
+      </node>
+
+    </visual_scene>
+  </library_visual_scenes>
+
+</collada>
