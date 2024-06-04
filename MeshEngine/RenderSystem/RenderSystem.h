@@ -30,24 +30,24 @@ public:
 
     // Buffer
     virtual uint32_t bufferData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
-    virtual void unbufferData(uint32_t bufferId) = 0;
+    virtual void unbufferData(uint32_t dataId) = 0;
 
-    virtual void bufferSubData(uint32_t bufferId, uint32_t index, const Vertex& vertex) = 0;
+    virtual void bufferSubData(uint32_t dataId, uint32_t index, const Vertex& vertex) = 0;
 
     virtual uint32_t bufferTexture(const std::string& texturePath) = 0;
     virtual void unbufferTexture(uint32_t textureId) = 0;
 
-    virtual void bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) = 0;
-    virtual void unbufferFrame(uint32_t bufferId) = 0;
+    virtual void bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) = 0;
+    virtual void unbufferFrame(uint32_t frameId) = 0;
 
     // Bind
-    virtual void bindBuffer(uint32_t bufferId) = 0;
-    virtual void unbindBuffer() = 0;
+    virtual void bindData(uint32_t dataId) = 0;
+    virtual void unbindData() = 0;
 
     virtual void bindTexture(uint32_t activeId, uint32_t textureId) = 0;
     virtual void unbindTexture() = 0;
 
-    virtual void bindFrame(uint32_t bufferId) = 0;
+    virtual void bindFrame(uint32_t frameId) = 0;
     virtual void unbindFrame() = 0;
 
     // Render

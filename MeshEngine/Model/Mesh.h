@@ -78,10 +78,10 @@ private:
     std::vector<uint32_t> m_boundaries;
 
     bool m_bufferData = true;
-    uint32_t m_bufferTriangles = 0;
-    uint32_t m_bufferLines = 0;
-    uint32_t m_bufferHoles = 0;
-    uint32_t m_bufferBoundaries = 0;
+    uint32_t m_trianglesId = 0;
+    uint32_t m_linesId = 0;
+    uint32_t m_holesId = 0;
+    uint32_t m_boundariesId = 0;
 
     bool m_bufferSubData = false;
     std::vector<uint32_t> m_subDataIndices;

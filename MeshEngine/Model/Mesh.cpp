@@ -24,15 +24,15 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
     {
         m_bufferData = false;
         
-        rs.unbufferData(m_bufferTriangles);
-        rs.unbufferData(m_bufferLines);
-        rs.unbufferData(m_bufferHoles);
-        rs.unbufferData(m_bufferBoundaries);
+        rs.unbufferData(m_trianglesId);
+        rs.unbufferData(m_linesId);
+        rs.unbufferData(m_holesId);
+        rs.unbufferData(m_boundariesId);
        
-        m_bufferTriangles = rs.bufferData(m_vertices, m_triangles);
-        m_bufferLines = rs.bufferData(m_vertices, m_lines);
-        m_bufferHoles = rs.bufferData(m_vertices, m_holes);
-        m_bufferBoundaries = rs.bufferData(m_vertices, m_boundaries);
+        m_trianglesId = rs.bufferData(m_vertices, m_triangles);
+        m_linesId = rs.bufferData(m_vertices, m_lines);
+        m_holesId = rs.bufferData(m_vertices, m_holes);
+        m_boundariesId = rs.bufferData(m_vertices, m_boundaries);
     }
 
     if (m_bufferSubData)
@@ -41,10 +41,10 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
 
         for (auto& indice : m_subDataIndices)
         {
-            rs.bufferSubData(m_bufferTriangles, indice, m_vertices[indice]);
-            rs.bufferSubData(m_bufferLines, indice, m_vertices[indice]);
-            rs.bufferSubData(m_bufferHoles, indice, m_vertices[indice]);
-            rs.bufferSubData(m_bufferBoundaries, indice, m_vertices[indice]);
+            rs.bufferSubData(m_trianglesId, indice, m_vertices[indice]);
+            rs.bufferSubData(m_linesId, indice, m_vertices[indice]);
+            rs.bufferSubData(m_holesId, indice, m_vertices[indice]);
+            rs.bufferSubData(m_boundariesId, indice, m_vertices[indice]);
         }
     }
     
@@ -58,7 +58,7 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         shader.setVec3("material.emission", m_material.emission);
         shader.setFloat("material.shininess", m_material.shininess);
 
-        rs.bindBuffer(m_bufferTriangles);
+        rs.bindData(m_trianglesId);
         rs.renderTriangles();
     }
 
@@ -70,7 +70,7 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         shader.setVec3("material.emission", colorLines);
         shader.setFloat("material.shininess", 0);
 
-        rs.bindBuffer(m_bufferLines);
+        rs.bindData(m_linesId);
         
         rs.setLineSize(2.0f);
         rs.renderLines();
@@ -84,7 +84,7 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         shader.setVec3("material.emission", colorHoles);
         shader.setFloat("material.shininess", 0);
 
-        rs.bindBuffer(m_bufferHoles);
+        rs.bindData(m_holesId);
 
         rs.setLineSize(4.0f);
         rs.renderLines();
@@ -98,11 +98,11 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         shader.setVec3("material.emission", colorBoundaries);
         shader.setFloat("material.shininess", 0);
 
-        rs.bindBuffer(m_bufferBoundaries);
+        rs.bindData(m_boundariesId);
         rs.renderTriangles();
     }
 
-    rs.unbindBuffer();
+    rs.unbindData();
 
     //shader.setInt("material.diffuseMap", 0);
     //shader.setInt("material.specularMap", 1);

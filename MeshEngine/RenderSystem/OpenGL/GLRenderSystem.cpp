@@ -109,9 +109,9 @@ uint32_t GLRenderSystem::bufferData(const std::vector<Vertex>& vertices, const s
     return VAO;
 }
 
-void GLRenderSystem::unbufferData(uint32_t id)
+void GLRenderSystem::unbufferData(uint32_t dataId)
 {
-    auto it = m_dataMap.find(id);
+    auto it = m_dataMap.find(dataId);
 
     if (it != m_dataMap.end())
     {
@@ -127,9 +127,9 @@ void GLRenderSystem::unbufferData(uint32_t id)
     }
 }
 
-void GLRenderSystem::bufferSubData(uint32_t bufferId, uint32_t index, const Vertex& vertex)
+void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t index, const Vertex& vertex)
 {
-    auto it = m_dataMap.find(bufferId);
+    auto it = m_dataMap.find(dataId);
 
     if (it != m_dataMap.end())
     {
@@ -145,6 +145,11 @@ void GLRenderSystem::bufferSubData(uint32_t bufferId, uint32_t index, const Vert
 
 uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 {
+    auto it = m_textureMap.find(texturePath);
+
+    if (it != m_textureMap.end())
+        return m_textureMap[texturePath];
+
     uint32_t textureID = -1;
 
     int width, height, nrComponents;
@@ -174,6 +179,8 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
         glBindTexture(GL_TEXTURE_2D, 0);
 
         stbi_image_free(data);
+
+        m_textureMap[texturePath] = textureID;
     }
 
     return textureID;
@@ -181,14 +188,19 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 
 void GLRenderSystem::unbufferTexture(uint32_t textureId)
 {
+    auto it = std::find_if(m_textureMap.begin(), m_textureMap.end(), [textureId](const auto& pair) { return pair.second == textureId; });
+
+    if (it != m_textureMap.end())
+        m_textureMap.erase(it);
+
     glDeleteTextures(1, &textureId);
 }
 
-void GLRenderSystem::bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height)
+void GLRenderSystem::bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height)
 {
     // Create Framebuffer
-    glGenFramebuffers(1, &bufferId);
-    glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+    glGenFramebuffers(1, &frameId);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameId);
 
     // Create Texture
     glGenTextures(1, &textureId);
@@ -210,12 +222,12 @@ void GLRenderSystem::bufferFrame(uint32_t& bufferId, uint32_t& renderId, uint32_
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    m_frameMap[bufferId] = std::make_tuple(bufferId, renderId, textureId);
+    m_frameMap[frameId] = std::make_tuple(frameId, renderId, textureId);
 }
 
-void GLRenderSystem::unbufferFrame(uint32_t bufferId)
+void GLRenderSystem::unbufferFrame(uint32_t frameId)
 {
-    auto it = m_frameMap.find(bufferId);
+    auto it = m_frameMap.find(frameId);
 
     if (it != m_frameMap.end())
     {
@@ -231,12 +243,12 @@ void GLRenderSystem::unbufferFrame(uint32_t bufferId)
     }
 }
 
-void GLRenderSystem::bindBuffer(uint32_t bufferId)
+void GLRenderSystem::bindData(uint32_t dataId)
 {
-    glBindVertexArray(bufferId);
+    glBindVertexArray(dataId);
 }
 
-void GLRenderSystem::unbindBuffer()
+void GLRenderSystem::unbindData()
 {
     glBindVertexArray(0);
 }
@@ -252,9 +264,9 @@ void GLRenderSystem::unbindTexture()
     glActiveTexture(GL_TEXTURE0);
 }
 
-void GLRenderSystem::bindFrame(uint32_t bufferId)
+void GLRenderSystem::bindFrame(uint32_t frameId)
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, bufferId);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameId);
 }
 
 void GLRenderSystem::unbindFrame()

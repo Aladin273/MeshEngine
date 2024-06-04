@@ -79,9 +79,9 @@ private:
     Shader* m_shader = nullptr;
     RenderSystem* m_renderSystem = nullptr;
     
-    uint32_t m_framebufferId;
-    uint32_t m_framerenderId;
-    uint32_t m_frametextureId;
+    uint32_t m_frameId;
+    uint32_t m_renderId;
+    uint32_t m_textureId;
 
     std::unique_ptr<Window> m_window;
     std::unique_ptr<GuiSystem> m_guiSystem;

@@ -12,7 +12,7 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_renderSystem = rs;
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
-    m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
+    m_renderSystem->bufferFrame(m_frameId, m_renderId, m_textureId, width, height);
     
     m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
 
@@ -22,7 +22,7 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_treeLayer = std::make_unique<TreeLayer>(this);
     
     m_viewportLayer = std::make_unique<ViewportLayer>(this);
-    m_viewportLayer->attach(m_frametextureId);
+    m_viewportLayer->attach(m_textureId);
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);
@@ -84,10 +84,10 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
         {
             m_viewport.setViewportSize(width, height);
 
-            m_renderSystem->unbufferFrame(m_framebufferId);
-            m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
+            m_renderSystem->unbufferFrame(m_frameId);
+            m_renderSystem->bufferFrame(m_frameId, m_renderId, m_textureId, width, height);
 
-            m_viewportLayer->attach(m_frametextureId);
+            m_viewportLayer->attach(m_textureId);
         });
 }
 
@@ -98,7 +98,7 @@ View::~View()
 
 void View::update()
 {
-    m_renderSystem->bindFrame(m_framebufferId);
+    m_renderSystem->bindFrame(m_frameId);
 
     std::vector<Node*> postRender;
 
