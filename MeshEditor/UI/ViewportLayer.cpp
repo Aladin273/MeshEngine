@@ -26,6 +26,11 @@ bool ViewportLayer::wantCaptureMouse() const
     return m_wantCaptureMouse;
 }
 
+bool ViewportLayer::wantCaptureKeyboard() const
+{
+
+}
+
 void ViewportLayer::remapToRelative(double& x, double& y)
 {
     x = m_mouse.x - m_min.x;
@@ -66,7 +71,9 @@ void ViewportLayer::viewport()
     }
 
     bool isActiveWindow = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    
     m_wantCaptureMouse = isActiveWindow && (m_mouse.x >= m_min.x && m_mouse.x <= m_max.x) && (m_mouse.y >= m_min.y && m_mouse.y <= m_max.y);
+    m_wantCaptureMouse = isActiveWindow;
 
     ImGui::Image((void*)(intptr_t)m_textureId, { (float)m_width, (float)m_height }, ImVec2(0, 1), ImVec2(1, 0));
 

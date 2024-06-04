@@ -154,20 +154,12 @@ void View::update()
     m_guiSystem->begin();
 
     m_dockpaneLayer->render();
-    m_dockpaneLayer->update();
-    
     m_propertiesLayer->render();
-    m_propertiesLayer->update();
-
     m_treeLayer->render();
-    m_treeLayer->update();
-
     m_consoleLayer->render();
-    m_consoleLayer->update();
 
     m_viewportLayer->attach(m_frametextureId);
     m_viewportLayer->render();
-    m_viewportLayer->update();
 
     m_guiSystem->end();
 }

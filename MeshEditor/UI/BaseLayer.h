@@ -14,7 +14,6 @@ public:
     BaseLayer(View* view);
 
     virtual void render() override;
-    virtual void update() override;
 
 protected:
     View* m_view;

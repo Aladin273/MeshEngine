@@ -51,7 +51,6 @@ void GLGuiSystem::render()
     for (auto layer : m_layers)
     {
         layer.second->render();
-        layer.second->update();
     }
 
     end();
@@ -61,7 +60,6 @@ void GLGuiSystem::render(GuiLayer& layer)
 {
     begin();
     layer.render();
-    layer.update();
     end();
 }
 

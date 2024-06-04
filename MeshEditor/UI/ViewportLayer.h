@@ -16,6 +16,8 @@ public:
     void attach(uint32_t textureId);
 
     bool wantCaptureMouse() const;
+    bool wantCaptureKeyboard() const;
+
     void remapToRelative(double& x, double& y);
 
     void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
@@ -36,5 +38,7 @@ private:
     glm::vec2 m_max;
 
     bool m_wantCaptureMouse;
+    bool m_wantCaptureKeyboard;
+
     std::vector<FramebufferSizeCallback> m_sizeCallbacks;
 };
