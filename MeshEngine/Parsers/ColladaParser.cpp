@@ -244,8 +244,6 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
 
 void ColladaParser::saveModel(const Model& model, const std::string& filename) // Refact
 {
-    spdlog::info("ColladaParser saving to {:}", filename);
-
     if (model.getNodes().empty())
         return;
 
@@ -297,6 +295,8 @@ void ColladaParser::saveModel(const Model& model, const std::string& filename) /
     }
 
     doc.SaveFile((file).c_str());
+
+    spdlog::info("ColladaParser saving to {:}", file);
 }
 
 void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)

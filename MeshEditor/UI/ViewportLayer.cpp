@@ -70,7 +70,7 @@ void ViewportLayer::viewport()
         m_height = size.y;
     }
 
-    bool isActiveWindow = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+    bool isActiveWindow = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
     
     m_wantCaptureMouse = isActiveWindow && ((m_mouse.x >= m_min.x && m_mouse.x <= m_max.x) && (m_mouse.y >= m_min.y && m_mouse.y <= m_max.y));
     m_wantCaptureKeyboard = isActiveWindow;
