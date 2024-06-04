@@ -9,6 +9,7 @@
 #include "MeshEngine/Parsers/STLParser.h"
 #include "MeshEngine/Model/Model.h"
 
+#include "../Operators/View/Select.h"
 #include "../Operators/View/Pan.h"
 #include "../Operators/View/Arcball.h"
 #include "../Operators/Edit/EditNodeOperator.h"

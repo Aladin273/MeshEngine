@@ -67,6 +67,8 @@ uniform DirLight dirLights[32];
 uniform PointLight pointLights[32];
 uniform SpotLight spotLights[32];
 
+uniform vec3 outline;
+
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -166,6 +168,9 @@ void main()
     // SpotLight
     for(int i = 0; i < numSpotLights; ++i)
         result += CalcSpotLight(spotLights[i], norm, viewDir, FragPos);
+
+    // Outline
+    result += outline;
 
     FragColor = vec4(result, 1.0);
 }

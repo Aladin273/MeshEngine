@@ -21,6 +21,7 @@ set(MESH_EDITOR_HEADERS
 
     Operators/View/Arcball.h
     Operators/View/Pan.h
+    Operators/View/Select.h
 
     UI/BaseLayer.h
     UI/DockpaneLayer.h
@@ -44,6 +45,7 @@ set(MESH_EDITOR_SOURCES
 
     Operators/View/Arcball.cpp
     Operators/View/Pan.cpp
+    Operators/View/Select.cpp
 
     UI/BaseLayer.cpp
     UI/DockpaneLayer.cpp

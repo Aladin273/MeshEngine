@@ -12,7 +12,7 @@ public:
     void render() override;
 
 private:
-    void renderNode(Node* node, Node*& selected);
+    void renderNode(Node* node);
 
     Node* m_selectedNode = nullptr;
 };

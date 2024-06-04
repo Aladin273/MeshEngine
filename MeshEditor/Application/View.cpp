@@ -129,8 +129,13 @@ void View::update()
         {
             if (dynamic_cast<Manipulator*>(&node) == nullptr)
             {
+                if (&node == getSelected())
+                    m_shader->setVec3("outline", 0.2f, 0.2f, 0.2f);
+
                 m_shader->setMat4("model", node.calcAbsoluteTransform());
                 node.getMesh()->render(*m_renderSystem, *m_shader);
+
+                m_shader->setVec3("outline", 0.0f, 0.0f, 0.0f);
             }
             else
                 postRender.push_back(&node);
@@ -305,7 +310,7 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
     // Filter value
     for (size_t index = 0; index < contacts.size();)
     {
-        if (filterValues == FilterValue::Node || filterValues == FilterValue::NM)
+        if (filterValues == FilterValue::NM)
         {
             if (dynamic_cast<Node*>(contacts[index].node) == nullptr)
             {
@@ -316,6 +321,14 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
         else if (filterValues == FilterValue::Manipulator)
         {
             if (dynamic_cast<Manipulator*>(contacts[index].node) == nullptr)
+            {
+                contacts.erase(contacts.begin() + index);
+                continue;
+            }
+        }
+        else 
+        {
+            if (dynamic_cast<Manipulator*>(contacts[index].node) != nullptr)
             {
                 contacts.erase(contacts.begin() + index);
                 continue;

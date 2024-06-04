@@ -34,17 +34,19 @@ void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action
         auto dominant = m_dominants.find(m_stack.top());
 
         if (dominant != m_dominants.end())
+        {
             op = dominant->second.second.get();
+            op->onMouseInput(view, button, action, mods, x, y);
+        }
     }
-    else
+
+    auto buttoncode = m_buttons.find(button);
+
+    if (buttoncode != m_buttons.end())
     {
-        auto buttoncode = m_buttons.find(button);
-
-        if (buttoncode != m_buttons.end())
-            op = buttoncode->second.get();
+        op = buttoncode->second.get();
+        op->onMouseInput(view, button, action, mods, x, y);
     }
-
-    op->onMouseInput(view, button, action, mods, x, y);
 }
 
 void OperatorDispatcher::processKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
@@ -61,31 +63,29 @@ void OperatorDispatcher::processKeyboardInput(View& view, KeyCode key, Action ac
             if (key == dominant->second.first)
             {
                 op->onExit(view);
-                m_stack.pop();
+                while (!m_stack.empty()) m_stack.pop();
             }
         }
     }
+    
+    auto keycode = m_keys.find(key);
+
+    if (keycode != m_keys.end())
+    {
+        op = keycode->second.get();
+        op->onKeyboardInput(view, key, action, mods);
+    }
     else
     {
-        auto keycode = m_keys.find(key);
+        auto dominant = m_dominants.find(key);
 
-        if (keycode != m_keys.end())
+        if (dominant != m_dominants.end())
         {
-            op = keycode->second.get();
+            m_stack.push(key);
+
+            op = dominant->second.second.get();
+            op->onEnter(view);
             op->onKeyboardInput(view, key, action, mods);
-        }
-        else
-        {
-            auto dominant = m_dominants.find(key);
-
-            if (dominant != m_dominants.end())
-            {
-                m_stack.push(key);
-
-                op = dominant->second.second.get();
-                op->onEnter(view);
-                op->onKeyboardInput(view, key, action, mods);
-            }
         }
     }
 }
@@ -102,9 +102,7 @@ void OperatorDispatcher::processMouseMove(View& view, double x, double y)
             op->onMouseMove(view, x, y);
         }
     }
-    else
-    {
-        for (auto& op : m_buttons)
-            op.second->onMouseMove(view, x, y);
-    }
+
+    for (auto& op : m_buttons)
+        op.second->onMouseMove(view, x, y);
 }

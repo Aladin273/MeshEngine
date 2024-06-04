@@ -25,7 +25,9 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
 {
     m_views.push_back(std::make_unique<View>(m_renderSystem.get(), title, width, height));
 
-    m_views.back()->addOperator(ButtonCode::Button_Left, std::make_unique<PanOperator>());
+    m_views.back()->addOperator(ButtonCode::Button_Left, std::make_unique<SelectOperator>());
+
+    m_views.back()->addOperator(ButtonCode::Button_Middle, std::make_unique<PanOperator>());
 
     m_views.back()->addOperator(ButtonCode::Button_Right, std::make_unique<ArcballOperator>());
 

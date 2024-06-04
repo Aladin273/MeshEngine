@@ -76,29 +76,28 @@ void TreeLayer::render()
 
     for (auto& node : m_view->getModel()->getNodes())
     {
-        renderNode(node.get(), m_selectedNode);
+        renderNode(node.get());
     }
 
     ImGui::End();
 }
 
-void TreeLayer::renderNode(Node* node, Node*& selected)
+void TreeLayer::renderNode(Node* node)
 {
-    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (node == selected ? ImGuiTreeNodeFlags_Selected : 0);
+    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (node == m_view->getSelected() ? ImGuiTreeNodeFlags_Selected : 0);
 
-    bool nodeOpen = ImGui::TreeNodeEx(node, nodeFlags, "%s", node->getName().c_str());
+    auto open = ImGui::TreeNodeEx(node, nodeFlags, "%s", node->getName().c_str());
 
     if (ImGui::IsItemClicked())
     {
-        selected = node;
-        m_view->setSelected(selected);
+        m_view->setSelected(node);
     }
 
-    if (nodeOpen)
+    if (open)
     {
         for (const auto& child : node->getChildren())
         {
-            renderNode(child.get(), selected);
+            renderNode(child.get());
         }
 
         ImGui::TreePop();
