@@ -71,7 +71,9 @@ void PropertiesLayer::render()
         ImGui::Spacing();
         ImGui::Checkbox("Render Boundaries", &(m_view->getSelected()->getMesh()->renderBoundaries));
         ImGui::Spacing();
-        
+
+        ImGui::Separator();
+        ImGui::Text("Material");
         ImGui::Separator();
         ImGui::Spacing();
         
@@ -86,6 +88,8 @@ void PropertiesLayer::render()
         ImGui::SliderFloat("Shininess", &m_view->getSelected()->getMesh()->getMaterial().shininess, 1.0f, 256.0f);
         ImGui::Spacing();
 
+        ImGui::Separator();
+        ImGui::Text("Colors");
         ImGui::Separator();
         ImGui::Spacing();
 

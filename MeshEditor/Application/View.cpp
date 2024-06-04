@@ -65,10 +65,8 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
         {
             if (m_viewportLayer->wantCaptureMouse())
             {
-                if (y > Settings::invalid)
-                    m_viewport.getCamera().zoom(Settings::zoomIn);
-                else
-                    m_viewport.getCamera().zoom(Settings::zoomOut);
+                double factor = y > Settings::invalid ? Settings::zoomIn : Settings::zoomOut;
+                m_viewport.getCamera().zoom(factor);
             }
         });
 
