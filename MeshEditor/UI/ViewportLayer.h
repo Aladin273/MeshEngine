@@ -21,6 +21,9 @@ public:
     void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
 private:
+    void viewport();
+    void overlay();
+
     uint32_t m_textureId;
 
     uint32_t m_width;

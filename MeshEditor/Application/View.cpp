@@ -374,9 +374,10 @@ void View::decoratePlane(Node& plane) const
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(
         Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384));
 
+    mesh->colorLines = Settings::colorGray;
+    mesh->renderTriangles = false;
+
     plane.attachMesh(std::move(mesh));
-    plane.getMesh()->colorLines = Settings::colorGray;
-    plane.getMesh()->renderTriangles = false;
 }
 
 void View::decorateOrigin(Node& origin) const
@@ -386,6 +387,10 @@ void View::decorateOrigin(Node& origin) const
     std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(heds::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
     std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(heds::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
     std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(heds::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+
+    arrowX->renderTriangles = false;
+    arrowY->renderTriangles = false;
+    arrowZ->renderTriangles = false;
 
     arrowX->setMaterial(Settings::red);
     arrowY->setMaterial(Settings::green);

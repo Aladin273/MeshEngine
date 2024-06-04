@@ -6,6 +6,8 @@
 #include <spdlog/spdlog.h>
 #include <MeshEngine/Logger/mesh_engine_sink.h>
 
+#include <imgui_internal.h>
+
 std::shared_ptr<spdlog::sinks::mesh_engine_sink_mt> g_sink;
 
 ConsoleLayer::ConsoleLayer(View* view) : BaseLayer(view)
@@ -25,21 +27,25 @@ void ConsoleLayer::render()
         char inputBuffer[256];
         inputBuffer[0] = '\0';
 
-        if (ImGui::InputText("##ConsoleInput", inputBuffer, IM_ARRAYSIZE(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+        // Calculate available width for InputText
+        float availableWidth = ImGui::GetContentRegionAvail().x - 115;
+
+        // Adjust InputText to fill the available width
+        if (ImGui::InputTextEx("##ConsoleInput", nullptr, inputBuffer, IM_ARRAYSIZE(inputBuffer), ImVec2(availableWidth, 20), ImGuiInputTextFlags_EnterReturnsTrue))
         {
             spdlog::info(inputBuffer);
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Clear"))
+        if (ImGui::Button("Clear", { 50, 20 }))
         {
             g_sink->clear();
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Copy"))
+        if (ImGui::Button("Copy", { 50, 20 }))
         {
             std::string logs;
             for (const auto& log : g_sink->formatted())
@@ -48,7 +54,6 @@ void ConsoleLayer::render()
             }
             ImGui::SetClipboardText(logs.c_str());
         }
-
 
         ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
