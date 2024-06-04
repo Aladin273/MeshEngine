@@ -31,7 +31,7 @@
             "binaryDir": "${sourceDir}/Build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "SHIPPING_MODE": "ON"
+                "SHIPPING_PRESET": "ON"
             }
         }
     ]

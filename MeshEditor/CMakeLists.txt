@@ -65,12 +65,15 @@ add_executable(MeshEditor ${MESH_EDITOR_HEADERS} ${MESH_EDITOR_SOURCES})
 target_include_directories(MeshEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(MeshEditor PRIVATE MeshEngine)
 
-if (${SHIPPING_MODE})
+if (${SHIPPING_PRESET})
     add_compile_definitions(DATA_PATH="Data/")
     add_compile_definitions(SHADERS_PATH="Shaders/")
 
-    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/"Data/" ${CMAKE_CURRENT_BINARY_DIR}/"Data/")
-    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/"Shaders/" ${CMAKE_CURRENT_BINARY_DIR}/"Shaders/")
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Data/" ${CMAKE_CURRENT_BINARY_DIR}/"Data/")
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Shaders/" ${CMAKE_CURRENT_BINARY_DIR}/"Shaders/")
+    
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Resources/" ${CMAKE_CURRENT_BINARY_DIR}/"Resources/")
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/"Resources/imgui.ini" ${CMAKE_CURRENT_BINARY_DIR}/"imgui.ini")
 
     if (WIN32)
         target_link_options(MeshEditor PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
