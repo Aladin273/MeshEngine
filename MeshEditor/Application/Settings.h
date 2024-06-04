@@ -17,10 +17,6 @@ namespace Settings
     const double znear = 0.1;
     const double zfar = 1000;
 
-    // Remapper
-    const float split = 2.0f;
-    const float range = 1.0f;
-
     // Zoom
     const float zoomIn = 1.1f;
     const float zoomOut = 0.9f;

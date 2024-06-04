@@ -23,9 +23,11 @@ void DeleteFaceOperator::onMouseInput(View& view, ButtonCode button, Action acti
 
         Contact& contact = contacts.front();
         Node* node = contact.node;
+
         if (node)
         {
             Mesh* mesh = node->getMesh();
+
             if (mesh)
                 mesh->deleteFace(contact.face);
         }

@@ -17,11 +17,11 @@
 #include "MeshEditor/Operators/Contact.h"
 #include "MeshEditor/Operators/OperatorDispatcher.h"
 
-#include "../UI/ConsoleLayer.h"
-#include "../UI/DockpaneLayer.h"
-#include "../UI/PropertiesLayer.h"
-#include "../UI/TreeLayer.h"
-#include "../UI/ViewportLayer.h"
+#include "UI/ConsoleLayer.h"
+#include "UI/DockpaneLayer.h"
+#include "UI/PropertiesLayer.h"
+#include "UI/TreeLayer.h"
+#include "UI/ViewportLayer.h"
 
 class View
 {

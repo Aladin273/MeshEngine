@@ -1,6 +1,8 @@
 #include "ColladaParser.h"
 
-#include "MeshEngine/Logger/Logger.h"
+#include <sstream>
+
+#include "MeshEngine/Misc/Logger.h"
 
 using namespace tinyxml2;
 

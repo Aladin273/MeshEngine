@@ -17,10 +17,15 @@ void SelectOperator::onMouseInput(View& view, ButtonCode button, Action action, 
 {
     if (action == Action::Press)
     {
-        auto contacts = view.raycast(x, y, FilterValue::Node);
+        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 
         if (!contacts.empty())
-            view.setSelected(contacts.front().node);
+        {
+            Node* node = contacts.front().node;
+
+            if (node)
+                view.setSelected(node);
+        }
         else
             view.setSelected(nullptr);
     }

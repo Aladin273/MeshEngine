@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Manipulator.h"
 
 class RotationManipulator : public Manipulator

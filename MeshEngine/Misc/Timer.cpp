@@ -1,5 +1,7 @@
 #include "Timer.h"
 
+using namespace MeshEngine;
+
 void Timer::reset()
 {
 	m_beg = clock_t::now();

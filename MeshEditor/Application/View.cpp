@@ -7,13 +7,15 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_window.reset(Application::instance()->createWindow(title, width, height));
     m_guiSystem.reset(Application::instance()->createGuiSystem(m_window.get()));
 
+    m_guiSystem->init();
+
     m_renderSystem = rs;
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
     m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
-
-    m_guiSystem->init();
     
+    m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
+
     m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
     m_consoleLayer = std::make_unique<ConsoleLayer>(this);
     m_propertiesLayer = std::make_unique<PropertiesLayer>(this);
@@ -21,8 +23,6 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     
     m_viewportLayer = std::make_unique<ViewportLayer>(this);
     m_viewportLayer->attach(m_frametextureId);
-    
-    m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);

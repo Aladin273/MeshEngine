@@ -4,23 +4,23 @@
 #include <string>
 #include <vector>
 
-#include "MeshEngine/Logger/Logger.h"
-#include "MeshEngine/RenderSystem/Export.h"
+#include "MeshEngine/Misc/Export.h"
+#include "MeshEngine/Misc/Logger.h"
 
 #include "MeshEngine/Parsers/ColladaParser.h"
 #include "MeshEngine/Parsers/STLParser.h"
 
 #include "MeshEngine/Model/Model.h"
 
-#include "../Operators/View/Select.h"
-#include "../Operators/View/Pan.h"
-#include "../Operators/View/Arcball.h"
+#include "Operators/View/Select.h"
+#include "Operators/View/Pan.h"
+#include "Operators/View/Arcball.h"
 
-#include "../Operators/Delete/DeleteFaceOperator.h"
+#include "Operators/Delete/DeleteFaceOperator.h"
 
-#include "../Operators/Edit/EditNodeOperator.h"
-#include "../Operators/Edit/EditFaceOperator.h"
-#include "../Operators/Edit/EditVertexOperator.h"
+#include "Operators/Edit/EditNodeOperator.h"
+#include "Operators/Edit/EditFaceOperator.h"
+#include "Operators/Edit/EditVertexOperator.h"
 
 #include "Settings.h"
 #include "View.h"

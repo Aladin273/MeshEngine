@@ -1,8 +1,6 @@
 #pragma once
 
 #include <string>
-#include <map>
-#include <set>
 
 #include "MeshEngine/RenderSystem/RenderSystem.h"
 #include "MeshEngine/RenderSystem/Shader.h"

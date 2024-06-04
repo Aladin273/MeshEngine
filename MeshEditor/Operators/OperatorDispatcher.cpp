@@ -1,4 +1,5 @@
 #include "MeshEditor/Application/View.h"
+
 #include "OperatorDispatcher.h"
 
 void OperatorDispatcher::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)

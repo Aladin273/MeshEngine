@@ -1,5 +1,7 @@
 #include "DynamicLibrary.h"
 
+using namespace MeshEngine;
+
 #if !defined PLATFORM
 #define PLATFORM PLATFORM_WIN32
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <MeshEngine/RenderSystem/Shader.h>
+#include "MeshEngine/RenderSystem/Shader.h"
 
 class GLShader : public Shader
 {

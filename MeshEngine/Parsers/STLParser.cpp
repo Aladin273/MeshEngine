@@ -1,6 +1,8 @@
 #include "STLParser.h"
 
-#include "MeshEngine/Logger/Logger.h"
+#include <fstream>
+
+#include "MeshEngine/Misc/Logger.h"
 
 STLParser::TriangleSoup STLParser::read(const std::string& filename)
 {

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <string>
-#include <sstream>
 #include <map>
 #include <memory>
 #include <functional>
 
 #include <tinyxml2/tinyxml2.h>
+
 #include "MeshEngine/Model/Model.h"
 
 class ColladaParser

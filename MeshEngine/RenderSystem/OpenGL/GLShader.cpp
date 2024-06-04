@@ -5,7 +5,7 @@
 
 #include <glad/gl.h>
 
-#include "MeshEngine/Logger/Logger.h"
+#include "MeshEngine/Misc/Logger.h"
 
 GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPath)
 {

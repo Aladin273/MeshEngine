@@ -1,11 +1,14 @@
 #include "Export.h"
 
-#include "OpenGL/GLRenderSystem.h"
-#include "OpenGL/GLGuiSystem.h"
-#include "OpenGL/GLShader.h"
-#include "OpenGL/GLWindow.h"
-
 #ifdef OGL_RENDER_SYSTEM_API_DLL
+
+#include "../RenderSystem/OpenGL/GLRenderSystem.h"
+#include "../RenderSystem/OpenGL/GLGuiSystem.h"
+#include "../RenderSystem/OpenGL/GLShader.h"
+#include "../RenderSystem/OpenGL/GLWindow.h"
+
+#include <glad/gl.h>
+#include <glfw/glfw3.h>
 
 __declspec(dllimport) RenderSystem* createRenderSystem()
 {
@@ -45,6 +48,14 @@ __declspec(dllimport) bool windowShouldClose(Window* window)
 #endif
 
 #ifdef OGL_RENDER_SYSTEM_API_STATIC
+
+#include "../RenderSystem/OpenGL/GLRenderSystem.h"
+#include "../RenderSystem/OpenGL/GLGuiSystem.h"
+#include "../RenderSystem/OpenGL/GLShader.h"
+#include "../RenderSystem/OpenGL/GLWindow.h"
+
+#include <glad/gl.h>
+#include <glfw/glfw3.h>
 
 RenderSystem* MeshEngine::createRenderSystem()
 {

@@ -1,5 +1,6 @@
 #include "Mesh.h"
 
+#include <set>
 #include <numeric>
 
 Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable)

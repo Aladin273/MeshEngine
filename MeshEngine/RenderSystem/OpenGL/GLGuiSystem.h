@@ -2,13 +2,8 @@
 
 #include <map>
 
-#define GLFW_INCLUDE_NONE
-
-#include <glfw/glfw3.h>
-#include <imgui.h>
-
-#include <MeshEngine/RenderSystem/Window.h>
-#include <MeshEngine/RenderSystem/GuiSystem.h>
+#include "MeshEngine/RenderSystem/Window.h"
+#include "MeshEngine/RenderSystem/GuiSystem.h"
 
 class GLGuiSystem : public GuiSystem
 {

@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(MESH_ENGINE_HEADERS
     HalfEdge/HalfEdge.h
 
-    Logger/Logger.h
-
     Manipulators/Manipulator.h
     Manipulators/RotationManipulator.h
     Manipulators/ScaleManipulator.h
@@ -18,17 +16,17 @@ set(MESH_ENGINE_HEADERS
     Math/Intersections.h
     
     Misc/DynamicLibrary.h
+    Misc/Logger.h
     Misc/Timer.h
     
     Model/Node.h
     Model/Mesh.h
     Model/Model.h
+    Misc/Export.h
 
     Parsers/AssimpParser.h
     Parsers/ColladaParser.h
     Parsers/STLParser.h
-
-    RenderSystem/Export.h
 
     RenderSystem/GuiSystem.h
     RenderSystem/RenderSystem.h
@@ -56,6 +54,7 @@ set(MESH_ENGINE_SOURCES
     Math/Intersections.cpp
 
     Misc/DynamicLibrary.cpp
+    Misc/Export.cpp
     Misc/Timer.cpp
 
     Model/Node.cpp
@@ -65,8 +64,6 @@ set(MESH_ENGINE_SOURCES
     Parsers/AssimpParser.cpp
     Parsers/ColladaParser.cpp
     Parsers/STLParser.cpp
-
-    RenderSystem/Export.cpp
 
     RenderSystem/OpenGL/GLGuiSystem.cpp
     RenderSystem/OpenGL/GLRenderSystem.cpp

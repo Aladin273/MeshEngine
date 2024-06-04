@@ -3,7 +3,7 @@
 #include <glad/gl.h>
 #include <stb/stb_image.h>
 
-#include "MeshEngine/Logger/Logger.h"
+#include "MeshEngine/Misc/Logger.h"
 
 GLRenderSystem::~GLRenderSystem()
 {

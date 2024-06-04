@@ -1,6 +1,7 @@
 #pragma once
 
 class View;
+
 enum class KeyCode;
 enum class ButtonCode;
 enum class Action;

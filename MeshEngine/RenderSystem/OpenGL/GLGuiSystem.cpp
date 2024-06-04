@@ -1,9 +1,12 @@
 #include "GLGuiSystem.h"
 
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include <glfw/glfw3.h>
+#include <imgui.h>
 
-#include "MeshEngine/Logger/Logger.h"
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
+#include "MeshEngine/Misc/Logger.h"
 
 GLGuiSystem::GLGuiSystem(Window* window)
     : m_window(window)

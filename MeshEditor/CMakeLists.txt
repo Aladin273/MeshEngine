@@ -61,6 +61,8 @@ add_compile_definitions(DATA_PATH="../../../Data/")
 add_compile_definitions(SHADERS_PATH="../../../Shaders/")
 
 add_executable(MeshEditor ${MESH_EDITOR_HEADERS} ${MESH_EDITOR_SOURCES})
+
+target_include_directories(MeshEditor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(MeshEditor PRIVATE MeshEngine)
 
 if (${SHIPPING_MODE})

@@ -1,9 +1,8 @@
 #pragma once
 
-#include <glad/gl.h>
-#include <glfw/glfw3.h>
-
 #include "MeshEngine/RenderSystem/Window.h"
+
+class GLFWwindow;
 
 class GLWindow : public Window
 {

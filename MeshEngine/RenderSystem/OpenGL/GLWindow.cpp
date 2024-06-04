@@ -1,6 +1,9 @@
 ﻿#include "GLWindow.h"
 
-#include "MeshEngine/Logger/Logger.h"
+#include <glad/gl.h>
+#include <glfw/glfw3.h>
+
+#include "MeshEngine/Misc/Logger.h"
 
 GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     : m_title(title), m_width(width), m_height(height)

@@ -2,10 +2,10 @@
 
 #include <string>
 
-#include "GuiSystem.h"
-#include "RenderSystem.h"
-#include "Shader.h"
-#include "Window.h"
+#include "MeshEngine/RenderSystem/GuiSystem.h"
+#include "MeshEngine/RenderSystem/RenderSystem.h"
+#include "MeshEngine/RenderSystem/Shader.h"
+#include "MeshEngine/RenderSystem/Window.h"
 
 #ifndef OGL_RENDER_SYSTEM_EXPORT_DLL
 #define OGL_RENDER_SYSTEM_EXPORT_STATIC
