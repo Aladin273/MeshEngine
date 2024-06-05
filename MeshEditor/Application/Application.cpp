@@ -237,6 +237,8 @@ std::unique_ptr<Model> Application::loadModel(const std::string& filename)
         return m_stl.loadModel(filename);
     else if (filename.find(".dae") != Settings::invalid)
         return m_collada.loadModel(filename);
+    else
+        return m_assimp.loadModel(filename);
 }
 
 void Application::saveModel(const Model& model, const std::string& filename)

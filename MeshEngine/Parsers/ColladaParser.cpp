@@ -11,7 +11,9 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     MeshEngine::Logger::info("ColladaParser loading from {:}", filename);
 
     GeometryMap geometries;
+    
     std::unique_ptr<Model> model = std::make_unique<Model>();
+    std::unique_ptr<Node> root = std::make_unique<Node>();
 
     std::stringstream stream;
     std::string element;
@@ -132,15 +134,18 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
 
     while (pNode != nullptr)
     {
-        std::unique_ptr<Node> node = loadNode(nullptr, pNode, geometries);
+        std::unique_ptr<Node> node = loadNode(root.get(), pNode, geometries);
 
         if (node != nullptr)
-            model->attachNode(std::move(node));
+            root->attachNode(std::move(node));
 
         pNode = pNode->NextSiblingElement("node");
     }
 
+    root->setName(filename);
+
     model->setName(filename);
+    model->attachNode(std::move(root));
 
     return model;
 }

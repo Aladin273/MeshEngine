@@ -36,7 +36,8 @@ void TreeLayer::render()
             ofn.lpstrFile[0] = '\0';
             ofn.nMaxFile = sizeof(filename);
             ofn.lpstrInitialDir = initialDir.c_str();
-            ofn.lpstrFilter = "STL Files (*.stl)\0*.stl\0DAE Files (*.dae)\0*.dae\0All Files (*.*)\0*.*\0";
+            //ofn.lpstrFilter = "STL Files (*.stl)\0*.stl\0DAE Files (*.dae)\0*.dae\0All Files (*.*)\0*.*\0";
+            ofn.lpstrFilter = "";
             ofn.nFilterIndex = 1;
             ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 

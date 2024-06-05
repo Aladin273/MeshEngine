@@ -36,9 +36,9 @@ set(STB_INC_PATH ${STB_LIB_NAME}/include)
 add_library(${STB_LIB_NAME} STATIC ${STB_SRC_PATH}/stb_image.cpp)
 target_include_directories(${STB_LIB_NAME} PUBLIC ${STB_INC_PATH})
 
-#set(ASSIMP_LIB_NAME assimp)
-#set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
-#add_subdirectory(${ASSIMP_LIB_NAME})
+set(ASSIMP_LIB_NAME assimp)
+set(ASSIMP_INC_PATH ${ASSIMP_LIB_NAME}/include)
+add_subdirectory(${ASSIMP_LIB_NAME})
 
 set(SPDLOG_LIB_NAME spdlog)
 set(SPDLOG_SRC_PATH ${SPDLOG_LIB_NAME}/src)

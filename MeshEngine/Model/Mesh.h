@@ -12,6 +12,13 @@ struct BoundaryBox
     glm::vec3 max{ 0.0f };
 };
 
+struct Texture
+{
+    uint32_t id;
+    std::string type;
+    std::string path;
+};
+
 struct Material
 {
     glm::vec3 ambient{ 0.0f };
@@ -20,9 +27,9 @@ struct Material
     glm::vec3 emission{ 0.0f };
     float shininess{ 128.0f };
 
-    int32_t diffuseMap = 0;
-    int32_t specularMap = 0;
-    int32_t emissionMap = 0;
+    Texture diffuseMap{};
+    Texture specularMap{};
+    Texture emissionMap{};
 };
 
 class Mesh

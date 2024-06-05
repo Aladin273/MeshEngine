@@ -9,6 +9,7 @@
 
 #include "MeshEngine/Parsers/ColladaParser.h"
 #include "MeshEngine/Parsers/STLParser.h"
+#include "MeshEngine/Parsers/AssimpParser.h"
 
 #include "MeshEngine/Model/Model.h"
 
@@ -53,6 +54,7 @@ private:
 
     STLParser m_stl;
     ColladaParser m_collada;
+    AssimpParser m_assimp;
 
     std::function<void()> m_waitEvents;
     std::function<void()> m_pollEvents;
