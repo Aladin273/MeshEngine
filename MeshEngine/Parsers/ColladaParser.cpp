@@ -187,7 +187,7 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
         }
     }
 
-    heds::HalfEdgeTable table;
+    heds::HalfEdgeTable<Vertex> table;
 
     std::string geometryName = pNode->FirstChildElement("instance_geometry")->Attribute("url");
     geometryName.erase(geometryName.begin());
@@ -201,7 +201,7 @@ std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, c
         auto vcounts = geometry->second.vcounts;
 
         for (size_t index = 0; index < source.size(); index += 3)
-            table.addVertex({ source[index], source[index + 1], source[index + 2] });
+            table.addVertex({ { source[index], source[index + 1], source[index + 2] }, {}, {} });
 
         if (geometry->second.type == Primitives::Polylist)
         {
@@ -321,7 +321,7 @@ void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxm
     pSource = pMesh->InsertNewChildElement("source");
     pSource->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-positions").c_str());
 
-    const heds::HalfEdgeTable& table = parent->getMesh()->getHalfEdgeTable();
+    const heds::HalfEdgeTable<Vertex>& table = parent->getMesh()->getHalfEdgeTable();
 
     pData = pSource->InsertNewChildElement("float_array");
     pData->SetAttribute("id", (std::string(pSource->Attribute("id")) + "-array").c_str());
@@ -332,7 +332,7 @@ void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxm
 
     for (auto& vertex : table.getVertices())
     {
-        const glm::vec3& point = table.getPoint(table.handle(vertex));
+        const glm::vec3& point = table.getPoint(table.handle(vertex)).position;
 
         stream << point.x << " ";
         stream << point.y << " ";

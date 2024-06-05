@@ -3,13 +3,13 @@
 #include <set>
 #include <numeric>
 
-Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable)
+Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
     update();
 }
 
-Mesh::Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material)
+Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material)
     : m_table(halfEdgeTable), m_material(material)
 {
     update();
@@ -135,21 +135,21 @@ void Mesh::update()
     m_holes.reserve(faces.size() * 8);
     m_boundaries.reserve(faces.size() * 6);
 
-    m_bbox.min = m_bbox.max = vertices.front().data;
+    m_bbox.min = m_bbox.max = vertices.front().data.position;
 
     for (const auto& vertex : vertices)
     {
-        const auto& position = vertex.data;
+        const auto& data = vertex.data;
 
-        m_bbox.min.x = std::min(m_bbox.min.x, position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, position.z);
+        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
+        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
+        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
 
-        m_bbox.max.x = std::max(m_bbox.max.x, position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
+        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
+        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-        m_vertices.push_back({ position, {}, {} });
+        m_vertices.push_back(data);
     }
 
     std::vector<std::pair<glm::vec3, float>> normalsMap{ 0 };
@@ -239,7 +239,7 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
     do
     {
         ++vertices;
-        center += m_table.getEndPoint(next_heh);
+        center += m_table.getEndPoint(next_heh).position;
         next_heh = m_table.next(next_heh);
 
     } while (next_heh != start_heh);
@@ -250,22 +250,22 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
     {
         heds::VertexHandle vh = m_table.destVertex(next_heh);
 
-        glm::vec4 position = glm::vec4(m_table.getPoint(vh), 1.0f);
-        position = glm::translate(-center) * position;
-        position = trf * position;
-        position = glm::translate(center) * position;
+        Vertex data = m_table.getPoint(vh);
+        data.position = glm::translate(-center) * glm::vec4(data.position, 1.0f);
+        data.position = trf * glm::vec4(data.position, 1.0f);
+        data.position = glm::translate(center) * glm::vec4(data.position, 1.0f);
 
-        m_table.setPoint(vh, position);
+        m_table.setPoint(vh, data);
 
-        m_bbox.min.x = std::min(m_bbox.min.x, position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, position.z);
+        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
+        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
+        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
 
-        m_bbox.max.x = std::max(m_bbox.max.x, position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
+        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
+        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-        m_vertices[vh].position = position;
+        m_vertices[vh].position = data.position;
 
         next_heh = m_table.next(next_heh);
 
@@ -353,24 +353,24 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     m_bufferSubData = true;
     m_subDataIndices.clear();
     
-    glm::vec3 center = m_table.getPoint(vh);
+    Vertex center = m_table.getPoint(vh);
 
-    glm::vec4 position = glm::vec4(m_table.getPoint(vh), 1.0f);
-    position = glm::translate(-center) * position;
-    position = trf * position;
-    position = glm::translate(center) * position;
+    Vertex data = m_table.getPoint(vh);
+    data.position = glm::translate(-center.position) * glm::vec4(data.position, 1.0f);
+    data.position = trf * glm::vec4(data.position, 1.0f);
+    data.position = glm::translate(center.position) * glm::vec4(data.position, 1.0f);
 
-    m_table.setPoint(vh, position);
+    m_table.setPoint(vh, data);
 
-    m_bbox.min.x = std::min(m_bbox.min.x, position.x);
-    m_bbox.min.y = std::min(m_bbox.min.y, position.y);
-    m_bbox.min.z = std::min(m_bbox.min.z, position.z);
+    m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
+    m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
+    m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
 
-    m_bbox.max.x = std::max(m_bbox.max.x, position.x);
-    m_bbox.max.y = std::max(m_bbox.max.y, position.y);
-    m_bbox.max.z = std::max(m_bbox.max.z, position.z);
+    m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
+    m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
+    m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-    m_vertices[vh].position = position;
+    m_vertices[vh].position = data.position;
     
     // Calculate normals
     std::set<heds::FaceHandle> affectedFaces;
@@ -446,7 +446,7 @@ void Mesh::deleteFace(heds::FaceHandle fh)
     update();
 }
 
-const heds::HalfEdgeTable& Mesh::getHalfEdgeTable() const
+const heds::HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable() const
 {
     return m_table;
 }
@@ -484,4 +484,266 @@ const Material& Mesh::getMaterial() const
 Material& Mesh::getMaterial()
 {
     return m_material;
+}
+
+std::unique_ptr<Mesh> Mesh::createCube(glm::vec3 center, float length)
+{
+    heds::HalfEdgeTable<Vertex> table;
+    float halfLength = length / 2;
+
+    heds::VertexHandle vh0 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength, -halfLength) + center, {}, {} });
+    heds::VertexHandle vh1 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength, -halfLength) + center, {}, {} });
+    heds::VertexHandle vh2 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength, -halfLength) + center, {}, {} });
+    heds::VertexHandle vh3 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength, -halfLength) + center, {}, {} });
+    heds::VertexHandle vh4 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength,  halfLength) + center, {}, {} });
+    heds::VertexHandle vh5 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength,  halfLength) + center, {}, {} });
+    heds::VertexHandle vh6 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength,  halfLength) + center, {}, {} });
+    heds::VertexHandle vh7 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength,  halfLength)  + center, {}, {} });
+
+    table.addFace(vh0, vh1, vh2, vh3);
+    table.addFace(vh4, vh7, vh6, vh5);
+    table.addFace(vh0, vh4, vh5, vh1);
+    table.addFace(vh1, vh5, vh6, vh2);
+    table.addFace(vh2, vh6, vh7, vh3);
+    table.addFace(vh4, vh0, vh3, vh7);
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createCylinder(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+{
+    const glm::vec3 dir(0, 0, 1);
+    float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
+
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable<Vertex> table;
+
+    for (int i = 0; i < segments; ++i)
+    {
+        float theta = 2.0f * glm::pi<float>() * float(i) / float(segments);
+
+        float x = radius * glm::cos(theta);
+        float y = radius * glm::sin(theta);
+
+        vertices.push_back(table.addVertex({ {x,y, h }, {}, {} }));
+        vertices.push_back(table.addVertex({ {x,y, cz}, {}, {} }));
+    }
+
+    vertices.push_back(vertices[0]);
+    vertices.push_back(vertices[1]);
+    vertices.push_back(table.addVertex({ { cx, cy, h }, {}, {} }));
+    vertices.push_back(table.addVertex({ { cx, cy, cz}, {}, {} }));
+
+    for (size_t i = 0; i + 4 < vertices.size(); i += 2)
+    {
+        table.addFace(vertices[i], vertices[i + 1], vertices[i + 2]);
+        table.addFace(vertices[i + 2], vertices[i + 1], vertices[i + 3]);
+
+        table.addFace(vertices[vertices.size() - 2], vertices[i], vertices[i + 2]);
+        table.addFace(vertices[vertices.size() - 1], vertices[i + 3], vertices[i + 1]);
+    }
+
+    if (dir != inDir)
+    {
+        const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
+
+        for (auto& vertex : table.getVertices())
+            vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+    }
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createCone(glm::vec3 inDir, float R, float h, uint32_t numSubdivisions)
+{
+    const glm::vec3 dir(0, 0, 1);
+    float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
+
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable<Vertex> table;
+
+    for (int i = 0; i < segments; ++i)
+    {
+        float theta = 2.0f * glm::pi<float>() * float(i) / float(segments);
+
+        float x = radius * glm::cos(theta);
+        float y = radius * glm::sin(theta);
+
+        vertices.push_back(table.addVertex({ { x, y, cz }, {}, {} }));
+    }
+
+    vertices.push_back(vertices[0]);
+    vertices.push_back(table.addVertex({ { cx, cy, h }, {}, {} }));
+    vertices.push_back(table.addVertex({ { cx, cy, cz}, {}, {} }));
+
+    for (size_t i = 0; i + 1 < vertices.size(); ++i)
+    {
+        table.addFace(vertices[vertices.size() - 2], vertices[i], vertices[i + 1]);
+        table.addFace(vertices[vertices.size() - 1], vertices[i + 1], vertices[i]);
+    }
+
+    if (dir != inDir)
+    {
+        const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
+
+        for (auto& vertex : table.getVertices())
+            vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+    }
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
+{
+    const glm::vec3 dir(0, 0, 1);
+    float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(majorSegments);
+
+    std::vector<heds::VertexHandle> vertices;
+    heds::HalfEdgeTable<Vertex> table;
+
+    auto mainSegmentAngleStep = glm::radians(360.0f / segments);
+    auto tubeSegmentAngleStep = glm::radians(360.0f / segments);
+
+    auto currentMainSegmentAngle = 0.0f;
+    for (int i = 0, duplicate = 0; i < segments; ++i, duplicate += segments + 1)
+    {
+        // Calculate sine and cosine of main segment angle
+        auto sinMainSegment = sin(currentMainSegmentAngle);
+        auto cosMainSegment = cos(currentMainSegmentAngle);
+        auto currentTubeSegmentAngle = 0.0f;
+        for (int j = 0; j < segments; ++j)
+        {
+            // Calculate sine and cosine of tube segment angle
+            auto sinTubeSegment = sin(currentTubeSegmentAngle);
+            auto cosTubeSegment = cos(currentTubeSegmentAngle);
+
+            // Calculate vertex position on the surface of torus
+            auto surfacePosition = glm::vec3(
+                (majorRadius + minorRadius * cosTubeSegment) * cosMainSegment,
+                (majorRadius + minorRadius * cosTubeSegment) * sinMainSegment,
+                minorRadius * sinTubeSegment);
+
+            vertices.push_back(table.addVertex({ { surfacePosition }, {}, {} }));
+
+            // Update current tube angle
+            currentTubeSegmentAngle += tubeSegmentAngleStep;
+        }
+
+        // Add first vertex from minor
+        vertices.push_back(vertices[duplicate]);
+
+        // Update main segment angle
+        currentMainSegmentAngle += mainSegmentAngleStep;
+    }
+
+    // Due to duplicates change the value
+    ++segments;
+
+    // Add first minor
+    for (int i = 0; i < segments; ++i)
+    {
+        vertices.push_back(vertices[i]);;
+    }
+
+    // Triangulation
+    for (int i = 0; i < vertices.size() - segments; i += segments)
+    {
+        for (int a = i, b = i + 1, c = a + segments, d = b + segments; b < segments + i; ++a, ++b, ++c, ++d)
+        {
+            table.addFace(vertices[c], vertices[b], vertices[a]);
+            table.addFace(vertices[b], vertices[c], vertices[d]);
+        }
+    }
+
+    if (dir != inDir)
+    {
+        const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
+
+        for (auto& vertex : table.getVertices())
+            vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+    }
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
+{
+    heds::HalfEdgeTable<Vertex> table1 = Mesh::createCone(inDir, R1, h1, numSubdivisions)->getHalfEdgeTable();
+    heds::HalfEdgeTable<Vertex> table2 = Mesh::createCylinder(inDir, R2, h2, numSubdivisions)->getHalfEdgeTable();
+
+    glm::vec3 delta = inDir * h2;
+
+    for (auto& face : table1.getFaces())
+    {
+        heds::HalfEdgeHandle heh0 = face.heh;
+        heds::HalfEdgeHandle heh1 = table1.next(heh0);
+        heds::HalfEdgeHandle heh2 = table1.next(heh1);
+
+        glm::vec3 vec0{ table1.getEndPoint(heh0).position }; vec0 += delta;
+        glm::vec3 vec1{ table1.getEndPoint(heh1).position }; vec1 += delta;
+        glm::vec3 vec2{ table1.getEndPoint(heh2).position }; vec2 += delta;
+
+        heds::VertexHandle v0 = table2.addVertex({ {vec0}, {}, {} });
+        heds::VertexHandle v1 = table2.addVertex({ {vec1}, {}, {} });
+        heds::VertexHandle v2 = table2.addVertex({ {vec2}, {}, {} });
+
+        table2.addFace(v0, v1, v2);
+    }
+
+    table2.connectTwins();
+
+    return std::make_unique<Mesh>(table2);
+}
+
+std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
+{
+    const glm::vec3 dir(0, 0, 1);
+    int segments = glm::sqrt(numSubdivisions);
+    float stepW = width / segments;
+    float stepH = heigth / segments;
+    float halfWidth = width / 2;
+    float halfHeight = heigth / 2;
+    float cx = 0.0f, cy = 0.0f, cz = 0.0f;
+
+    std::vector<std::vector<heds::VertexHandle>> vertices;
+    heds::HalfEdgeTable<Vertex> table;
+
+    for (float i = -halfWidth; i <= halfWidth; i += stepW)
+    {
+        vertices.push_back({});
+
+        for (float j = -halfHeight; j <= halfHeight; j += stepH)
+        {
+            vertices.back().push_back(table.addVertex({ { i, j, cz }, {}, {} }));
+        }
+    }
+
+    for (int row = 0, row_next = 1; row_next < vertices.size(); ++row, ++row_next)
+    {
+        for (int col = 0, col_next = 1; col_next < vertices[row_next].size(); ++col, ++col_next)
+        {
+            table.addFace(vertices[row][col], vertices[row][col_next], vertices[row_next][col]);
+            table.addFace(vertices[row_next][col], vertices[row][col_next], vertices[row_next][col_next]);
+        }
+    }
+
+    if (dir != inDir)
+    {
+        const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
+
+        for (auto& vertex : table.getVertices())
+            vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+    }
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);;
 }

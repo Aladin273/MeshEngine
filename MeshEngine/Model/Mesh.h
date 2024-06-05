@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "MeshEngine/RenderSystem/RenderSystem.h"
 #include "MeshEngine/RenderSystem/Shader.h"
@@ -46,8 +47,8 @@ public:
     glm::vec4 colorBoundaries{ 0.75f, 0.25f, 0.25f, 1.0f };
 
 public:
-    Mesh(const heds::HalfEdgeTable& halfEdgeTable);
-    Mesh(const heds::HalfEdgeTable& halfEdgeTable, const Material& material);
+    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable);
+    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
 
     void render(RenderSystem& rs, Shader& shader);
 
@@ -57,7 +58,7 @@ public:
     void deleteFace(heds::FaceHandle fh);
 
     const BoundaryBox& getBoundingBox();
-    const heds::HalfEdgeTable& getHalfEdgeTable() const;
+    const heds::HalfEdgeTable<Vertex>& getHalfEdgeTable() const;
 
     const std::string& getName() const;
     std::string& getName();
@@ -68,6 +69,13 @@ public:
     void setName(const std::string& name);
     void setMaterial(const Material& material);
 
+    static std::unique_ptr<Mesh> createCube(glm::vec3 center, float length);
+    static std::unique_ptr<Mesh> createCone(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
+    static std::unique_ptr<Mesh> createCylinder(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
+    static std::unique_ptr<Mesh> createTorus(glm::vec3 dir, float minorRadius, float majorRadius, uint32_t majorSegments);
+    static std::unique_ptr<Mesh> createArrow(glm::vec3 dir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions);
+    static std::unique_ptr<Mesh> createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
+
 private:
     void update();
 
@@ -76,7 +84,7 @@ private:
     BoundaryBox m_bbox;
     Material m_material;
 
-    heds::HalfEdgeTable m_table;
+    heds::HalfEdgeTable<Vertex> m_table;
     
     std::vector<Vertex> m_vertices;
     std::vector<uint32_t> m_triangles;

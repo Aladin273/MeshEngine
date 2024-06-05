@@ -110,7 +110,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
     std::map<Vec, heds::VertexHandle>::iterator it1;
     std::map<Vec, heds::VertexHandle>::iterator it2;
 
-    heds::HalfEdgeTable halfEdgeTable;
+    heds::HalfEdgeTable<Vertex> halfEdgeTable;
     heds::VertexHandle vh0;
     heds::VertexHandle vh1;
     heds::VertexHandle vh2;
@@ -123,7 +123,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it0 == vertices.end())
         {
-            vh0 = halfEdgeTable.addVertex({ triangle.A.x, triangle.A.y, triangle.A.z });
+            vh0 = halfEdgeTable.addVertex({ { triangle.A.x, triangle.A.y, triangle.A.z }, {}, {} });
             vertices.emplace(triangle.A, vh0);
         }
         else
@@ -131,7 +131,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it1 == vertices.end())
         {
-            vh1 = halfEdgeTable.addVertex({ triangle.B.x, triangle.B.y, triangle.B.z });
+            vh1 = halfEdgeTable.addVertex({ { triangle.B.x, triangle.B.y, triangle.B.z }, {}, {} });
             vertices.emplace(triangle.B, vh1);
         }
         else
@@ -139,7 +139,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it2 == vertices.end())
         {
-            vh2 = halfEdgeTable.addVertex({ triangle.C.x, triangle.C.y, triangle.C.z });
+            vh2 = halfEdgeTable.addVertex({ { triangle.C.x, triangle.C.y, triangle.C.z }, {}, {} });
             vertices.emplace(triangle.C, vh2);
         }
         else
@@ -170,7 +170,7 @@ std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 
 void STLParser::saveNode(TriangleSoup& soup, Node* node)
 {
-    const heds::HalfEdgeTable& table = node->getMesh()->getHalfEdgeTable();
+    const heds::HalfEdgeTable<Vertex>& table = node->getMesh()->getHalfEdgeTable();
 
     const auto transform = node->calcAbsoluteTransform();
 
@@ -181,9 +181,9 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
         heds::HalfEdgeHandle heh2 = table.next(heh1);
         heds::HalfEdgeHandle heh3 = table.next(heh2);
 
-        glm::vec3 a = transform * glm::vec4(table.getEndPoint(heh0), 1.f);
-        glm::vec3 b = transform * glm::vec4(table.getEndPoint(heh1), 1.f);
-        glm::vec3 c = transform * glm::vec4(table.getEndPoint(heh2), 1.f);
+        glm::vec3 a = transform * glm::vec4(table.getEndPoint(heh0).position, 1.f);
+        glm::vec3 b = transform * glm::vec4(table.getEndPoint(heh1).position, 1.f);
+        glm::vec3 c = transform * glm::vec4(table.getEndPoint(heh2).position, 1.f);
 
         glm::vec3 normal = glm::normalize(glm::cross(b - a, c - b));
 
@@ -191,7 +191,7 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
 
         if (heh3 != heh0) // if 4 vertices
         {
-            glm::vec3 d = transform * glm::vec4(table.getEndPoint(heh3), 1.f);
+            glm::vec3 d = transform * glm::vec4(table.getEndPoint(heh3).position, 1.f);
             soup.push_back(Triangle{ {c.x, c.y, c.z}, {d.x, d.y, d.z}, {a.x, a.y, a.z}, {normal.x, normal.y, normal.z} });
         }
     }

@@ -286,16 +286,16 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
             heds::HalfEdgeHandle heh3 = table.next(heh2);
 
             float t;
-            glm::vec3 a = mat * glm::vec4(table.getEndPoint(heh0), 1.0f);
-            glm::vec3 b = mat * glm::vec4(table.getEndPoint(heh1), 1.0f);
-            glm::vec3 c = mat * glm::vec4(table.getEndPoint(heh2), 1.0f);
+            glm::vec3 a = mat * glm::vec4(table.getEndPoint(heh0).position, 1.0f);
+            glm::vec3 b = mat * glm::vec4(table.getEndPoint(heh1).position, 1.0f);
+            glm::vec3 c = mat * glm::vec4(table.getEndPoint(heh2).position, 1.0f);
 
             if (glm::intersectRayTriangle(ray.orig, ray.dir, t, a, b, c))
                 contacts.push_back({ table.handle(face), node, t, ray.orig + ray.dir * t });
 
             if (heh3 != heh0)
             {
-                glm::vec3 d = mat * glm::vec4(table.getEndPoint(heh3), 1.0f);
+                glm::vec3 d = mat * glm::vec4(table.getEndPoint(heh3).position, 1.0f);
 
                 if (glm::intersectRayTriangle(ray.orig, ray.dir, t, a, c, d))
                     contacts.push_back({ table.handle(face), node, t, ray.orig + ray.dir * t });
@@ -385,12 +385,11 @@ const Node* View::getOrigin() const
 
 void View::decoratePlane(Node& plane) const
 {
-    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(
-        Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384));
-
+    std::unique_ptr<Mesh> mesh = Mesh::createPlane(Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384);
+    
     mesh->colorLines = Settings::colorGray;
     mesh->renderTriangles = false;
-
+    
     plane.attachMesh(std::move(mesh));
 }
 
@@ -398,22 +397,22 @@ void View::decorateOrigin(Node& origin) const
 {
     using namespace Settings;
 
-    std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(heds::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(heds::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(heds::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
+    std::unique_ptr<Mesh> arrowX = Mesh::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs);
+    std::unique_ptr<Mesh> arrowY = Mesh::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs);
+    std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs);
 
     arrowX->renderTriangles = false;
     arrowY->renderTriangles = false;
     arrowZ->renderTriangles = false;
-
+    
     arrowX->setMaterial(Settings::red);
     arrowY->setMaterial(Settings::green);
     arrowZ->setMaterial(Settings::blue);
-
+    
     origin.attachNode(std::make_unique<Node>());
     origin.attachNode(std::make_unique<Node>());
     origin.attachNode(std::make_unique<Node>());
-
+    
     origin.getChildren()[0]->attachMesh(std::move(arrowX));
     origin.getChildren()[1]->attachMesh(std::move(arrowY));
     origin.getChildren()[2]->attachMesh(std::move(arrowZ));
@@ -423,30 +422,30 @@ void View::decorateTriad(Triad& triad) const
 {
     using namespace Settings;
 
-    std::unique_ptr<Mesh> arrowX = std::make_unique<Mesh>(heds::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowY = std::make_unique<Mesh>(heds::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-    std::unique_ptr<Mesh> arrowZ = std::make_unique<Mesh>(heds::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs));
-
-    std::unique_ptr<Mesh> torusX = std::make_unique<Mesh>(heds::createTorus(axisX, minorTR, majorTR, numSubs));
-    std::unique_ptr<Mesh> torusY = std::make_unique<Mesh>(heds::createTorus(axisY, minorTR, majorTR, numSubs));
-    std::unique_ptr<Mesh> torusZ = std::make_unique<Mesh>(heds::createTorus(axisZ, minorTR, majorTR, numSubs));
-
-    std::unique_ptr<Mesh> cubeX = std::make_unique<Mesh>(heds::createCube(axisX * cubeTL, cubeTR));
-    std::unique_ptr<Mesh> cubeY = std::make_unique<Mesh>(heds::createCube(axisY * cubeTL, cubeTR));
-    std::unique_ptr<Mesh> cubeZ = std::make_unique<Mesh>(heds::createCube(axisZ * cubeTL, cubeTR));
-
+    std::unique_ptr<Mesh> arrowX = Mesh::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs);
+    std::unique_ptr<Mesh> arrowY = Mesh::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs);
+    std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs);
+    
+    std::unique_ptr<Mesh> torusX = Mesh::createTorus(axisX, minorTR, majorTR, numSubs);
+    std::unique_ptr<Mesh> torusY = Mesh::createTorus(axisY, minorTR, majorTR, numSubs);
+    std::unique_ptr<Mesh> torusZ = Mesh::createTorus(axisZ, minorTR, majorTR, numSubs);
+    
+    std::unique_ptr<Mesh> cubeX = Mesh::createCube(axisX * cubeTL, cubeTR);
+    std::unique_ptr<Mesh> cubeY = Mesh::createCube(axisY * cubeTL, cubeTR);
+    std::unique_ptr<Mesh> cubeZ = Mesh::createCube(axisZ * cubeTL, cubeTR);
+    
     arrowX->setMaterial(Settings::red);
     arrowY->setMaterial(Settings::green);
     arrowZ->setMaterial(Settings::blue);
-
+    
     torusX->setMaterial(Settings::red);
     torusY->setMaterial(Settings::green);
     torusZ->setMaterial(Settings::blue);
-
+    
     cubeX->setMaterial(Settings::red);
     cubeY->setMaterial(Settings::green);
     cubeZ->setMaterial(Settings::blue);
-
+    
     triad.getChildren()[0]->attachMesh(std::move(arrowX));
     triad.getChildren()[1]->attachMesh(std::move(arrowY));
     triad.getChildren()[2]->attachMesh(std::move(arrowZ));
@@ -458,7 +457,7 @@ void View::decorateTriad(Triad& triad) const
     triad.getChildren()[6]->attachMesh(std::move(cubeX));
     triad.getChildren()[7]->attachMesh(std::move(cubeY));
     triad.getChildren()[8]->attachMesh(std::move(cubeZ));
-
+    
     for (auto& child : triad.getChildren())
     {
         glm::vec3 center = child->getRelativeTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -471,9 +470,9 @@ void View::decorateTriad(Triad& triad) const
 void View::decorateArrow(Manipulator& manipulator, glm::vec3 dir) const
 {
     using namespace Settings;
-
-    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs));
-
+    
+    std::unique_ptr<Mesh> mesh = Mesh::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs);
+    
     mesh->setMaterial(Settings::blue);
     manipulator.attachMesh(std::move(mesh));
     

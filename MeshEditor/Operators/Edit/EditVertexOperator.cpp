@@ -103,13 +103,13 @@ void EditVertexOperator::init()
 
     glm::vec3 point = glm::inverse(m_contact.node->calcAbsoluteTransform()) * glm::vec4(m_contact.point, 1.0f);
 
-    float min = glm::length(table.getEndPoint(start_heh) - point);
+    float min = glm::length(table.getEndPoint(start_heh).position - point);
     m_vh = table.deref(start_heh).dst;
 
     // Find needed vertex
     do
     {
-        float length = glm::length(table.getEndPoint(next_heh) - point);
+        float length = glm::length(table.getEndPoint(next_heh).position - point);
 
         if (length < min)
         {
@@ -130,9 +130,9 @@ void EditVertexOperator::init()
         heds::HalfEdgeHandle heh1 = table.next(heh0);
         heds::HalfEdgeHandle heh2 = table.next(heh1);
 
-        glm::vec3 a = table.getEndPoint(heh0);
-        glm::vec3 b = table.getEndPoint(heh1);
-        glm::vec3 c = table.getEndPoint(heh2);
+        glm::vec3 a = table.getEndPoint(heh0).position;
+        glm::vec3 b = table.getEndPoint(heh1).position;
+        glm::vec3 c = table.getEndPoint(heh2).position;
 
         normals.push_back(glm::normalize(glm::cross(b - a, c - b)));
         next_heh = table.next(table.twin(next_heh));
@@ -144,7 +144,7 @@ void EditVertexOperator::init()
     for (auto& normal : normals)
         m_normal += normal;
 
-    m_center = table.getPoint(m_vh);
+    m_center = table.getPoint(m_vh).position;
     m_normal = glm::normalize(m_normal / static_cast<float>(normals.size()));
 }
 

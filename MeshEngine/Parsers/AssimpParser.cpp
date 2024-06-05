@@ -53,14 +53,14 @@ std::unique_ptr<Node> AssimpParser::loadNode(Node* parent, aiNode* aNode, const 
 
 std::unique_ptr<Mesh> AssimpParser::loadMesh(aiMesh* aMesh, const aiScene* aScene)
 {
-    heds::HalfEdgeTable table;
+    heds::HalfEdgeTable<Vertex> table;
 
     std::vector<heds::VertexHandle> vhs;
 
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
         // Position
-        vhs.push_back(table.addVertex(convertVec3(aMesh->mVertices[i])));
+        vhs.push_back(table.addVertex(Vertex(convertVec3(aMesh->mVertices[i]))));
         
         // Normals
 
