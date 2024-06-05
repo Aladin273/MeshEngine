@@ -68,6 +68,12 @@ STLParser::TriangleSoup STLParser::read(const std::string& filename)
             }
         }
     }
+    else 
+    {
+        MeshEngine::Logger::error("Unable to load {:}", filename);
+    }
+
+
     fin.close();
 
     return soup;

@@ -13,7 +13,7 @@ std::unique_ptr<Model> AssimpParser::loadModel(const std::string& filename)
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         MeshEngine::Logger::error("{:}", importer.GetErrorString());   
-        return {};
+        return std::make_unique<Model>();
     }
 
     m_filename = filename;
@@ -59,44 +59,24 @@ std::unique_ptr<Mesh> AssimpParser::loadMesh(aiMesh* aMesh, const aiScene* aScen
 
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
+        Vertex vertex;
+
         // Position
-        vhs.push_back(table.addVertex(Vertex(convertVec3(aMesh->mVertices[i]))));
+        vertex.position = convertVec3(aMesh->mVertices[i]);
         
         // Normals
-
-        //vector.x = aMesh->mNormals[i].x;
-        //vector.y = aMesh->mNormals[i].y;
-        //vector.z = aMesh->mNormals[i].z;
-        //vertex.Normal = vector;
+        vertex.normal = convertVec3(aMesh->mNormals[i]);
 
         // TexCoords
-
-        //if (aMesh->mTextureCoords[0])
-        //{
-        //    glm::vec2 vec;
-        //
-        //    vec.x = aMesh->mTextureCoords[0][i].x;
-        //    vec.y = aMesh->mTextureCoords[0][i].y;
-        //    vertex.TexCoords = vec;
-        //}
-        //else
-        //    vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+        if (aMesh->mTextureCoords[0]) vertex.texCoords = glm::vec2(convertVec3(aMesh->mTextureCoords[0][i]));
 
         // Tangents
-
-        //vector.x = aMesh->mTangents[i].x;
-        //vector.y = aMesh->mTangents[i].y;
-        //vector.z = aMesh->mTangents[i].z;
-        //vertex.Tangent = vector;
+        //vertex.tangent = convertVec3(aMesh->mTangents[i]);
 
         // Bitangents
+        //vertex.bitangent = convertVec3(aMesh->mBitangents[i]);
 
-        //vector.x = aMesh->mBitangents[i].x;
-        //vector.y = aMesh->mBitangents[i].y;
-        //vector.z = aMesh->mBitangents[i].z;
-        //vertex.Bitangent = vector;
-
-        //vertices.push_back(vertex);
+        vhs.push_back(table.addVertex(vertex));
     }
 
     for (size_t i = 0; i < aMesh->mNumFaces; ++i)
@@ -112,26 +92,50 @@ std::unique_ptr<Mesh> AssimpParser::loadMesh(aiMesh* aMesh, const aiScene* aScen
 
     table.connectTwins();
 
-    // Textures
-
-    //std::vector<Texture> textures;
-
-    //std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-    //textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-    //
-    //std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-    //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-    //
-    //std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-    //textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    //
-    //std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-    //textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
-
-    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(table);
+    // Materials
+    aiMaterial* aMat = aScene->mMaterials[aMesh->mMaterialIndex];
+    
+    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(table, loadMaterial(aMat));
     mesh->setName(aMesh->mName.C_Str());
 
     return mesh;
+}
+
+Material AssimpParser::loadMaterial(aiMaterial* aMat)
+{   
+    std::vector<Texture> diffuseMaps = loadTextures(aMat, aiTextureType_DIFFUSE, "texture_diffuse");
+    std::vector<Texture> specularMaps = loadTextures(aMat, aiTextureType_SPECULAR, "texture_specular");
+    std::vector<Texture> emissionMaps = loadTextures(aMat, aiTextureType_EMISSIVE, "texture_emission");
+    std::vector<Texture> normalMaps = loadTextures(aMat, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> heightMaps = loadTextures(aMat, aiTextureType_AMBIENT, "texture_height");
+
+    Material material;
+    
+    if (!diffuseMaps.empty()) material.diffuseMap = diffuseMaps.front();
+    if (!specularMaps.empty()) material.specularMap = specularMaps.front();
+    if (!emissionMaps.empty()) material.emissionMap = emissionMaps.front();
+
+    return material;
+}
+
+std::vector<Texture> AssimpParser::loadTextures(aiMaterial* aMat, aiTextureType aType, std::string typeName)
+{
+    std::vector<Texture> textures;
+
+    for (size_t i = 0; i < aMat->GetTextureCount(aType); ++i)
+    {
+        aiString str;
+        aMat->GetTexture(aType, i, &str);
+
+        Texture texture;
+        texture.id = 0;
+        texture.type = typeName;
+        texture.path = m_directory + "\\" + std::string(str.C_Str());
+
+        textures.push_back(texture);
+    }
+
+    return textures;
 }
 
 glm::vec2 AssimpParser::convertVec2(const aiVector2D& vec)

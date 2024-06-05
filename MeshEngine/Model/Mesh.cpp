@@ -29,10 +29,18 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         rs.unbufferData(m_holesId);
         rs.unbufferData(m_boundariesId);
        
+        rs.unbufferTexture(m_material.diffuseMap.id);
+        rs.unbufferTexture(m_material.specularMap.id);
+        rs.unbufferTexture(m_material.emissionMap.id);
+
         m_trianglesId = rs.bufferData(m_vertices, m_triangles);
         m_linesId = rs.bufferData(m_vertices, m_lines);
         m_holesId = rs.bufferData(m_vertices, m_holes);
         m_boundariesId = rs.bufferData(m_vertices, m_boundaries);
+
+        m_material.diffuseMap.id = rs.bufferTexture(m_material.diffuseMap.path);
+        m_material.specularMap.id = rs.bufferTexture(m_material.specularMap.path);
+        m_material.emissionMap.id = rs.bufferTexture(m_material.emissionMap.path);
     }
 
     if (m_bufferSubData)
@@ -57,6 +65,14 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         shader.setVec3("material.specular", m_material.specular);
         shader.setVec3("material.emission", m_material.emission);
         shader.setFloat("material.shininess", m_material.shininess);
+
+        shader.setInt("material.diffuseMap", 0);
+        shader.setInt("material.specularMap", 1);
+        shader.setInt("material.emissionMap", 2);
+        
+        rs.bindTexture(0, m_material.diffuseMap.id);
+        rs.bindTexture(1, m_material.specularMap.id);
+        rs.bindTexture(2, m_material.emissionMap.id);
 
         rs.bindData(m_trianglesId);
         rs.renderTriangles();
@@ -102,17 +118,8 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
         rs.renderTriangles();
     }
 
-    rs.unbindData();
-
-    //shader.setInt("material.diffuseMap", 0);
-    //shader.setInt("material.specularMap", 1);
-    //shader.setInt("material.emissionMap", 2);
-
-    //rs.bindTexture(0, m_material.diffuseMap);
-    //rs.bindTexture(1, m_material.specularMap);
-    //rs.bindTexture(2, m_material.emissionMap);
-    
-    //rs.unbindTexture();
+    rs.unbindTexture();
+    rs.unbindData();   
 }
 
 void Mesh::update()

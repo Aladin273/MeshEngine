@@ -24,7 +24,10 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     doc.LoadFile(filename.c_str());
 
     if (doc.Error())
-        return nullptr;
+    {
+        MeshEngine::Logger::error("Unable to load {:}", filename);
+        return std::make_unique<Model>();
+    }
 
     pGeometry = doc.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
 

@@ -145,12 +145,15 @@ void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t index, const Vertex
 
 uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 {
+    uint32_t textureID = 1;
+
+    if (texturePath.empty())
+        return textureID;
+
     auto it = m_textureMap.find(texturePath);
 
     if (it != m_textureMap.end())
         return m_textureMap[texturePath];
-
-    uint32_t textureID = -1;
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrComponents, 0);
@@ -188,6 +191,9 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 
 void GLRenderSystem::unbufferTexture(uint32_t textureId)
 {
+    if (textureId == 1)
+        return;
+
     auto it = std::find_if(m_textureMap.begin(), m_textureMap.end(), [textureId](const auto& pair) { return pair.second == textureId; });
 
     if (it != m_textureMap.end())

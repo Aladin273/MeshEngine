@@ -58,7 +58,7 @@ GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPat
     if (checkCompileErrors(ID, "PROGRAM"))
         MeshEngine::Logger::info("GLShader created successful. {:} {:}", vertexPath, fragmentPath);
     else
-        MeshEngine::Logger::info("GLShader created not successful. {:} {:}", vertexPath, fragmentPath);
+        MeshEngine::Logger::error("GLShader created not successful. {:} {:}", vertexPath, fragmentPath);
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
