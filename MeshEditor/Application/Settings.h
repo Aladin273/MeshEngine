@@ -1,12 +1,14 @@
 #pragma once
 
-#include <ThirdParty/glm/vec3.hpp>
-#include <ThirdParty/glm/vec4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 namespace Settings
 {
-    // Viewport
+    // General
     const int invalid = -1;
+
+    // Viewport
     const int x = 0;
     const int y = 0;
     const int width = 1920;
@@ -15,26 +17,20 @@ namespace Settings
     const double znear = 0.1;
     const double zfar = 1000;
 
-    // Remapper
-    const float split = 2.0f;
-    const float range = 1.0f;
-
     // Zoom
-    const float zoom_in = 1.1f;
-    const float zoom_out = 0.9f;
+    const float zoomIn = 1.1f;
+    const float zoomOut = 0.9f;
 
     // Light
-    const int source = 0;
-    const glm::vec3 ambient = { 0,0,0 };
-    const glm::vec3 diffuse = { 1,1,1 };
-    const glm::vec3 specular = { 1,1,1 };
+    const glm::vec3 ambient = { 0.2f, 0.2f, 0.2f };
+    const glm::vec3 diffuse = { 1.f, 1.f, 1.f };
+    const glm::vec3 specular = { 1.f, 1.f, 1.f };
 
     // Camera
-    const int plane = 256;
     const glm::vec3 eye = { 0,0,10 };
     const glm::vec3 target = { 0,0,0 };
     const glm::vec3 up = { 0,1,0 };
-    const glm::vec3 world_up = { 0,1,0 };
+    const glm::vec3 worldUp = { 0,1,0 };
 
     // Axes
     const glm::vec3 axisX = { 1.0f, 0.0f, 0.0f };
@@ -58,17 +54,17 @@ namespace Settings
     const float cubeTR = 0.1f;
     const float cubeTL = 0.6f;
     const float sizeT = 0.15f;
-    const uint32_t numSubs = 64;
+    const uint32_t numSubs = 32;
 
     // Colors
-    const glm::vec4 colorBackground = { 0.5f, 0.5f, 0.5f, 0.5f };
+    const glm::vec4 colorBackground = { 0.15f, 0.15f, 0.15f, 1.0f };
     const glm::vec4 colorWhite = { 1.0f, 1.0f, 1.0f, 1.0f};
     const glm::vec4 colorGray = { 0.5f, 0.5f, 0.5f, 1.0f};
     const glm::vec4 colorBlack = { 0.0f, 0.0f, 0.0f, 1.0f};
 
-    const glm::vec4 colorRed = { 1.0f, 0.0f, 0.0f, 0.5f };
-    const glm::vec4 colorGreen = { 0.0f, 1.0f, 0.0f, 0.5f };
-    const glm::vec4 colorBlue = { 0.0f, 0.0f, 1.0f, 0.5f };
+    const glm::vec4 colorRed = { 1.0f, 0.0f, 0.0f, 1.0f };
+    const glm::vec4 colorGreen = { 0.0f, 1.0f, 0.0f, 1.0f };
+    const glm::vec4 colorBlue = { 0.0f, 0.0f, 1.0f, 1.0f };
 
     // Materials
     const Material ruby{ glm::vec3(1.07, 0.01, 0.01), glm::vec4(0.61, 0.04, 0.04, 0.85), glm::vec3(0.72, 0.62, 0.62), glm::vec3(0.0), 75.f };
@@ -81,28 +77,31 @@ namespace Settings
     const Material dark{ glm::vec3(0.15f), glm::vec4(0.15f, 0.15f, 0.15f, 1.0f), glm::vec3(0.15f), glm::vec3(0.0f), 128.f };
     const Material clear{ glm::vec3(0.0f), glm::vec4(1.0f), glm::vec3(1.0f), glm::vec3(0.0f), 128.f };
     
-    const Material red{ glm::vec3(1.0f, 0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material green{ glm::vec3(0.0f, 1.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material blue{ glm::vec3(0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
-    const Material yellow{ glm::vec3(1.0f, 1.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), glm::vec3(0.0f), glm::vec3(0.0f), 128.f };
+    const Material red    { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 128.f };
+    const Material green  { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 128.f };
+    const Material blue   { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 128.f };
+    const Material yellow { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 1.0f), 128.f };
 
     // Models
-    const std::string model1 = "../Data/Cube.stl";
-    const std::string model2 = "../Data/Sphere.stl";
-    const std::string model3 = "../Data/Rhino.stl";
-    const std::string model4 = "../Data/RhinoHoles.stl";
-    const std::string model5 = "../Data/PudgeBig.stl";
-    const std::string model6 = "../Data/Torus.stl";
+    const std::string model1 = "Cube.stl";
+    const std::string model2 = "Sphere.stl";
+    const std::string model3 = "Rhino.stl";
+    const std::string model4 = "RhinoHoles.stl";
+    const std::string model5 = "PudgeBig.stl";
+    const std::string model6 = "Torus.stl";
 
-    const std::string model7 = "../Data/Cube.dae";
-    const std::string model8 = "../Data/Sphere.dae";
-    const std::string model9 = "../Data/M4A1.dae";
-    const std::string model10 = "../Data/Duck.dae";
-    const std::string model11 = "../Data/Sword.dae";
-    const std::string model12 = "../Data/Cat.dae";
-    const std::string model13 = "../Data/CubeTree.dae";
+    const std::string model7 = "Cube.dae";
+    const std::string model8 = "Sphere.dae";
+    const std::string model9 = "M4A1.dae";
+    const std::string model10 = "Duck.dae";
+    const std::string model11 = "Sword.dae";
+    const std::string model12 = "Cat.dae";
 
     // Application
     const std::string title = "MeshEditor";
     const std::string dll = "RenderSystem.dll";
+
+    // Paths
+    const std::string dataPath = DATA_PATH;
+    const std::string shadersPath = SHADERS_PATH;
 };

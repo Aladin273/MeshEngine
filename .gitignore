@@ -420,10 +420,16 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
-.idea/
 *.sln.iml
 
-# Files
-*.stl
-*.dae
+### VisualStudio Patch ###
+# Additional files built by Visual Studio
 
+Build
+
+Build
+!Data/**
+!Shaders/**
+!ThirdParty/**
+
+# End of https://www.toptal.com/developers/gitignore/api/c++,cmake,visualstudio

@@ -8,6 +8,8 @@ Application* Application::instance()
 
 Application::Application()
 {
+    MeshEngine::Logger::init("Logs/MeshEditor.txt", 23, 55);
+
     m_renderSystem.reset(createRenderSystem());
 
     m_waitEvents = MeshEngine::waitEvents;
@@ -25,7 +27,9 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
 {
     m_views.push_back(std::make_unique<View>(m_renderSystem.get(), title, width, height));
 
-    m_views.back()->addOperator(ButtonCode::Button_Left, std::make_unique<PanOperator>());
+    m_views.back()->addOperator(ButtonCode::Button_Left, std::make_unique<SelectOperator>());
+
+    m_views.back()->addOperator(ButtonCode::Button_Middle, std::make_unique<PanOperator>());
 
     m_views.back()->addOperator(ButtonCode::Button_Right, std::make_unique<ArcballOperator>());
 
@@ -109,7 +113,8 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            static int i = 0;
+            static int i = -1; 
+            i = (i + 1) % 6;
 
             view.getModel()->processRecursive([](Node& node)
             {
@@ -124,8 +129,6 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
                 case 6: node.getMesh()->setMaterial(Settings::clear); break;
                 }
             });
-
-            i = i == 6 ? 0 : i + 1;
         }
     });
 
@@ -210,32 +213,20 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            static size_t state = 0;
-            Node* plane = view.getPlane();
-
-            if (state == 0)
-            {
-                std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>(heds::createPlane(Settings::world_up,
-                    view.getViewport().calcTargetPlaneWidth(), view.getViewport().calcTargetPlaneWidth(), Settings::plane));
-                
-                plane->attachMesh(std::move(mesh));
-                plane->getMesh()->colorLines = Settings::colorWhite;
-                plane->getMesh()->renderTriangles = false;
-                plane->getMesh()->renderLines = true;
-                ++state;
-            }
-            else if (state == 1)
-            {
-                plane->getMesh()->colorLines = Settings::colorBlack;
-                ++state;
-            }
-            else
-            {
-                plane->getMesh()->renderLines = false;
-                state = 0;
-            }
+            view.getPlane()->getMesh()->renderLines = !view.getPlane()->getMesh()->renderLines;
         }
     });
+
+    m_views.back()->addOperator(KeyCode::O, [](View& view, Action action, Modifier mods)
+        {
+            if (action == Action::Press)
+            {
+                view.getOrigin()->processRecursive([](Node& node)
+                    {
+                        node.getMesh()->renderTriangles = !node.getMesh()->renderTriangles;
+                    });
+            }
+        });
 
     return m_views.back().get();
 }
@@ -246,6 +237,8 @@ std::unique_ptr<Model> Application::loadModel(const std::string& filename)
         return m_stl.loadModel(filename);
     else if (filename.find(".dae") != Settings::invalid)
         return m_collada.loadModel(filename);
+    else
+        return m_assimp.loadModel(filename);
 }
 
 void Application::saveModel(const Model& model, const std::string& filename)
@@ -277,17 +270,22 @@ void Application::run()
     }
 }
 
-IWindow* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
+Window* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
 {;
     return MeshEngine::createWindow(title, width, height);
 }
 
-IGuiSystem* Application::createGuiSystem(IWindow* window)
+GuiSystem* Application::createGuiSystem(Window* window)
 {;
     return MeshEngine::createGuiSystem(window);
 }
 
-IRenderSystem* Application::createRenderSystem()
+RenderSystem* Application::createRenderSystem()
 {;
     return MeshEngine::createRenderSystem();
+}
+
+Shader* Application::createShader(const std::string& vertPath, const std::string& fragPath)
+{
+    return MeshEngine::createShader(vertPath, fragPath);
 }

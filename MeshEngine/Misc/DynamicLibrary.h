@@ -2,20 +2,23 @@
 
 #include <string>
 
-class DynamicLibrary
+namespace MeshEngine
 {
-public:
-    DynamicLibrary(const std::string& name);
-    ~DynamicLibrary();
-
-    void* getSymbol(const std::string& symbolName) const;
-
-    template<class T>
-    T getSymbol(const std::string& symbolName) const
+    class DynamicLibrary
     {
-        return (T)getSymbol(symbolName);
-    }
-private:
-    void* instance;
-};
+    public:
+        DynamicLibrary(const std::string& name);
+        ~DynamicLibrary();
+
+        void* getSymbol(const std::string& symbolName) const;
+
+        template<class T>
+        T getSymbol(const std::string& symbolName) const
+        {
+            return (T)getSymbol(symbolName);
+        }
+    private:
+        void* instance;
+    };
+}
 

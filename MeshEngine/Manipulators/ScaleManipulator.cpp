@@ -10,8 +10,8 @@ void ScaleManipulator::handleMovement(MovementType movementType, const Viewport&
 	const glm::mat4& mat = calcAbsoluteTransform();
 	const glm::mat4& inverse = glm::inverse(mat);
 
-	ray cursorRay_W = viewport.calcCursorRay(x, y);
-	ray ray_W = { mat * glm::vec4(m_centerPoint_L, 1.0f), glm::normalize(mat * glm::vec4(m_dir_L, 0.0f)) };
+	Ray cursorRay_W = viewport.calcCursorRay(x, y);
+	Ray ray_W = { mat * glm::vec4(m_centerPoint_L, 1.0f), glm::normalize(mat * glm::vec4(m_dir_L, 0.0f)) };
 
 	if (movementType == MovementType::Push)
 	{

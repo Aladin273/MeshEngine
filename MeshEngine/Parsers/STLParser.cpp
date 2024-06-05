@@ -1,5 +1,9 @@
 #include "STLParser.h"
 
+#include <fstream>
+
+#include "MeshEngine/Misc/Logger.h"
+
 STLParser::TriangleSoup STLParser::read(const std::string& filename)
 {
     TriangleSoup soup;
@@ -64,6 +68,12 @@ STLParser::TriangleSoup STLParser::read(const std::string& filename)
             }
         }
     }
+    else 
+    {
+        MeshEngine::Logger::error("Unable to load {:}", filename);
+    }
+
+
     fin.close();
 
     return soup;
@@ -74,7 +84,7 @@ void STLParser::write(const TriangleSoup& soup, const std::string& filename)
     if (!soup.empty())
     {
         std::ofstream fout;
-        fout.open(filename);
+        fout.open(filename, std::ios::out | std::ios::trunc);
 
         if (fout.is_open())
         {
@@ -106,7 +116,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
     std::map<Vec, heds::VertexHandle>::iterator it1;
     std::map<Vec, heds::VertexHandle>::iterator it2;
 
-    heds::HalfEdgeTable halfEdgeTable;
+    heds::HalfEdgeTable<Vertex> halfEdgeTable;
     heds::VertexHandle vh0;
     heds::VertexHandle vh1;
     heds::VertexHandle vh2;
@@ -119,7 +129,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it0 == vertices.end())
         {
-            vh0 = halfEdgeTable.addVertex({ triangle.A.x, triangle.A.y, triangle.A.z });
+            vh0 = halfEdgeTable.addVertex({ { triangle.A.x, triangle.A.y, triangle.A.z }, {}, {} });
             vertices.emplace(triangle.A, vh0);
         }
         else
@@ -127,7 +137,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it1 == vertices.end())
         {
-            vh1 = halfEdgeTable.addVertex({ triangle.B.x, triangle.B.y, triangle.B.z });
+            vh1 = halfEdgeTable.addVertex({ { triangle.B.x, triangle.B.y, triangle.B.z }, {}, {} });
             vertices.emplace(triangle.B, vh1);
         }
         else
@@ -135,7 +145,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
         if (it2 == vertices.end())
         {
-            vh2 = halfEdgeTable.addVertex({ triangle.C.x, triangle.C.y, triangle.C.z });
+            vh2 = halfEdgeTable.addVertex({ { triangle.C.x, triangle.C.y, triangle.C.z }, {}, {} });
             vertices.emplace(triangle.C, vh2);
         }
         else
@@ -155,6 +165,8 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
 std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 {
+    MeshEngine::Logger::info("STLParser loading from {:}", filename);
+
     std::unique_ptr<Model> model = std::make_unique<Model>();
     model->attachNode(loadNode(filename));
     model->setName(filename);
@@ -164,7 +176,9 @@ std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
 
 void STLParser::saveNode(TriangleSoup& soup, Node* node)
 {
-    const heds::HalfEdgeTable& table = node->getMesh()->getHalfEdgeTable();
+    const heds::HalfEdgeTable<Vertex>& table = node->getMesh()->getHalfEdgeTable();
+
+    const auto transform = node->calcAbsoluteTransform();
 
     for (auto& face : table.getFaces())
     {
@@ -173,9 +187,9 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
         heds::HalfEdgeHandle heh2 = table.next(heh1);
         heds::HalfEdgeHandle heh3 = table.next(heh2);
 
-        const glm::vec3& a = table.getEndPoint(heh0);
-        const glm::vec3& b = table.getEndPoint(heh1);
-        const glm::vec3& c = table.getEndPoint(heh2);
+        glm::vec3 a = transform * glm::vec4(table.getEndPoint(heh0).position, 1.f);
+        glm::vec3 b = transform * glm::vec4(table.getEndPoint(heh1).position, 1.f);
+        glm::vec3 c = transform * glm::vec4(table.getEndPoint(heh2).position, 1.f);
 
         glm::vec3 normal = glm::normalize(glm::cross(b - a, c - b));
 
@@ -183,7 +197,7 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
 
         if (heh3 != heh0) // if 4 vertices
         {
-            const glm::vec3& d = table.getEndPoint(heh3);
+            glm::vec3 d = transform * glm::vec4(table.getEndPoint(heh3).position, 1.f);
             soup.push_back(Triangle{ {c.x, c.y, c.z}, {d.x, d.y, d.z}, {a.x, a.y, a.z}, {normal.x, normal.y, normal.z} });
         }
     }
@@ -194,6 +208,11 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
 
 void STLParser::saveModel(const Model& model, const std::string& filename)
 {
+    std::string file = filename;
+
+    file.pop_back(); file.pop_back(); file.pop_back(); file.pop_back();
+    file = file + "_modified.stl";
+
     TriangleSoup soup;
 
     for (auto& node : model.getNodes())
@@ -201,7 +220,9 @@ void STLParser::saveModel(const Model& model, const std::string& filename)
         saveNode(soup, node.get());
     }
 
-    write(soup, filename);
+    write(soup, file);
+
+    MeshEngine::Logger::info("STLParser saving to {:}", file);
 }
 
 bool STLParser::approximatelyEqual(double a, double b, double epsilon)

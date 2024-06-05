@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ThirdParty/glm/glm.hpp"
-#include "ThirdParty/glm/gtc/type_ptr.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Camera.h"
 
-struct ray
+struct Ray
 {
     glm::vec3 orig{ 0 };
     glm::vec3 dir{ 0,0,1 };
@@ -34,8 +34,8 @@ public:
     glm::vec3 unproject(double x, double y) const;
     glm::vec3 unproject(double x, double y, double z) const;
     
-    ray calcCursorRay(double x, double y) const;
-    ray calcEyeRay(double x, double y) const;
+    Ray calcCursorRay(double x, double y) const;
+    Ray calcEyeRay(double x, double y) const;
 
     double calcTargetPlaneWidth() const;
     double calcTargetPlaneHeight() const;

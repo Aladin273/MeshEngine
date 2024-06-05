@@ -1,6 +1,6 @@
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Lab3
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Rework Cone
 Rework Cylinder
 Rework Torus
@@ -9,9 +9,9 @@ Filling holes
 Review 3 and 4 faces rendering support
 Optimize rendering data for moving vertices, faces
 Optimize rendering data by pointers, templates
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Lab4
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Review global optimization
 Implement Octree, Frustum Culling
 
@@ -19,9 +19,9 @@ Rework STLParser, ColladaParser
 Rework SaveModel
 Rework OperatorDispatcher
 Optimize calcAbsoluteTransform
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Lab5
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Rework scale manipulator
 Implement scale by axis
 In-scale manipulators, redraw temp
@@ -36,11 +36,13 @@ Rework EditFaceOperator
 Rework EditVertexOperator
 Rework EditNodeOperator
 Rework DeleteFaceOperator
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 General
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Exceptions
 Headers including
+
+Adjust normals
 
 Filling holes
 Editor drawables, bbox, plane
@@ -91,9 +93,9 @@ Split Operator
 
 NodeComponent, RenderComponent
 Properties, RenderSystem, Shader, Parse
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Plans
--------------------------------------------------------------------------------
+----------------------------------------------------------------
 Roadmaps
 Scene
 Terrain

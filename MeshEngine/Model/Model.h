@@ -9,7 +9,9 @@ public:
 
     void attachNode(std::unique_ptr<Node> node);
     void detachNode(Node* node);
+    
     const std::vector<std::unique_ptr<Node>>& getNodes() const;
+    std::vector<std::unique_ptr<Node>>& getNodes();
 
     void setName(const std::string& inName);
     const std::string& getName() const;

@@ -25,6 +25,11 @@ const std::vector<std::unique_ptr<Node>>& Model::getNodes() const
     return m_nodes;
 }
 
+std::vector<std::unique_ptr<Node>>& Model::getNodes()
+{
+    return m_nodes;
+}
+
 void Model::setName(const std::string& inName)
 {
     m_name = inName;

@@ -101,10 +101,10 @@ void EditFaceOperator::init()
     heds::HalfEdgeHandle heh2 = table.next(heh1);
     heds::HalfEdgeHandle heh3 = table.next(heh2);
 
-    glm::vec3 a = table.getEndPoint(heh0);
-    glm::vec3 b = table.getEndPoint(heh1);
-    glm::vec3 c = table.getEndPoint(heh2);
-    glm::vec3 d = table.getEndPoint(heh3);
+    glm::vec3 a = table.getEndPoint(heh0).position;
+    glm::vec3 b = table.getEndPoint(heh1).position;
+    glm::vec3 c = table.getEndPoint(heh2).position;
+    glm::vec3 d = table.getEndPoint(heh3).position;
 
     m_normal = glm::normalize(glm::cross(b - a, c - b));
   

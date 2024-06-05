@@ -12,8 +12,8 @@ void ArcballOperator::onMouseMove(View& view, double x, double y)
 {
     if (active)
     {
-        x = (x / view.getViewport().getWidth() * split - range) * view.getViewport().calcAspectRatio();
-        y = (y / view.getViewport().getHeight() * split - range);
+        x = (x / view.getViewport().getWidth() * 2.0f - 1.0f) * view.getViewport().calcAspectRatio();
+        y = (y / view.getViewport().getHeight() * 2.0f - 1.0f);
 
         if (click)
             click = !click;

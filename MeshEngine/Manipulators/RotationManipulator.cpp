@@ -1,7 +1,7 @@
 #include "RotationManipulator.h"
 
-#include "ThirdParty/glm/gtx/intersect.hpp"
-#include "ThirdParty/glm/gtx/vector_angle.hpp"
+#include <glm/gtx/intersect.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 RotationManipulator::RotationManipulator(glm::vec3 dir_L)
 {
@@ -13,8 +13,8 @@ void RotationManipulator::handleMovement(MovementType movementType, const Viewpo
 	const glm::mat4& mat = calcAbsoluteTransform();
 	const glm::mat4& inverse = glm::inverse(mat);
 
-	ray cursorRay_W = viewport.calcCursorRay(x, y);
-	ray plane_W = { mat * glm::vec4(m_centerPoint_L, 1.0f), glm::normalize(mat * glm::vec4(m_dir_L, 0.0f)) };
+	Ray cursorRay_W = viewport.calcCursorRay(x, y);
+	Ray plane_W = { mat * glm::vec4(m_centerPoint_L, 1.0f), glm::normalize(mat * glm::vec4(m_dir_L, 0.0f)) };
 
 	if (movementType == MovementType::Push)
 	{

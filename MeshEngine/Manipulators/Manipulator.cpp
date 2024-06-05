@@ -1,5 +1,7 @@
 #include "Manipulator.h"
 
+#include "MeshEngine/Math/Intersections.h"
+
 void Manipulator::setCallback(const std::function<void(const glm::mat4&)>& inCallback)
 {
     m_callback = inCallback;

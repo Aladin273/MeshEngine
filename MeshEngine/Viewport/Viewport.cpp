@@ -104,14 +104,14 @@ glm::vec3 Viewport::unproject(double x, double y, double z) const
     return point;
 }
 
-ray Viewport::calcCursorRay(double x, double y) const
+Ray Viewport::calcCursorRay(double x, double y) const
 {
     glm::vec3 a = unproject(x, y, -1.0);
     glm::vec3 b = unproject(x, y, 1.0);
     return { a, glm::normalize(b - a) };
 }
 
-ray Viewport::calcEyeRay(double x, double y) const
+Ray Viewport::calcEyeRay(double x, double y) const
 {
     glm::vec3 a = m_camera.getEye();
     glm::vec3 b = unproject(x, y, 1.0);
