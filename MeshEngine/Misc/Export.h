@@ -38,7 +38,7 @@ namespace MeshEngine
         GuiSystem* createGuiSystem(Window* window);
         RenderSystem* createRenderSystem();
         Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath);
-        Window* createWindow(const std::string& title, uint32_t width, uint32_t height);
+        Window* createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
         void waitEvents();
         void pollEvents();
         void swapDisplayBuffers(Window* window);

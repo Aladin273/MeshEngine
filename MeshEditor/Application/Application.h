@@ -29,17 +29,17 @@
 class Application
 {
 public:
-    View* createView(const std::string& title, uint32_t width, uint32_t height);
+    View* createView(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
 
     std::unique_ptr<Model> loadModel(const std::string& filename);
     void saveModel(const Model& model, const std::string& filename);
 
     void run();
 
-    Window* createWindow(const std::string&, uint32_t, uint32_t);
-    GuiSystem* createGuiSystem(Window*);
+    Window* createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
+    GuiSystem* createGuiSystem(Window* window);
     RenderSystem* createRenderSystem();
-    Shader* createShader(const std::string& vertPath, const std::string& fragPath);
+    Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath);
 
     static Application* instance();
 

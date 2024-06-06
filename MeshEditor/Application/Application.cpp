@@ -23,9 +23,9 @@ Application::~Application()
     m_renderSystem.release();
 }
 
-View* Application::createView(const std::string& title, uint32_t width, uint32_t height)
+View* Application::createView(const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
-    m_views.push_back(std::make_unique<View>(m_renderSystem.get(), title, width, height));
+    m_views.push_back(std::make_unique<View>(m_renderSystem.get(), title, width, height, icon));
 
     m_views.back()->addOperator(ButtonCode::Button_Left, std::make_unique<SelectOperator>());
 
@@ -270,9 +270,9 @@ void Application::run()
     }
 }
 
-Window* Application::createWindow(const std::string& title, uint32_t width, uint32_t height)
+Window* Application::createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {;
-    return MeshEngine::createWindow(title, width, height);
+    return MeshEngine::createWindow(title, width, height, icon);
 }
 
 GuiSystem* Application::createGuiSystem(Window* window)
@@ -285,7 +285,7 @@ RenderSystem* Application::createRenderSystem()
     return MeshEngine::createRenderSystem();
 }
 
-Shader* Application::createShader(const std::string& vertPath, const std::string& fragPath)
+Shader* Application::createShader(const std::string& vertexPath, const std::string& fragmentPath)
 {
-    return MeshEngine::createShader(vertPath, fragPath);
+    return MeshEngine::createShader(vertexPath, fragmentPath);
 }

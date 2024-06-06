@@ -7,7 +7,7 @@ class GLFWwindow;
 class GLWindow : public Window
 {
 public:
-    GLWindow(const std::string& title, uint32_t width, uint32_t height);
+    GLWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     virtual ~GLWindow();
 
     uint32_t getWidth() const override;

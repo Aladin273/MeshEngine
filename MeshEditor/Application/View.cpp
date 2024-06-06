@@ -2,9 +2,9 @@
 #include "Settings.h"
 #include "Application.h"
 
-View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height)
+View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
-    m_window.reset(Application::instance()->createWindow(title, width, height));
+    m_window.reset(Application::instance()->createWindow(title, width, height, icon));
     m_guiSystem.reset(Application::instance()->createGuiSystem(m_window.get()));
 
     m_guiSystem->init();

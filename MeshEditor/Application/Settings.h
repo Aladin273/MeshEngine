@@ -82,26 +82,29 @@ namespace Settings
     const Material blue   { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 128.f };
     const Material yellow { glm::vec3(0.0f), glm::vec4(0.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 1.0f), 128.f };
 
-    // Models
-    const std::string model1 = "Cube.stl";
-    const std::string model2 = "Sphere.stl";
-    const std::string model3 = "Rhino.stl";
-    const std::string model4 = "RhinoHoles.stl";
-    const std::string model5 = "PudgeBig.stl";
-    const std::string model6 = "Torus.stl";
-
-    const std::string model7 = "Cube.dae";
-    const std::string model8 = "Sphere.dae";
-    const std::string model9 = "M4A1.dae";
-    const std::string model10 = "Duck.dae";
-    const std::string model11 = "Sword.dae";
-    const std::string model12 = "Cat.dae";
-
-    // Application
-    const std::string title = "MeshEditor";
-    const std::string dll = "RenderSystem.dll";
-
     // Paths
     const std::string dataPath = DATA_PATH;
     const std::string shadersPath = SHADERS_PATH;
+    const std::string resourcesPath = RESOURCES_PATH;
+
+    // Models
+    const std::string model1 = dataPath + "Cube.stl";
+    const std::string model2 = dataPath + "Sphere.stl";
+    const std::string model3 = dataPath + "Rhino.stl";
+    const std::string model4 = dataPath + "RhinoHoles.stl";
+    const std::string model5 = dataPath + "PudgeBig.stl";
+    const std::string model6 = dataPath + "Torus.stl";
+
+    const std::string model7 = dataPath + "Cube.dae";
+    const std::string model8 = dataPath + "Sphere.dae";
+    const std::string model9 = dataPath + "M4A1.dae";
+    const std::string model10 = dataPath + "Duck.dae";
+    const std::string model11 = dataPath + "Sword.dae";
+    const std::string model12 = dataPath + "Cat.dae";
+
+    const std::string model13 = dataPath + "Backpack/backpack.obj";
+
+    // Application
+    const std::string title = "MeshEditor";
+    const std::string icon = resourcesPath + "icon.png";
 };

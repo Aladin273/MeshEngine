@@ -2,10 +2,11 @@
 
 #include <glad/gl.h>
 #include <glfw/glfw3.h>
+#include <stb/stb_image.h>
 
 #include "MeshEngine/Misc/Logger.h"
 
-GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
+GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
     : m_title(title), m_width(width), m_height(height)
 {
     glfwInit();
@@ -21,7 +22,16 @@ GLWindow::GLWindow(const std::string& title, uint32_t width, uint32_t height)
     {
         initGLAD = true;
         int version = gladLoadGL(glfwGetProcAddress);
+
         MeshEngine::Logger::info("GLWindow created successful. OpenGL Core version: {:}.{:}", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+    }
+
+    if (!icon.empty())
+    {
+        GLFWimage images[1];
+        images[0].pixels = stbi_load(icon.c_str(), &images[0].width, &images[0].height, 0, 4);
+        glfwSetWindowIcon(m_handle, 1, images);
+        stbi_image_free(images[0].pixels);
     }
 
     glfwSetWindowUserPointer(m_handle, this);

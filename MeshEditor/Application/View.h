@@ -26,7 +26,7 @@
 class View
 {
 public:
-    View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height);
+    View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     ~View();
 
     void update();
