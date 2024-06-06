@@ -75,6 +75,11 @@ void TreeLayer::render()
     ImGui::Separator();
     ImGui::Spacing();
 
+    ImGui::DragFloat3("##Light Direction", glm::value_ptr(m_view->lightDir), 0.01f);
+
+    ImGui::Separator();
+    ImGui::Spacing();
+
     for (auto& node : m_view->getModel()->getNodes())
     {
         renderNode(node.get());

@@ -2,6 +2,8 @@
 #include "Settings.h"
 #include "Application.h"
 
+#include <glad/gl.h>
+
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
     m_window.reset(Application::instance()->createWindow(title, width, height, icon));
@@ -12,17 +14,18 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_renderSystem = rs;
     m_renderSystem->init();
     m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
-    m_renderSystem->bufferFrame(m_frameId, m_renderId, m_textureId, width, height);
+    
+    m_renderSystem->bufferFrame(m_frameId, m_frameRenderId, m_frameTextureId, width, height);
+    m_renderSystem->bufferDepth(m_depthId, m_depthTextureId, m_depthWidth, m_depthHeight);
     
     m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
+    m_shaderDepth = Application::instance()->createShader(Settings::shadersPath + "vertexDepth.glsl", Settings::shadersPath + "fragmentDepth.glsl");
 
     m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
     m_consoleLayer = std::make_unique<ConsoleLayer>(this);
     m_propertiesLayer = std::make_unique<PropertiesLayer>(this);
     m_treeLayer = std::make_unique<TreeLayer>(this);
-    
     m_viewportLayer = std::make_unique<ViewportLayer>(this);
-    m_viewportLayer->attach(m_textureId);
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);
@@ -73,9 +76,6 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_window->setFramebufferSizeCallback([&](int width, int height)
         {
             //m_viewport.setViewportSize(width, height);
-            //
-            //m_renderSystem->unbufferFrame(m_framebufferId);
-            //m_renderSystem->bufferFrame(m_framebufferId, m_framerenderId, m_frametextureId, width, height);
         });
 
     m_viewportLayer->setFramebufferSizeCallback([&](int width, int height)
@@ -83,9 +83,9 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
             m_viewport.setViewportSize(width, height);
 
             m_renderSystem->unbufferFrame(m_frameId);
-            m_renderSystem->bufferFrame(m_frameId, m_renderId, m_textureId, width, height);
+            m_renderSystem->bufferFrame(m_frameId, m_frameRenderId, m_frameTextureId, width, height);
 
-            m_viewportLayer->attach(m_textureId);
+            m_viewportLayer->attach(m_frameTextureId);
         });
 }
 
@@ -96,21 +96,68 @@ View::~View()
 
 void View::update()
 {
+    updateShadow();
+    updateModel();
+}
+
+void View::updateShadow()
+{
+    float distance = m_viewport.getCamera().getDistanceToTarget();
+
+    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)Settings::znear, (float)Settings::zfar);
+    glm::mat4 lightView = glm::lookAt(-lightDir * distance, lightDir, Settings::worldUp);
+
+    m_lightSpaceMatrix = lightProjection * lightView;
+
+    //glCullFace(GL_FRONT);
+    
+    m_renderSystem->bindDepth(m_depthId);
+
+    m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
+    m_renderSystem->clearDepth();
+
+    m_shaderDepth->bind();
+    m_shaderDepth->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+
+    m_model->processRecursive([&](Node& node)
+        {
+            if (dynamic_cast<Manipulator*>(&node) == nullptr)
+            {
+                m_shaderDepth->setMat4("model", node.calcAbsoluteTransform());
+                node.getMesh()->render(*m_renderSystem, *m_shaderDepth);
+            }
+        });
+
+    m_shaderDepth->unbind();
+
+    m_renderSystem->unbindDepth();
+
+    //glCullFace(GL_BACK);
+}
+
+void View::updateModel()
+{
     m_renderSystem->bindFrame(m_frameId);
 
     std::vector<Node*> postRender;
 
     m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
     m_renderSystem->clearDisplay(Settings::colorBackground.r, Settings::colorBackground.g, Settings::colorBackground.b, Settings::colorBackground.a);
-    
+
+    m_shader->bind();
+
+    m_shader->setInt("depthMap", 3);
+    m_renderSystem->bindTexture(3, m_depthTextureId);
+
     m_shader->setMat4("view", m_viewport.getCamera().calcViewMatrix());
     m_shader->setMat4("projection", m_viewport.calcProjectionMatrix());
+    m_shader->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
 
     m_shader->setInt("numDirLights", 1);
     m_shader->setInt("numPointLights", 0);
     m_shader->setInt("numSpotLights", 0);
 
-    m_shader->setVec3("dirLights[0].direction", m_viewport.getCamera().calcForward());
+    m_shader->setVec3("dirLights[0].direction", lightDir);
     m_shader->setVec3("dirLights[0].ambient", Settings::ambient);
     m_shader->setVec3("dirLights[0].diffuse", Settings::diffuse);
     m_shader->setVec3("dirLights[0].specular", Settings::specular);

@@ -1,6 +1,7 @@
 #version 330 core
+in vec3 ViewPos;
 in vec3 FragPos;
-in vec3 FragView;
+in vec4 FragPosLightSpace;
 in vec3 Normal;
 in vec2 TexCoords;
 
@@ -67,9 +68,40 @@ uniform DirLight dirLights[32];
 uniform PointLight pointLights[32];
 uniform SpotLight spotLights[32];
 
+uniform sampler2D depthMap;
+
 uniform vec3 outline;
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+float CalcShadow(vec4 fragPosLightSpace)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    projCoords = projCoords * 0.5 + 0.5;
+	
+    float closestDepth = texture(depthMap, projCoords.xy).r; 
+    float currentDepth = projCoords.z;
+   
+    float bias = sqrt(length(ViewPos - FragPos)) * 0.00005;
+	
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+    
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
+}
+
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadow)
 {
     vec3 lightDir = normalize(-light.direction);
 	
@@ -86,7 +118,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rgb;
     vec3 emission = material.emission * texture(material.emissionMap, TexCoords).rgb;
     
-    return (ambient + diffuse + specular + emission);
+    //return (ambient + diffuse + specular + emission);
+    return (ambient + (1.0 - shadow) * (diffuse + specular) + emission);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos)
@@ -153,13 +186,15 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPos)
 void main()
 {    
     vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(FragView - FragPos);
+    vec3 viewDir = normalize(ViewPos - FragPos);
+
+    float shadow = CalcShadow(FragPosLightSpace);
 
     vec3 result = vec3(0.0);
 
     // DirLight
     for(int i = 0; i < numDirLights; ++i)
-        result += CalcDirLight(dirLights[i], norm, viewDir);
+        result += CalcDirLight(dirLights[i], norm, viewDir, shadow);
 
     // PointLight
     for(int i = 0; i < numPointLights; ++i)

@@ -33,6 +33,9 @@ public:
     virtual void bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) override;
     virtual void unbufferFrame(uint32_t frameId) override;
 
+    virtual void bufferDepth(uint32_t& depthId, uint32_t& textureId, uint32_t width, uint32_t height) override;
+    virtual void unbufferDepth(uint32_t depthId) override;
+
     // Bind
     virtual void bindData(uint32_t dataId) override;
     virtual void unbindData() override;
@@ -42,6 +45,9 @@ public:
 
     virtual void bindFrame(uint32_t frameId) override;
     virtual void unbindFrame() override;
+
+    virtual void bindDepth(uint32_t depthId) override;
+    virtual void unbindDepth() override;
 
     // Render
     virtual void renderTriangles() override;
@@ -63,6 +69,9 @@ private:
 
     // Store Frame, Render, Texture
     std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_frameMap;
+
+    // Store Depth, Texture
+    std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int>> m_depthMap;
 };
 
 

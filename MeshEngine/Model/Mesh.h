@@ -28,9 +28,9 @@ struct Material
     glm::vec3 emission{ 0.0f };
     float shininess{ 128.0f };
 
-    Texture diffuseMap  {};
-    Texture specularMap {};
-    Texture emissionMap {};
+    Texture diffuseMap{ 1, {}, {} };
+    Texture specularMap{ 1, {}, {} };
+    Texture emissionMap{ 1, {}, {} };
 };
 
 class Mesh

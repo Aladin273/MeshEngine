@@ -222,10 +222,6 @@ void GLRenderSystem::bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, renderId);
 
-    // Check if framebuffer is complete
-    //if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        //std::cerr << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     m_frameMap[frameId] = std::make_tuple(frameId, renderId, textureId);
@@ -246,6 +242,49 @@ void GLRenderSystem::unbufferFrame(uint32_t frameId)
         glDeleteTextures(1, &texture);
 
         m_frameMap.erase(it);
+    }
+}
+
+void GLRenderSystem::bufferDepth(uint32_t& depthId, uint32_t& textureId, uint32_t width, uint32_t height)
+{
+    // Create Framebuffer for Depth
+    glGenFramebuffers(1, &depthId);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthId);
+
+    // Create Texture
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textureId, 0);
+    
+    // Set null Renderbuffer
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_depthMap[depthId] = std::make_tuple(depthId, textureId);
+}
+
+void GLRenderSystem::unbufferDepth(uint32_t depthId)
+{
+    auto it = m_depthMap.find(depthId);
+
+    if (it != m_depthMap.end())
+    {
+        unsigned int depth = std::get<0>(it->second);
+        unsigned int texture = std::get<1>(it->second);
+
+        glDeleteFramebuffers(1, &depth);
+        glDeleteTextures(1, &texture);
+
+        m_depthMap.erase(it);
     }
 }
 
@@ -276,6 +315,16 @@ void GLRenderSystem::bindFrame(uint32_t frameId)
 }
 
 void GLRenderSystem::unbindFrame()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void GLRenderSystem::bindDepth(uint32_t depthId)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, depthId);
+}
+
+void GLRenderSystem::unbindDepth()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

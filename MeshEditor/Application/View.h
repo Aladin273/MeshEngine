@@ -29,7 +29,12 @@ public:
     View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     ~View();
 
+    glm::vec3 lightDir{ -0.5f, -1.f, -1.f };
+
     void update();
+
+    void updateShadow();
+    void updateModel();
 
     Model* getModel() const;
     void setModel(Model* model);
@@ -76,12 +81,23 @@ private:
     
     Viewport m_viewport;
 
-    Shader* m_shader = nullptr;
     RenderSystem* m_renderSystem = nullptr;
     
-    uint32_t m_frameId;
-    uint32_t m_renderId;
-    uint32_t m_textureId;
+    Shader* m_shader = nullptr;
+    Shader* m_shaderDepth = nullptr;
+    
+    // Viewport
+    uint32_t m_frameId = 0;
+    uint32_t m_frameRenderId = 0;
+    uint32_t m_frameTextureId = 0;
+
+    // Shadows
+    uint32_t m_depthId = 0;
+    uint32_t m_depthTextureId = 0;
+    uint32_t m_depthWidth = 4096;
+    uint32_t m_depthHeight = 4096;
+
+    glm::mat4 m_lightSpaceMatrix{1.0f};
 
     std::unique_ptr<Window> m_window;
     std::unique_ptr<GuiSystem> m_guiSystem;
