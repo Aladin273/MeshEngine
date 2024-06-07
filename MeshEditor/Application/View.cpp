@@ -102,14 +102,14 @@ void View::update()
 
 void View::updateShadow()
 {
-    float distance = m_viewport.getCamera().getDistanceToTarget();
+    float distance = m_viewport.getCamera().getDistanceToTarget() * 2.f;
 
     glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)Settings::znear, (float)Settings::zfar);
     glm::mat4 lightView = glm::lookAt(-lightDir * distance, lightDir, Settings::worldUp);
 
     m_lightSpaceMatrix = lightProjection * lightView;
 
-    //glCullFace(GL_FRONT);
+    glCullFace(GL_FRONT);
     
     m_renderSystem->bindDepth(m_depthId);
 
@@ -132,7 +132,7 @@ void View::updateShadow()
 
     m_renderSystem->unbindDepth();
 
-    //glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
 }
 
 void View::updateModel()

@@ -94,8 +94,8 @@ private:
     // Shadows
     uint32_t m_depthId = 0;
     uint32_t m_depthTextureId = 0;
-    uint32_t m_depthWidth = 4096;
-    uint32_t m_depthHeight = 4096;
+    uint32_t m_depthWidth = 1024;
+    uint32_t m_depthHeight = 1024;
 
     glm::mat4 m_lightSpaceMatrix{1.0f};
 
