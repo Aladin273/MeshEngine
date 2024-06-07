@@ -50,17 +50,22 @@ public:
     
     void updateShadows();
 
+    void requestDelete(Node* node);
+
     Model* getModel() const;
     void setModel(Model* model);
     
     Node* getSelected() const;
     void setSelected(Node* selected);
 
-    Window* getWindow();
-    const Window* getWindow() const;
+    Window& getWindow();
+    const Window& getWindow() const;
 
     Viewport& getViewport();
     const Viewport& getViewport() const;
+
+    ViewportLayer& getViewportLayer();
+    const ViewportLayer& getViewportLayer() const;
 
     void addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op);
     void addOperator(ButtonCode button, std::unique_ptr<Operator> op);
@@ -86,7 +91,9 @@ private:
     std::unique_ptr<Node> m_origin;
 
     Model* m_model = nullptr;
+    
     Node* m_selected = nullptr;
+    Node* m_deleted = nullptr;
     
     Viewport m_viewport;
 

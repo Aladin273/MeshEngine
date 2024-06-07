@@ -193,6 +193,15 @@ void View::updateModel()
     m_settingsLayer->render();
 
     m_guiSystem->end();
+
+    // Request delete
+    if (m_deleted)
+    {
+        m_deleted->deleteFromParent();  // If child
+        m_model->detachNode(m_deleted); // If root
+
+        m_deleted = nullptr;
+    }
 }
 
 void View::updateShadows()
@@ -263,14 +272,14 @@ void View::setSelected(Node* selected)
     m_selected = selected;
 }
 
-Window* View::getWindow()
+Window& View::getWindow()
 {
-    return m_window.get();
+    return *m_window;
 }
 
-const Window* View::getWindow() const
+const Window& View::getWindow() const
 {
-    return m_window.get();
+    return *m_window;
 }
 
 Viewport& View::getViewport()
@@ -281,6 +290,16 @@ Viewport& View::getViewport()
 const Viewport& View::getViewport() const
 {
     return m_viewport;
+}
+
+ViewportLayer& View::getViewportLayer()
+{
+    return *m_viewportLayer;
+}
+
+const ViewportLayer& View::getViewportLayer() const
+{
+    return *m_viewportLayer;
 }
 
 void View::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)
@@ -339,8 +358,11 @@ void View::zoomToFit()
                         return true;
                     });
 
+
+                double length = glm::length(start_bbox.max - start_bbox.min);
+
+                m_viewport.setZFar(std::min(std::max(length, Settings::zfarMin), Settings::zfarMax));
                 m_viewport.zoomToFit(start_bbox.min, start_bbox.max);
-                m_viewport.setZFar(glm::length(start_bbox.max - start_bbox.min * 100.f));
             }
         }
     }
@@ -477,10 +499,17 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
     return contacts;
 }
 
+void View::requestDelete(Node* node)
+{
+    m_deleted = node;
+}
+
 void View::decoratePlane(Node& plane) const
 {
     std::unique_ptr<Mesh> mesh = Mesh::createPlane(Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384);
     
+    mesh->renderTriangles = false;
+    mesh->renderLines = true;
     mesh->colorLines = Settings::colorGray;
     plane.attachMesh(std::move(mesh));
 }
@@ -492,10 +521,6 @@ void View::decorateOrigin(Node& origin) const
     std::unique_ptr<Mesh> arrowX = Mesh::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs);
     std::unique_ptr<Mesh> arrowY = Mesh::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs);
     std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-
-    arrowX->renderTriangles = false;
-    arrowY->renderTriangles = false;
-    arrowZ->renderTriangles = false;
     
     arrowX->setMaterial(Settings::red);
     arrowY->setMaterial(Settings::green);

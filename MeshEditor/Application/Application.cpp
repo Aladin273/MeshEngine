@@ -191,13 +191,8 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            if (view.getSelected())
-            {
-                view.getSelected()->deleteFromParent();
-                view.getModel()->detachNode(view.getSelected());
-
-                view.setSelected(nullptr);
-            }
+            view.requestDelete(view.getSelected());
+            view.setSelected(nullptr);
         }
     });
 
@@ -227,12 +222,12 @@ void Application::run()
     {
         for (auto& view : m_views)
         {
-            if (!m_windowShouldClose(view->getWindow()))
+            if (!m_windowShouldClose(&view->getWindow()))
             {
-                view->getWindow()->setCurrentContext();
+                view->getWindow().setCurrentContext();
                 view->update();
 
-                m_swapDisplayBuffers(view->getWindow());
+                m_swapDisplayBuffers(&view->getWindow());
             }
             else
                 view.reset();

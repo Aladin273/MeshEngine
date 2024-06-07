@@ -16,6 +16,9 @@ namespace Settings
     const double fov = 60.0;
     const double znear = 0.001;
     const double zfar = 1000;
+    
+    const double zfarMin = 1000.f;
+    const double zfarMax = 10000.f;
 
     // Zoom
     const float zoomIn = 1.1f;

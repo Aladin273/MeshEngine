@@ -15,10 +15,6 @@ public:
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:	
-    void init();
-    void clear();
-    void setupTriad();
-
     ButtonCode m_button = ButtonCode::Button_Left;
 
     bool m_edit = false;
@@ -28,7 +24,5 @@ private:
 
     Contact m_contact;
     View* m_view;
-    Triad* m_triad;
-    Manipulator* m_manipulator;
 };
 

@@ -11,11 +11,19 @@ enum class ViewportMode : uint8_t
     Rotate,
     Scale,
     Universal,
+    Bounds,
+};
+
+enum class GizmoMode : uint8_t
+{
+    World = 0,
+    Local
 };
 
 class ViewportLayer : public BaseLayer
 {
 public:
+    using GizmoCallback = std::function<void(const glm::mat4&)>;
     using FramebufferSizeCallback = std::function<void(double, double)>;
 
     ViewportLayer(View* view);
@@ -26,13 +34,20 @@ public:
 
     bool wantCaptureMouse() const;
     bool wantCaptureKeyboard() const;
+    bool wantCaptureGizmo() const;
 
     void remapToRelative(double& x, double& y);
 
+    void setViewportMode(ViewportMode mode);
+
+    void setGizmoMode(GizmoMode mode);
+    void setGizmoTransform(const glm::mat4& transform);
+
+    void setGizmoCallback(const GizmoCallback& callback);
     void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
 private:
-    void viewport();
+    void guizmo();
     void overlay();
 
     uint32_t m_textureId;
@@ -42,12 +57,19 @@ private:
 
     glm::vec2 m_mouse;
     glm::vec2 m_position;
-    
+
     glm::vec2 m_min;
     glm::vec2 m_max;
 
-    bool m_wantCaptureMouse;
-    bool m_wantCaptureKeyboard;
+    bool m_wantCaptureMouse = false;
+    bool m_wantCaptureKeyboard = false;
+    bool m_wantCaptureGizmo = false;
 
-    std::vector<FramebufferSizeCallback> m_sizeCallbacks;
+    ViewportMode m_viewportMode = ViewportMode::Select;
+    GizmoMode m_gizmoMode = GizmoMode::World;
+
+    glm::mat4 m_gizmoTransform{1.0f};
+
+    GizmoCallback m_gizmoCallback;
+    FramebufferSizeCallback m_sizeCallback;
 };

@@ -16,11 +16,6 @@ public:
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:
-    void init();
-    void clear();
-    void setupTriad();
-    void setupArrow();
-
     ButtonCode m_buttonArrow = ButtonCode::Button_Left;
     ButtonCode m_buttonTriad = ButtonCode::Button_Right;
 
@@ -32,6 +27,4 @@ private:
 
     Contact m_contact;
     View* m_view;
-    Triad* m_triad;
-    Manipulator* m_manipulator;
 };

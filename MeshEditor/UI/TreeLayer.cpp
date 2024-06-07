@@ -65,14 +65,10 @@ void TreeLayer::render()
 
     if (ImGui::Button("Remove", { ImGui::GetContentRegionAvail().x, 20 }))
     {   
-        if (m_view->getSelected())
-        {
-            m_view->getSelected()->deleteFromParent();
-            m_view->getModel()->detachNode(m_view->getSelected());
-
-            m_selectedNode = nullptr;
-            m_view->setSelected(nullptr);
-        }
+        m_view->requestDelete(m_view->getSelected());
+        
+        m_view->setSelected(nullptr);
+        m_selectedNode = nullptr;
     }
 
     ImGui::Separator();

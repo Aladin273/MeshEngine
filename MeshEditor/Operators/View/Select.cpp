@@ -17,14 +17,11 @@ void SelectOperator::onMouseInput(View& view, ButtonCode button, Action action, 
 {
     if (action == Action::Press && !view.selectBlocked)
     {
-        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::NM);
+        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 
         if (!contacts.empty())
         {
             Node* node = contacts.front().node;
-
-            if (dynamic_cast<Manipulator*>(node) != nullptr)
-                return;
 
             if (mods != Modifier::Shift)
             {
