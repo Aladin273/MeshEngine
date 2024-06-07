@@ -78,4 +78,4 @@ add_subdirectory(ThirdParty)
 add_library(MeshEngine STATIC ${MESH_ENGINE_SOURCES})
 
 target_include_directories(MeshEngine PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(MeshEngine PUBLIC glfw glad glm assimp tinyxml2 stb imgui spdlog)
+target_link_libraries(MeshEngine PUBLIC glfw glad glm assimp tinyxml2 stb spdlog imgui imguizmo)

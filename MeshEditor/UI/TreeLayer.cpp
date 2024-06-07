@@ -64,18 +64,16 @@ void TreeLayer::render()
     ImGui::SameLine();
 
     if (ImGui::Button("Remove", { ImGui::GetContentRegionAvail().x, 20 }))
-    {
-        m_view->getSelected()->deleteFromParent();
-        m_view->getModel()->detachNode(m_view->getSelected());
+    {   
+        if (m_view->getSelected())
+        {
+            m_view->getSelected()->deleteFromParent();
+            m_view->getModel()->detachNode(m_view->getSelected());
 
-        m_selectedNode = nullptr;
-        m_view->setSelected(nullptr);
+            m_selectedNode = nullptr;
+            m_view->setSelected(nullptr);
+        }
     }
-
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    ImGui::DragFloat3("##Light Direction", glm::value_ptr(m_view->lightDir), 0.01f);
 
     ImGui::Separator();
     ImGui::Spacing();

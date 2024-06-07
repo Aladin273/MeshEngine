@@ -31,7 +31,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
 
     m_views.back()->addOperator(ButtonCode::Button_Middle, std::make_unique<PanOperator>());
 
-    m_views.back()->addOperator(ButtonCode::Button_Right, std::make_unique<ArcballOperator>());
+    m_views.back()->addOperator(ButtonCode::Button_Middle, std::make_unique<ArcballOperator>());
 
     m_views.back()->addOperator(KeyCode::D, KeyCode::Escape, std::make_unique<DeleteFaceOperator>());
     
@@ -110,58 +110,16 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     });
 
     m_views.back()->addOperator(KeyCode::F, [](View& view, Action action, Modifier mods)
-    {
-        if (action == Action::Press)
         {
-            static int i = -1; 
-            i = (i + 1) % 6;
-
-            view.getModel()->processRecursive([](Node& node)
+            if (action == Action::Press)
             {
-                switch (i)
-                {
-                case 0: node.getMesh()->setMaterial(Settings::ruby); break;
-                case 1: node.getMesh()->setMaterial(Settings::emerald); break;
-                case 2: node.getMesh()->setMaterial(Settings::gold); break;
-                case 3: node.getMesh()->setMaterial(Settings::copper); break;
-                case 4: node.getMesh()->setMaterial(Settings::chrome); break;
-                case 5: node.getMesh()->setMaterial(Settings::dark); break;
-                case 6: node.getMesh()->setMaterial(Settings::clear); break;
-                }
-            });
-        }
-    });
-
-    m_views.back()->addOperator(KeyCode::G, [](View& view, Action action, Modifier mods)
-    {
-        if (action == Action::Press)
-        {
-            view.getModel()->processRecursive([](Node& node)
-            {
-                if (node.getMesh()->colorLines == Settings::colorWhite)
-                {
-                    node.getMesh()->colorLines = Settings::colorBlack;
-                }
-                else
-                {
-                    node.getMesh()->colorLines = Settings::colorWhite;
-                }
-            });;
-        }
-    });
-
-    m_views.back()->addOperator(KeyCode::V, [](View& view, Action action, Modifier mods)
-    {
-        if (action == Action::Press)
-        {
-            View* newView = Application::instance()->createView(Settings::title, Settings::width, Settings::height);
-            newView->setModel(view.getModel());
-        }
-    });
+                view.zoomToFit(view.getSelected());
+            }
+        });
 
     m_views.back()->addOperator(KeyCode::S, [](View& view, Action action, Modifier mods)
     {
-        if (action == Action::Press)
+        if (action == Action::Press && mods == Modifier::Control)
             Application::instance()->saveModel(*view.getModel(), view.getModel()->getName());
     });
 
@@ -172,6 +130,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             view.getModel()->processRecursive([](Node& node)
                 {
                     node.getMesh()->renderHoles = !node.getMesh()->renderHoles;
+                    return true;
                 });
         }
     });
@@ -183,6 +142,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             view.getModel()->processRecursive([](Node& node)
                 {
                     node.getMesh()->renderLines = !node.getMesh()->renderLines;
+                    return true;
                 });
         }
     });
@@ -194,6 +154,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             view.getModel()->processRecursive([](Node& node)
                 {
                     node.getMesh()->renderTriangles = !node.getMesh()->renderTriangles;
+                    return true;
                 });
         }
     });
@@ -205,6 +166,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
             view.getModel()->processRecursive([](Node& node)
                 {
                     node.getMesh()->renderBoundaries = !node.getMesh()->renderBoundaries;
+                    return true;
                 });
         }
     });
@@ -213,20 +175,31 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     {
         if (action == Action::Press)
         {
-            view.getPlane()->getMesh()->renderLines = !view.getPlane()->getMesh()->renderLines;
+            view.showPlane = !view.showPlane;
         }
     });
 
     m_views.back()->addOperator(KeyCode::O, [](View& view, Action action, Modifier mods)
+    {
+        if (action == Action::Press)
         {
-            if (action == Action::Press)
+            view.showOrigin = !view.showOrigin;
+        }
+    });
+
+    m_views.back()->addOperator(KeyCode::Delete, [](View& view, Action action, Modifier mods)
+    {
+        if (action == Action::Press)
+        {
+            if (view.getSelected())
             {
-                view.getOrigin()->processRecursive([](Node& node)
-                    {
-                        node.getMesh()->renderTriangles = !node.getMesh()->renderTriangles;
-                    });
+                view.getSelected()->deleteFromParent();
+                view.getModel()->detachNode(view.getSelected());
+
+                view.setSelected(nullptr);
             }
-        });
+        }
+    });
 
     return m_views.back().get();
 }
@@ -285,7 +258,7 @@ RenderSystem* Application::createRenderSystem()
     return MeshEngine::createRenderSystem();
 }
 
-Shader* Application::createShader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader* Application::createShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath)
 {
-    return MeshEngine::createShader(vertexPath, fragmentPath);
+    return MeshEngine::createShader(vertexPath, fragmentPath, geometryPath);
 }

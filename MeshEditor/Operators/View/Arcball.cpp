@@ -26,7 +26,7 @@ void ArcballOperator::onMouseMove(View& view, double x, double y)
 
 void ArcballOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    if (action == Action::Press)
+    if (action == Action::Press && mods != Modifier::Shift)
         active = click = true;
     else
         active = click = false;

@@ -22,6 +22,9 @@
 #include "UI/PropertiesLayer.h"
 #include "UI/TreeLayer.h"
 #include "UI/ViewportLayer.h"
+#include "UI/SettingsLayer.h"
+
+#include "Settings.h"
 
 class View
 {
@@ -29,18 +32,35 @@ public:
     View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     ~View();
 
-    glm::vec3 lightDir{ -0.5f, -1.f, -1.f };
+    bool cameraLight = false;
+    bool flatShading = true;
+    bool castShadows = true;
+    bool showOrigin = false;
+    bool showPlane = false;
 
+    bool selectBlocked = false;
+
+    glm::vec3 lightDirection{ -0.5f, -0.75f, -1.0f };
+    glm::vec4 backgroundColor{ Settings::colorBackground };
+
+public:
     void update();
 
-    void updateShadow();
     void updateModel();
+    
+    void updateShadows();
 
     Model* getModel() const;
     void setModel(Model* model);
     
     Node* getSelected() const;
     void setSelected(Node* selected);
+
+    Window* getWindow();
+    const Window* getWindow() const;
+
+    Viewport& getViewport();
+    const Viewport& getViewport() const;
 
     void addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op);
     void addOperator(ButtonCode button, std::unique_ptr<Operator> op);
@@ -53,24 +73,13 @@ public:
     }
 
     void zoomToFit();
+    void zoomToFit(Node* node);
+
     std::vector<Contact> raycast(double x, double y, FilterValue filterValues);
 
-    Viewport& getViewport();
-    const Viewport& getViewport() const;
-
-    Window* getWindow();
-    const Window* getWindow() const;
-
-    Node* getPlane();
-    const Node* getPlane() const;
-
-    Node* getOrigin();
-    const Node* getOrigin() const;
-
+private:
     void decoratePlane(Node& plane) const;
     void decorateOrigin(Node& origin) const;
-    void decorateTriad(Triad& triad) const;
-    void decorateArrow(Manipulator& manipulator, glm::vec3 dir) const;
 
 private:
     std::unique_ptr<Node> m_plane;
@@ -80,6 +89,9 @@ private:
     Node* m_selected = nullptr;
     
     Viewport m_viewport;
+
+    std::unique_ptr<Window> m_window;
+    std::unique_ptr<GuiSystem> m_guiSystem;
 
     RenderSystem* m_renderSystem = nullptr;
     
@@ -96,17 +108,15 @@ private:
     uint32_t m_depthTextureId = 0;
     uint32_t m_depthWidth = 1024;
     uint32_t m_depthHeight = 1024;
-
     glm::mat4 m_lightSpaceMatrix{1.0f};
 
-    std::unique_ptr<Window> m_window;
-    std::unique_ptr<GuiSystem> m_guiSystem;
-
+    // UI
     std::unique_ptr<ConsoleLayer> m_consoleLayer;
     std::unique_ptr<DockpaneLayer> m_dockpaneLayer;
     std::unique_ptr<PropertiesLayer> m_propertiesLayer;
     std::unique_ptr<TreeLayer> m_treeLayer;
     std::unique_ptr<ViewportLayer> m_viewportLayer;
+    std::unique_ptr<SettingsLayer> m_settingsLayer;
     
     OperatorDispatcher m_operatorDispatcher;
 };

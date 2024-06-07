@@ -18,7 +18,6 @@ void EditNodeOperator::onMouseMove(View& view, double x, double y)
 
 void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    /*
     if (button == m_button && action == Action::Press && m_idle == true)
     {
         std::vector<Contact> contacts = view.raycast(x, y, FilterValue::NM);
@@ -57,7 +56,6 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
         m_edit = false;
         m_manipulator->handleMovement(MovementType::Release, view.getViewport(), x, y);
     }
-    */
 }
 
 void EditNodeOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)

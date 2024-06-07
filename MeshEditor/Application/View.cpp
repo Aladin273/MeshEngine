@@ -1,5 +1,4 @@
 #include "View.h"
-#include "Settings.h"
 #include "Application.h"
 
 #include <glad/gl.h>
@@ -26,6 +25,7 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_propertiesLayer = std::make_unique<PropertiesLayer>(this);
     m_treeLayer = std::make_unique<TreeLayer>(this);
     m_viewportLayer = std::make_unique<ViewportLayer>(this);
+    m_settingsLayer = std::make_unique<SettingsLayer>(this);
 
     m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
     m_viewport.setViewportSize(width, height);
@@ -96,55 +96,19 @@ View::~View()
 
 void View::update()
 {
-    updateShadow();
     updateModel();
-}
-
-void View::updateShadow()
-{
-    float distance = m_viewport.getCamera().getDistanceToTarget() * 2.f;
-
-    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)Settings::znear, (float)Settings::zfar);
-    glm::mat4 lightView = glm::lookAt(-lightDir * distance, lightDir, Settings::worldUp);
-
-    m_lightSpaceMatrix = lightProjection * lightView;
-
-    glCullFace(GL_FRONT);
-    
-    m_renderSystem->bindDepth(m_depthId);
-
-    m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
-    m_renderSystem->clearDepth();
-
-    m_shaderDepth->bind();
-    m_shaderDepth->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
-
-    m_model->processRecursive([&](Node& node)
-        {
-            if (dynamic_cast<Manipulator*>(&node) == nullptr)
-            {
-                m_shaderDepth->setMat4("model", node.calcAbsoluteTransform());
-                node.getMesh()->render(*m_renderSystem, *m_shaderDepth);
-            }
-        });
-
-    m_shaderDepth->unbind();
-
-    m_renderSystem->unbindDepth();
-
-    glCullFace(GL_BACK);
+    updateShadows();
 }
 
 void View::updateModel()
 {
     m_renderSystem->bindFrame(m_frameId);
 
-    std::vector<Node*> postRender;
-
     m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
-    m_renderSystem->clearDisplay(Settings::colorBackground.r, Settings::colorBackground.g, Settings::colorBackground.b, Settings::colorBackground.a);
+    m_renderSystem->clearDisplay(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
     m_shader->bind();
+    m_shader->setBool("flatShading", flatShading);
 
     m_shader->setInt("depthMap", 3);
     m_renderSystem->bindTexture(3, m_depthTextureId);
@@ -157,48 +121,63 @@ void View::updateModel()
     m_shader->setInt("numPointLights", 0);
     m_shader->setInt("numSpotLights", 0);
 
-    m_shader->setVec3("dirLights[0].direction", lightDir);
+    if (cameraLight)
+        lightDirection = m_viewport.getCamera().calcForward();
+
+    m_shader->setVec3("dirLights[0].direction", lightDirection);
     m_shader->setVec3("dirLights[0].ambient", Settings::ambient);
     m_shader->setVec3("dirLights[0].diffuse", Settings::diffuse);
     m_shader->setVec3("dirLights[0].specular", Settings::specular);
 
     // Plane render
-    m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
-    m_shader->setMat4("model", m_plane->calcAbsoluteTransform());
-    m_plane->getMesh()->render(*m_renderSystem, *m_shader);
+    if (showPlane)
+    {
+        m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
+        m_shader->setMat4("model", m_plane->calcAbsoluteTransform());
+        m_plane->getMesh()->render(*m_renderSystem, *m_shader);
+    }
 
-    // Model render
-    m_model->processRecursive([&](Node& node)
-        {
-            if (dynamic_cast<Manipulator*>(&node) == nullptr)
+    // Selected Render
+    if (getSelected())
+    {
+        m_shader->setVec3("outline", 0.2f, 0.2f, 0.2f);
+        
+        getSelected()->processRecursive([&](Node& node) -> bool
             {
-                if (&node == getSelected())
-                    m_shader->setVec3("outline", 0.2f, 0.2f, 0.2f);
-
                 m_shader->setMat4("model", node.calcAbsoluteTransform());
                 node.getMesh()->render(*m_renderSystem, *m_shader);
 
-                m_shader->setVec3("outline", 0.0f, 0.0f, 0.0f);
-            }
-            else
-                postRender.push_back(&node);
-        });
+                return true;
+            });
 
-    m_renderSystem->clearDepth();
+        m_shader->setVec3("outline", 0.0f, 0.0f, 0.0f);
+    }
 
-    // Origin render
-    m_origin->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * 0.15f)));
-    m_origin->processRecursive([&](Node& node)
+    // Model render
+    m_model->processRecursive([&](Node& node) -> bool
         {
+            if (&node == getSelected())
+                return false;
+
             m_shader->setMat4("model", node.calcAbsoluteTransform());
             node.getMesh()->render(*m_renderSystem, *m_shader);
+
+            return true;
         });
 
-    // Post Render
-    for (auto& node : postRender)
+    // Origin render
+    m_renderSystem->clearDepth();
+
+    if (showOrigin)
     {
-        m_shader->setMat4("model", node->calcAbsoluteTransform());
-        node->getMesh()->render(*m_renderSystem, *m_shader);
+        m_origin->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * 0.15f)));
+        m_origin->processRecursive([&](Node& node) -> bool
+            {
+                m_shader->setMat4("model", node.calcAbsoluteTransform());
+                node.getMesh()->render(*m_renderSystem, *m_shader);
+
+                return true;
+            });
     }
 
     m_renderSystem->unbindFrame();
@@ -211,8 +190,53 @@ void View::updateModel()
     m_treeLayer->render();
     m_consoleLayer->render();
     m_viewportLayer->render();
+    m_settingsLayer->render();
 
     m_guiSystem->end();
+}
+
+void View::updateShadows()
+{
+    if (!castShadows)
+    {
+        m_renderSystem->bindDepth(m_depthId);
+
+        m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
+        m_renderSystem->clearDepth();
+
+        return;
+    }
+
+    float distance = m_viewport.getCamera().getDistanceToTarget() * 2.f;
+
+    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)m_viewport.getZNear(), (float)m_viewport.getZFar());
+    glm::mat4 lightView = glm::lookAt(-lightDirection * distance, lightDirection, Settings::worldUp);
+
+    m_lightSpaceMatrix = lightProjection * lightView;
+
+    glCullFace(GL_FRONT);
+
+    m_renderSystem->bindDepth(m_depthId);
+
+    m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
+    m_renderSystem->clearDepth();
+
+    m_shaderDepth->bind();
+    m_shaderDepth->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+
+    m_model->processRecursive([&](Node& node) -> bool
+        {
+            m_shaderDepth->setMat4("model", node.calcAbsoluteTransform());
+            node.getMesh()->render(*m_renderSystem, *m_shaderDepth);
+
+            return true;
+        });
+
+    m_shaderDepth->unbind();
+
+    m_renderSystem->unbindDepth();
+
+    glCullFace(GL_BACK);
 }
 
 Model* View::getModel() const
@@ -237,6 +261,26 @@ Node* View::getSelected() const
 void View::setSelected(Node* selected)
 {
     m_selected = selected;
+}
+
+Window* View::getWindow()
+{
+    return m_window.get();
+}
+
+const Window* View::getWindow() const
+{
+    return m_window.get();
+}
+
+Viewport& View::getViewport()
+{
+    return m_viewport;
+}
+
+const Viewport& View::getViewport() const
+{
+    return m_viewport;
 }
 
 void View::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)
@@ -270,7 +314,7 @@ void View::zoomToFit()
                 start_bbox.min = start_mat * glm::vec4(start_bbox.min, 1.0f);
                 start_bbox.max = start_mat * glm::vec4(start_bbox.max, 1.0f);
 
-                m_model->processRecursive([&](Node& node)
+                m_model->processRecursive([&](Node& node) -> bool
                     {
                         BoundaryBox bbox = node.getMesh()->getBoundingBox();
                         const glm::mat4& mat = node.calcAbsoluteTransform();
@@ -291,12 +335,53 @@ void View::zoomToFit()
                             start_bbox.max.y = bbox.max.y;
                         if (bbox.max.z > start_bbox.max.z)
                             start_bbox.max.z = bbox.max.z;
+
+                        return true;
                     });
 
                 m_viewport.zoomToFit(start_bbox.min, start_bbox.max);
                 m_viewport.setZFar(glm::length(start_bbox.max - start_bbox.min * 100.f));
             }
         }
+    }
+}
+
+void View::zoomToFit(Node* node)
+{
+    if (node)
+    {
+        BoundaryBox start_bbox = node->getMesh()->getBoundingBox();
+        const glm::mat4& start_mat = node->calcAbsoluteTransform();
+
+        start_bbox.min = start_mat * glm::vec4(start_bbox.min, 1.0f);
+        start_bbox.max = start_mat * glm::vec4(start_bbox.max, 1.0f);
+
+        node->processRecursive([&](Node& node) -> bool
+            {
+                BoundaryBox bbox = node.getMesh()->getBoundingBox();
+                const glm::mat4& mat = node.calcAbsoluteTransform();
+
+                bbox.min = mat * glm::vec4(bbox.min, 1.0f);
+                bbox.max = mat * glm::vec4(bbox.max, 1.0f);
+
+                if (bbox.min.x < start_bbox.min.x)
+                    start_bbox.min.x = bbox.min.x;
+                if (bbox.min.y < start_bbox.min.y)
+                    start_bbox.min.y = bbox.min.y;
+                if (bbox.min.z < start_bbox.min.z)
+                    start_bbox.min.z = bbox.min.z;
+
+                if (bbox.max.x > start_bbox.max.x)
+                    start_bbox.max.x = bbox.max.x;
+                if (bbox.max.y > start_bbox.max.y)
+                    start_bbox.max.y = bbox.max.y;
+                if (bbox.max.z > start_bbox.max.z)
+                    start_bbox.max.z = bbox.max.z;
+
+                return true;
+            });
+
+        m_viewport.zoomToFit(start_bbox.min, start_bbox.max);
     }
 }
 
@@ -307,7 +392,7 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
     Ray ray = m_viewport.calcCursorRay(x, y);
 
     // Broad Phase TODO Octree
-    m_model->processRecursive([&](Node& node)
+    m_model->processRecursive([&](Node& node) -> bool
         {
             auto bbox = node.getMesh()->getBoundingBox();
             const auto& mat = node.calcAbsoluteTransform();
@@ -317,6 +402,8 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
 
             if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max))
                 candidates.push_back(&node);
+
+            return true;
         });
 
     // Narrow Phase
@@ -369,7 +456,7 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
                 continue;
             }
         }
-        else 
+        else
         {
             if (dynamic_cast<Manipulator*>(contacts[index].node) != nullptr)
             {
@@ -390,53 +477,11 @@ std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
     return contacts;
 }
 
-Viewport& View::getViewport()
-{
-    return m_viewport;
-}
-
-const Viewport& View::getViewport() const
-{
-    return m_viewport;
-}
-
-Window* View::getWindow()
-{
-    return m_window.get();
-}
-
-const Window* View::getWindow() const
-{
-    return m_window.get();
-}
-
-Node* View::getPlane()
-{
-    return m_plane.get();
-}
-
-const Node* View::getPlane() const
-{
-    return m_plane.get();
-}
-
-Node* View::getOrigin()
-{
-    return m_origin.get();
-}
-
-const Node* View::getOrigin() const
-{
-    return m_origin.get();
-}
-
 void View::decoratePlane(Node& plane) const
 {
     std::unique_ptr<Mesh> mesh = Mesh::createPlane(Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384);
     
     mesh->colorLines = Settings::colorGray;
-    mesh->renderTriangles = false;
-    
     plane.attachMesh(std::move(mesh));
 }
 
@@ -463,68 +508,4 @@ void View::decorateOrigin(Node& origin) const
     origin.getChildren()[0]->attachMesh(std::move(arrowX));
     origin.getChildren()[1]->attachMesh(std::move(arrowY));
     origin.getChildren()[2]->attachMesh(std::move(arrowZ));
-}
-
-void View::decorateTriad(Triad& triad) const
-{
-    using namespace Settings;
-
-    std::unique_ptr<Mesh> arrowX = Mesh::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    std::unique_ptr<Mesh> arrowY = Mesh::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    
-    std::unique_ptr<Mesh> torusX = Mesh::createTorus(axisX, minorTR, majorTR, numSubs);
-    std::unique_ptr<Mesh> torusY = Mesh::createTorus(axisY, minorTR, majorTR, numSubs);
-    std::unique_ptr<Mesh> torusZ = Mesh::createTorus(axisZ, minorTR, majorTR, numSubs);
-    
-    std::unique_ptr<Mesh> cubeX = Mesh::createCube(axisX * cubeTL, cubeTR);
-    std::unique_ptr<Mesh> cubeY = Mesh::createCube(axisY * cubeTL, cubeTR);
-    std::unique_ptr<Mesh> cubeZ = Mesh::createCube(axisZ * cubeTL, cubeTR);
-    
-    arrowX->setMaterial(Settings::red);
-    arrowY->setMaterial(Settings::green);
-    arrowZ->setMaterial(Settings::blue);
-    
-    torusX->setMaterial(Settings::red);
-    torusY->setMaterial(Settings::green);
-    torusZ->setMaterial(Settings::blue);
-    
-    cubeX->setMaterial(Settings::red);
-    cubeY->setMaterial(Settings::green);
-    cubeZ->setMaterial(Settings::blue);
-    
-    triad.getChildren()[0]->attachMesh(std::move(arrowX));
-    triad.getChildren()[1]->attachMesh(std::move(arrowY));
-    triad.getChildren()[2]->attachMesh(std::move(arrowZ));
-         
-    triad.getChildren()[3]->attachMesh(std::move(torusX));
-    triad.getChildren()[4]->attachMesh(std::move(torusY));
-    triad.getChildren()[5]->attachMesh(std::move(torusZ));
-         
-    triad.getChildren()[6]->attachMesh(std::move(cubeX));
-    triad.getChildren()[7]->attachMesh(std::move(cubeY));
-    triad.getChildren()[8]->attachMesh(std::move(cubeZ));
-    
-    for (auto& child : triad.getChildren())
-    {
-        glm::vec3 center = child->getRelativeTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        child->applyRelativeTransform(glm::translate(-center));
-        child->applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * Settings::sizeT)));
-        child->applyRelativeTransform(glm::translate(center));
-    }
-}
-
-void View::decorateArrow(Manipulator& manipulator, glm::vec3 dir) const
-{
-    using namespace Settings;
-    
-    std::unique_ptr<Mesh> mesh = Mesh::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs);
-    
-    mesh->setMaterial(Settings::blue);
-    manipulator.attachMesh(std::move(mesh));
-    
-    glm::vec3 center = manipulator.getRelativeTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    manipulator.applyRelativeTransform(glm::translate(-center));
-    manipulator.applyRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * Settings::sizeA)));
-    manipulator.applyRelativeTransform(glm::translate(center));
 }

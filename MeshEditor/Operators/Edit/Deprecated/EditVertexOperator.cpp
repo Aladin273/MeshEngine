@@ -1,26 +1,24 @@
-#include "EditFaceOperator.h"
+#include "EditVertexOperator.h"
 
-
-void EditFaceOperator::onEnter(View&)
+void EditVertexOperator::onEnter(View&)
 {
     m_idle = true;
 }
 
-void EditFaceOperator::onExit(View&)
+void EditVertexOperator::onExit(View&)
 {
     clear();
 }
 
-void EditFaceOperator::onMouseMove(View& view, double x, double y)
+void EditVertexOperator::onMouseMove(View& view, double x, double y)
 {
     // Edit On
     if (m_edit)
         m_manipulator->handleMovement(MovementType::Drag, view.getViewport(), x, y);
 }
 
-void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
+void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    /*
     if ((button == m_buttonArrow || button == m_buttonTriad) && action == Action::Press && m_idle == true) // Idle On
     {
         std::vector<Contact> contacts = view.raycast(x, y, FilterValue::NM);
@@ -35,7 +33,7 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
 
         Contact& contact = manipulator != contacts.end() ? *manipulator : contacts.front();
         Node* node = contact.node;
-        
+
         if (dynamic_cast<Manipulator*>(node) != nullptr) // Selected Manipulator
         {
             m_idle = false;
@@ -47,7 +45,7 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         {
             m_view = &view;
             m_contact = contact;
-       
+
             clear();
             init();
 
@@ -56,7 +54,7 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
                 setupArrow();
                 view.decorateArrow(*m_manipulator, m_normal);
             }
-                
+
             else if (button == m_buttonTriad)
             {
                 setupTriad();
@@ -70,15 +68,14 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         m_edit = false;
         m_manipulator->handleMovement(MovementType::Release, view.getViewport(), x, y);
     }
-    */
 }
 
-void EditFaceOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
+void EditVertexOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
 {
 
 }
 
-void EditFaceOperator::clear()
+void EditVertexOperator::clear()
 {
     if (m_manipulator)
     {
@@ -96,51 +93,86 @@ void EditFaceOperator::clear()
     m_manipulator = nullptr;
 }
 
-void EditFaceOperator::init()
+
+void EditVertexOperator::init()
 {
     const auto& table = m_contact.node->getMesh()->getHalfEdgeTable();
-    heds::HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
-    heds::HalfEdgeHandle heh1 = table.next(heh0);
-    heds::HalfEdgeHandle heh2 = table.next(heh1);
-    heds::HalfEdgeHandle heh3 = table.next(heh2);
+    heds::HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
+    heds::HalfEdgeHandle next_heh = start_heh;
+    std::vector<glm::vec3> normals;
 
-    glm::vec3 a = table.getEndPoint(heh0).position;
-    glm::vec3 b = table.getEndPoint(heh1).position;
-    glm::vec3 c = table.getEndPoint(heh2).position;
-    glm::vec3 d = table.getEndPoint(heh3).position;
+    glm::vec3 point = glm::inverse(m_contact.node->calcAbsoluteTransform()) * glm::vec4(m_contact.point, 1.0f);
 
-    m_normal = glm::normalize(glm::cross(b - a, c - b));
-  
-    if (heh3 == heh0)
-        m_center = (a + b + c) / 3.0f;
-    else
-        m_center = (a + b + c + d) / 4.0f;
+    float min = glm::length(table.getEndPoint(start_heh).position - point);
+    m_vh = table.deref(start_heh).dst;
+
+    // Find needed vertex
+    do
+    {
+        float length = glm::length(table.getEndPoint(next_heh).position - point);
+
+        if (length < min)
+        {
+            min = length;
+            m_vh = table.deref(next_heh).dst;
+        }
+        next_heh = table.next(next_heh);
+    } 
+    while (next_heh != start_heh);
+   
+    start_heh = table.deref(m_vh).heh;
+    next_heh = start_heh;
+
+    // Find adjacent normals
+    do
+    {
+        heds::HalfEdgeHandle heh0 = next_heh;
+        heds::HalfEdgeHandle heh1 = table.next(heh0);
+        heds::HalfEdgeHandle heh2 = table.next(heh1);
+
+        glm::vec3 a = table.getEndPoint(heh0).position;
+        glm::vec3 b = table.getEndPoint(heh1).position;
+        glm::vec3 c = table.getEndPoint(heh2).position;
+
+        normals.push_back(glm::normalize(glm::cross(b - a, c - b)));
+        next_heh = table.next(table.twin(next_heh));
+    } 
+    while (next_heh != start_heh);
+
+    m_normal = glm::vec3(0.0f);
+
+    for (auto& normal : normals)
+        m_normal += normal;
+
+    m_center = table.getPoint(m_vh).position;
+    m_normal = glm::normalize(m_normal / static_cast<float>(normals.size()));
 }
 
-void EditFaceOperator::setupTriad()
+void EditVertexOperator::setupTriad()
 {
     std::unique_ptr<Triad> triad = std::make_unique<Triad>();
 
     triad->setRelativeTransform(glm::translate(m_center));
     triad->setCallback([&](const glm::mat4& delta)
         {
-            m_contact.node->getMesh()->applyTransformation(m_contact.face, delta);
+            m_contact.node->getMesh()->applyTransformation(m_vh, delta);
         });
 
     m_triad = triad.get();
     m_contact.node->attachNode(std::move(triad));
 }
 
-void EditFaceOperator::setupArrow()
+void EditVertexOperator::setupArrow()
 {
     std::unique_ptr<TranslationManipulator> manipulator = std::make_unique<TranslationManipulator>(m_normal);
 
     manipulator->setRelativeTransform(glm::translate(m_center));
     manipulator->setCallback([&](const glm::mat4& delta)
         {
-            m_contact.node->getMesh()->applyTransformation(m_contact.face, delta);
+            m_contact.node->getMesh()->applyTransformation(m_vh, delta);
         });
 
     m_manipulator = manipulator.get();
     m_contact.node->attachNode(std::move(manipulator));
 }
+

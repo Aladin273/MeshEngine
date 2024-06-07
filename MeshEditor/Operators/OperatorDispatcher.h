@@ -40,7 +40,7 @@ private:
     void processMouseMove(View& view, double x, double y);
     void processKeyboardInput(View& view, KeyCode key, Action action, Modifier mods);
 
-    std::map<ButtonCode, std::unique_ptr<Operator>> m_buttons;
+    std::vector<std::pair<ButtonCode, std::unique_ptr<Operator>>> m_buttons;
     std::map<KeyCode, std::unique_ptr<Operator>> m_keys;
     std::map<KeyCode, std::pair<KeyCode, std::unique_ptr<Operator>>> m_dominants;
 

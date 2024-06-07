@@ -20,6 +20,11 @@ __declspec(dllimport) GuiSystem* createGuiSystem(Window* window)
     return new GLGuiSystem(window);
 }
 
+__declspec(dllimport) Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath)
+{
+    return new GLShader(vertexPath, fragmentPath, geometryPath);
+}
+
 __declspec(dllimport) Window* createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
     return new GLWindow(title, width, height, icon);
@@ -67,9 +72,9 @@ GuiSystem* MeshEngine::createGuiSystem(Window* window)
     return new GLGuiSystem(window);
 }
 
-Shader* MeshEngine::createShader(const std::string& vertexPath, const std::string& fragmentPath)
+Shader* MeshEngine::createShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath)
 {
-    return new GLShader(vertexPath, fragmentPath);
+    return new GLShader(vertexPath, fragmentPath, geometryPath);
 }
 
 Window* MeshEngine::createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon)

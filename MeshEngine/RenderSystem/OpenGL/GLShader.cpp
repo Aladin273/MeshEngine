@@ -7,61 +7,106 @@
 
 #include "MeshEngine/Misc/Logger.h"
 
-GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPath)
+GLShader::GLShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath)
 {
     std::string vertexCode;
     std::string fragmentCode;
+    std::string geometryCode;
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
+    std::ifstream gShaderFile;
 
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try
     {
+        // Open files
         vShaderFile.open(vertexPath);
         fShaderFile.open(fragmentPath);
         std::stringstream vShaderStream, fShaderStream;
 
+        // Read file's buffer contents into streams
         vShaderStream << vShaderFile.rdbuf();
         fShaderStream << fShaderFile.rdbuf();
 
+        // Close file handlers
         vShaderFile.close();
         fShaderFile.close();
 
+        // Convert stream into string
         vertexCode = vShaderStream.str();
         fragmentCode = fShaderStream.str();
+
+        // If geometry shader path is provided, also load it
+        if (!geometryPath.empty())
+        {
+            gShaderFile.open(geometryPath);
+            std::stringstream gShaderStream;
+            gShaderStream << gShaderFile.rdbuf();
+            gShaderFile.close();
+            geometryCode = gShaderStream.str();
+        }
     }
     catch (std::ifstream::failure& e)
     {
         MeshEngine::Logger::error("SHADER::FILE_NOT_SUCCESFULLY_READ");
     }
+
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
 
-    unsigned int vertex, fragment;
+    unsigned int vertex, fragment, geometry;
 
+    // Compile vertex shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
+    m_vertexId = vertex;
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
     checkCompileErrors(vertex, "VERTEX");
 
+    // Compile fragment shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    m_fragmentId = fragment;
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
 
+    // Create shader program and attach vertex and fragment shaders
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
-    glLinkProgram(ID);
-    
-    if (checkCompileErrors(ID, "PROGRAM"))
-        MeshEngine::Logger::info("GLShader created successful. {:} {:}", vertexPath, fragmentPath);
-    else
-        MeshEngine::Logger::error("GLShader created not successful. {:} {:}", vertexPath, fragmentPath);
 
+    // Compile and attach geometry shader if provided
+    if (!geometryPath.empty())
+    {
+        const char* gShaderCode = geometryCode.c_str();
+        geometry = glCreateShader(GL_GEOMETRY_SHADER);
+        m_geometryId = geometry;
+        glShaderSource(geometry, 1, &gShaderCode, NULL);
+        glCompileShader(geometry);
+        checkCompileErrors(geometry, "GEOMETRY");
+        glAttachShader(ID, geometry);
+    }
+
+    // Link shader program
+    glLinkProgram(ID);
+    if (checkCompileErrors(ID, "PROGRAM"))
+    {
+        MeshEngine::Logger::info("GLShader created successfully: {} {} {}", vertexPath, fragmentPath, geometryPath);
+    }
+    else
+    {
+        MeshEngine::Logger::error("GLShader creation failed: {} {} {}", vertexPath, fragmentPath, geometryPath);
+    }
+
+    // Delete shaders as they're linked into the program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+    if (!geometryPath.empty())
+    {
+        glDeleteShader(geometry);
+    }
 }
 
 void GLShader::bind()
@@ -72,6 +117,42 @@ void GLShader::bind()
 void GLShader::unbind()
 {
     glUseProgram(0);
+}
+
+void GLShader::attachVertex()
+{
+    glAttachShader(ID, m_geometryId);
+    glLinkProgram(ID);
+}
+
+void GLShader::detachVertex()
+{
+    glDetachShader(ID, GL_VERTEX_SHADER);
+    glLinkProgram(ID);
+}
+
+void GLShader::attachFragment()
+{
+    glAttachShader(ID, m_geometryId);
+    glLinkProgram(ID);
+}
+
+void GLShader::detachFragment()
+{
+    glDetachShader(ID, GL_FRAGMENT_SHADER);
+    glLinkProgram(ID);
+}
+
+void GLShader::attachGeometry()
+{
+    glAttachShader(ID, m_geometryId);
+    glLinkProgram(ID);
+}
+
+void GLShader::detachGeometry()
+{
+    glDetachShader(ID, GL_GEOMETRY_SHADER);
+    glLinkProgram(ID);
 }
 
 void GLShader::setBool(const std::string& name, bool value) const

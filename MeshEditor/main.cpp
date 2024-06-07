@@ -16,7 +16,7 @@ int main()
 
     nodeCube->attachMesh(Mesh::createCube(glm::vec3(0.f), 1.f));
 
-    model->attachNode(std::move(nodeFloor));
+    //model->attachNode(std::move(nodeFloor));
     model->attachNode(std::move(nodeCube));
 
     view->setModel(model.get());

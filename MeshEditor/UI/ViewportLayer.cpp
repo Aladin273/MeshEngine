@@ -3,6 +3,8 @@
 #include "ViewportLayer.h"
 #include "../Application/View.h"
 
+#include <ImGuizmo.h>
+
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 
@@ -74,6 +76,21 @@ void ViewportLayer::viewport()
     m_wantCaptureKeyboard = isActiveWindow;
 
     ImGui::Image((void*)(intptr_t)m_textureId, { (float)m_width, (float)m_height }, ImVec2(0, 1), ImVec2(1, 0));
+
+    if (m_view->getSelected())
+    {
+        ImGuizmo::SetOrthographic(m_view->getViewport().getOrthogonal());
+        ImGuizmo::SetDrawlist();
+
+        ImGuizmo::SetRect(m_position.x, m_position.y, m_width, m_height);
+
+        glm::mat4 transform = m_view->getSelected()->getRelativeTransform();
+
+        ImGuizmo::Manipulate(&(m_view->getViewport().getCamera().calcViewMatrix()[0][0]), &(m_view->getViewport().calcProjectionMatrix()[0][0]), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::LOCAL, &(transform)[0][0]);
+
+        m_view->getSelected()->setRelativeTransform(transform);
+        m_view->selectBlocked = ImGuizmo::IsUsing() || ImGuizmo::IsOver();
+    }
 
     ImGui::End();
 }

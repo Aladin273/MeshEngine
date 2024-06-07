@@ -4,6 +4,15 @@
 
 #include <functional>
 
+enum class ViewportMode : uint8_t
+{
+    Select = 0,
+    Translate,
+    Rotate,
+    Scale,
+    Universal,
+};
+
 class ViewportLayer : public BaseLayer
 {
 public:

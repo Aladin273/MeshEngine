@@ -14,7 +14,7 @@ namespace Settings
     const int width = 1920;
     const int height = 1080;
     const double fov = 60.0;
-    const double znear = 0.1;
+    const double znear = 0.001;
     const double zfar = 1000;
 
     // Zoom
