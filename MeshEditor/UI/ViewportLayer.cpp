@@ -74,6 +74,16 @@ void ViewportLayer::remapToRelative(double& x, double& y)
     y = m_height - (m_mouse.y - m_min.y);
 }
 
+ViewportMode ViewportLayer::getViewportMode() const
+{
+    return m_viewportMode;
+}
+
+GizmoMode ViewportLayer::getGizmoMode() const
+{
+    return m_gizmoMode;
+}
+
 void ViewportLayer::setViewportMode(ViewportMode mode)
 {
     m_viewportMode = mode;
@@ -131,9 +141,8 @@ void ViewportLayer::guizmo()
 
         glm::mat4 delta{ 1.0f };
 
-        ImGuizmo::Manipulate(&(m_view->getViewport().getCamera().calcViewMatrix()[0][0]), &(m_view->getViewport().calcProjectionMatrix()[0][0]), operation, mode, &(m_gizmoTransform)[0][0], &(delta)[0][0]);
-
-        m_gizmoCallback(delta);
+        if (ImGuizmo::Manipulate(&(m_view->getViewport().getCamera().calcViewMatrix()[0][0]), &(m_view->getViewport().calcProjectionMatrix()[0][0]), operation, mode, &(m_gizmoTransform)[0][0], &(delta)[0][0]))
+            m_gizmoCallback(m_gizmoTransform, delta);
 
         m_wantCaptureGizmo = ImGuizmo::IsOver() || ImGuizmo::IsUsing() || ImGuizmo::IsUsingAny();
     }
@@ -142,8 +151,6 @@ void ViewportLayer::guizmo()
         ImGuizmo::Enable(false);
         m_wantCaptureGizmo = false;
     }
-
-    m_view->selectBlocked = m_wantCaptureGizmo;
 }
 
 void ViewportLayer::overlay()

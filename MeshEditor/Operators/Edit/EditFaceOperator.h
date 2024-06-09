@@ -19,9 +19,6 @@ private:
     ButtonCode m_buttonArrow = ButtonCode::Button_Left;
     ButtonCode m_buttonTriad = ButtonCode::Button_Right;
 
-    bool m_edit = false;
-    bool m_idle = false;
-
     glm::vec3 m_center { 0.0f};
     glm::vec3 m_normal { 0.0f};
 

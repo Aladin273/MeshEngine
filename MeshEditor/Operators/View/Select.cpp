@@ -15,7 +15,7 @@ void SelectOperator::onMouseMove(View& view, double x, double y)
 
 void SelectOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    if (action == Action::Press && !view.selectBlocked)
+    if (action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
     {
         std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 

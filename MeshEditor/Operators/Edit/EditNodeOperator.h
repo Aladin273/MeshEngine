@@ -17,11 +17,6 @@ public:
 private:	
     ButtonCode m_button = ButtonCode::Button_Left;
 
-    bool m_edit = false;
-    bool m_idle = false;
-
-    glm::vec3 m_center { 0.0f};
-
     Contact m_contact;
     View* m_view;
 };

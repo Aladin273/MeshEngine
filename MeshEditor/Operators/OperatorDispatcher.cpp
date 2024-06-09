@@ -41,7 +41,6 @@ void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action
         }
     }
 
-
     for (auto& buttoncode : m_buttons)
     {
         if (buttoncode.first == button)
@@ -104,5 +103,8 @@ void OperatorDispatcher::processMouseMove(View& view, double x, double y)
     }
 
     for (auto& op : m_buttons)
+        op.second->onMouseMove(view, x, y);
+
+    for (auto& op : m_keys)
         op.second->onMouseMove(view, x, y);
 }

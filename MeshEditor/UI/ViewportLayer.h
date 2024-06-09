@@ -23,7 +23,7 @@ enum class GizmoMode : uint8_t
 class ViewportLayer : public BaseLayer
 {
 public:
-    using GizmoCallback = std::function<void(const glm::mat4&)>;
+    using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&)>;
     using FramebufferSizeCallback = std::function<void(double, double)>;
 
     ViewportLayer(View* view);
@@ -38,12 +38,15 @@ public:
 
     void remapToRelative(double& x, double& y);
 
+    ViewportMode getViewportMode() const;
+    GizmoMode getGizmoMode() const;
+
     void setViewportMode(ViewportMode mode);
-
     void setGizmoMode(GizmoMode mode);
+    
     void setGizmoTransform(const glm::mat4& transform);
-
     void setGizmoCallback(const GizmoCallback& callback);
+
     void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
 private:
