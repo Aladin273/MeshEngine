@@ -14,10 +14,10 @@ void OperatorDispatcher::addOperator(KeyCode enterKey, KeyCode exitKey, std::uni
 
 void OperatorDispatcher::addOperator(ButtonCode button, std::unique_ptr<Operator> op)
 {
-    if (m_buttons.find(button) != m_buttons.end())
-        throw std::logic_error("An operator is a bind with a button that another operator already uses");
+    //if (m_buttons.find(button) != m_buttons.end())
+    //    throw std::logic_error("An operator is a bind with a button that another operator already uses");
 
-    m_buttons.emplace(button, std::move(op));
+    m_buttons.push_back({ button, std::move(op) });
 }
 
 void OperatorDispatcher::addOperator(KeyCode key, std::unique_ptr<Operator> op)
@@ -41,12 +41,10 @@ void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action
         }
     }
 
-    auto buttoncode = m_buttons.find(button);
-
-    if (buttoncode != m_buttons.end())
+    for (auto& buttoncode : m_buttons)
     {
-        op = buttoncode->second.get();
-        op->onMouseInput(view, button, action, mods, x, y);
+        if (buttoncode.first == button)
+            buttoncode.second->onMouseInput(view, button, action, mods, x, y);
     }
 }
 
@@ -105,5 +103,8 @@ void OperatorDispatcher::processMouseMove(View& view, double x, double y)
     }
 
     for (auto& op : m_buttons)
+        op.second->onMouseMove(view, x, y);
+
+    for (auto& op : m_keys)
         op.second->onMouseMove(view, x, y);
 }

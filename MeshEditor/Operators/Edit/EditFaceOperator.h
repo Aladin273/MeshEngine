@@ -16,22 +16,12 @@ public:
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:
-    void init();
-    void clear();
-    void setupTriad();
-    void setupArrow();
-
     ButtonCode m_buttonArrow = ButtonCode::Button_Left;
     ButtonCode m_buttonTriad = ButtonCode::Button_Right;
-
-    bool m_edit = false;
-    bool m_idle = false;
 
     glm::vec3 m_center { 0.0f};
     glm::vec3 m_normal { 0.0f};
 
     Contact m_contact;
     View* m_view;
-    Triad* m_triad;
-    Manipulator* m_manipulator;
 };

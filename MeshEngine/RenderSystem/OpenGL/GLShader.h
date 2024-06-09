@@ -5,10 +5,19 @@
 class GLShader : public Shader
 {
 public:
-    GLShader(const std::string& vertexPath, const std::string& fragmentPath);
+    GLShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
 
     virtual void bind() override;
     virtual void unbind() override;
+
+    virtual void attachVertex() override;
+    virtual void detachVertex() override;
+
+    virtual void attachFragment() override;
+    virtual void detachFragment() override;
+
+    virtual void attachGeometry() override;
+    virtual void detachGeometry() override;
 
     virtual void setBool(const std::string& name, bool value) const override;
     virtual void setInt(const std::string& name, int value) const override;
@@ -29,4 +38,8 @@ public:
 
 private:
     bool checkCompileErrors(unsigned int shader, std::string type);
+
+    uint32_t m_vertexId = 0;
+    uint32_t m_fragmentId = 0;
+    uint32_t m_geometryId = 0;
 };

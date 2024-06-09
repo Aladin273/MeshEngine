@@ -101,6 +101,11 @@ void PropertiesLayer::render()
         ImGui::Spacing();
         ImGui::ColorEdit4("Color Boundaries", glm::value_ptr(m_view->getSelected()->getMesh()->colorBoundaries));
         ImGui::Spacing();
+
+        ImGui::Separator();
+        ImGui::Text("Global");
+        ImGui::Separator();
+        ImGui::Spacing();
     }
     
     ImGui::End();

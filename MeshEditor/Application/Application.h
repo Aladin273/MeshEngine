@@ -39,7 +39,7 @@ public:
     Window* createWindow(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     GuiSystem* createGuiSystem(Window* window);
     RenderSystem* createRenderSystem();
-    Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath);
+    Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
 
     static Application* instance();
 

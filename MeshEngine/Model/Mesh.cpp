@@ -453,7 +453,7 @@ void Mesh::deleteFace(heds::FaceHandle fh)
     update();
 }
 
-const heds::HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable() const
+heds::HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable()
 {
     return m_table;
 }

@@ -29,6 +29,7 @@ set(MESH_EDITOR_HEADERS
     UI/PropertiesLayer.h
     UI/TreeLayer.h
     UI/ViewportLayer.h
+    UI/SettingsLayer.h
 )
 
 set(MESH_EDITOR_SOURCES
@@ -53,6 +54,7 @@ set(MESH_EDITOR_SOURCES
     UI/PropertiesLayer.cpp
     UI/TreeLayer.cpp
     UI/ViewportLayer.cpp
+    UI/SettingsLayer.cpp
     
     Main.cpp
 )

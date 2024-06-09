@@ -3,44 +3,14 @@
 #include "ViewportLayer.h"
 #include "../Application/View.h"
 
+#include <ImGuizmo.h>
+
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 
 }
 
 void ViewportLayer::render()
-{
-    viewport();
-    overlay();
-}
-
-void ViewportLayer::attach(uint32_t textureId)
-{
-    m_textureId = textureId;
-}
-
-bool ViewportLayer::wantCaptureMouse() const
-{
-    return m_wantCaptureMouse;
-}
-
-bool ViewportLayer::wantCaptureKeyboard() const
-{
-    return m_wantCaptureKeyboard;
-}
-
-void ViewportLayer::remapToRelative(double& x, double& y)
-{
-    x = m_mouse.x - m_min.x;
-    y = m_height - (m_mouse.y - m_min.y);
-}
-
-void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
-{
-    m_sizeCallbacks.push_back(callback);
-}
-
-void ViewportLayer::viewport()
 {
     ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoScrollbar);
 
@@ -59,23 +29,128 @@ void ViewportLayer::viewport()
 
     if (size.x != m_width || size.y != m_height)
     {
-        for (auto& callback : m_sizeCallbacks)
-        {
-            callback(size.x, size.y);
-        }
+        m_sizeCallback(size.x, size.y);
 
         m_width = size.x;
         m_height = size.y;
     }
 
     bool isActiveWindow = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
-    
+
     m_wantCaptureMouse = isActiveWindow && ((m_mouse.x >= m_min.x && m_mouse.x <= m_max.x) && (m_mouse.y >= m_min.y && m_mouse.y <= m_max.y));
     m_wantCaptureKeyboard = isActiveWindow;
 
     ImGui::Image((void*)(intptr_t)m_textureId, { (float)m_width, (float)m_height }, ImVec2(0, 1), ImVec2(1, 0));
 
+    guizmo();
+    overlay();
+
     ImGui::End();
+}
+
+void ViewportLayer::attach(uint32_t textureId)
+{
+    m_textureId = textureId;
+}
+
+bool ViewportLayer::wantCaptureMouse() const
+{
+    return m_wantCaptureMouse;
+}
+
+bool ViewportLayer::wantCaptureKeyboard() const
+{
+    return m_wantCaptureKeyboard;
+}
+
+bool ViewportLayer::wantCaptureGizmo() const
+{
+    return m_wantCaptureGizmo;
+}
+
+void ViewportLayer::remapToRelative(double& x, double& y)
+{
+    x = m_mouse.x - m_min.x;
+    y = m_height - (m_mouse.y - m_min.y);
+}
+
+ViewportMode ViewportLayer::getViewportMode() const
+{
+    return m_viewportMode;
+}
+
+GizmoMode ViewportLayer::getGizmoMode() const
+{
+    return m_gizmoMode;
+}
+
+void ViewportLayer::setViewportMode(ViewportMode mode)
+{
+    m_viewportMode = mode;
+}
+
+void ViewportLayer::setGizmoMode(GizmoMode mode)
+{
+    m_gizmoMode = mode;
+}
+
+void ViewportLayer::setGizmoTransform(const glm::mat4& transform)
+{
+    m_gizmoTransform = transform;
+}
+
+void ViewportLayer::setGizmoCallback(const GizmoCallback& callback)
+{
+    m_gizmoCallback = callback;
+}
+
+void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
+{
+    m_sizeCallback = callback;
+}
+
+void ViewportLayer::guizmo()
+{
+    if (m_viewportMode != ViewportMode::Select)
+    {
+        ImGuizmo::Enable(true);
+
+        ImGuizmo::SetOrthographic(m_view->getViewport().getOrthogonal());
+        ImGuizmo::SetDrawlist();
+
+        ImGuizmo::SetRect(m_position.x, m_position.y, m_width, m_height);
+
+        ImGuizmo::OPERATION operation;
+        ImGuizmo::MODE mode;
+
+        if (m_viewportMode == ViewportMode::Translate)
+            operation = ImGuizmo::TRANSLATE;
+        else if (m_viewportMode == ViewportMode::Rotate)
+            operation = ImGuizmo::ROTATE;
+        else if (m_viewportMode == ViewportMode::Scale)
+            operation = ImGuizmo::SCALE;
+        else if (m_viewportMode == ViewportMode::Universal)
+            operation = ImGuizmo::UNIVERSAL;
+        else if (m_viewportMode == ViewportMode::Bounds)
+            operation = ImGuizmo::BOUNDS;
+
+        if (m_gizmoMode == GizmoMode::World)
+            mode = ImGuizmo::WORLD;
+        else if (m_gizmoMode == GizmoMode::Local)
+            mode = ImGuizmo::LOCAL;
+
+        glm::mat4 delta{ 1.0f };
+
+        if (ImGuizmo::Manipulate(&(m_view->getViewport().getCamera().calcViewMatrix()[0][0]), &(m_view->getViewport().calcProjectionMatrix()[0][0]), operation, mode, &(m_gizmoTransform)[0][0], &(delta)[0][0]))
+            m_gizmoCallback(m_gizmoTransform, delta);
+
+        m_wantCaptureGizmo = ImGuizmo::IsOver() || ImGuizmo::IsUsing() || ImGuizmo::IsUsingAny();
+    }
+    else
+    {
+        ImGuizmo::Enable(false);
+        m_wantCaptureGizmo = false;
+    }
 }
 
 void ViewportLayer::overlay()

@@ -40,6 +40,9 @@ public:
     virtual void bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) = 0;
     virtual void unbufferFrame(uint32_t frameId) = 0;
 
+    virtual void bufferDepth(uint32_t& depthId, uint32_t& textureId, uint32_t width, uint32_t height) = 0;
+    virtual void unbufferDepth(uint32_t depthId) = 0;
+
     // Bind
     virtual void bindData(uint32_t dataId) = 0;
     virtual void unbindData() = 0;
@@ -49,6 +52,9 @@ public:
 
     virtual void bindFrame(uint32_t frameId) = 0;
     virtual void unbindFrame() = 0;
+
+    virtual void bindDepth(uint32_t depthId) = 0;
+    virtual void unbindDepth() = 0;
 
     // Render
     virtual void renderTriangles() = 0;

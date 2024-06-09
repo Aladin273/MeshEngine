@@ -28,9 +28,9 @@ struct Material
     glm::vec3 emission{ 0.0f };
     float shininess{ 128.0f };
 
-    Texture diffuseMap  {};
-    Texture specularMap {};
-    Texture emissionMap {};
+    Texture diffuseMap{ 1, {}, {} };
+    Texture specularMap{ 1, {}, {} };
+    Texture emissionMap{ 1, {}, {} };
 };
 
 class Mesh
@@ -51,6 +51,7 @@ public:
     Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
 
     void render(RenderSystem& rs, Shader& shader);
+    void update();
 
     void applyTransformation(heds::FaceHandle fh, const glm::mat4& trf);
     void applyTransformation(heds::VertexHandle fh, const glm::mat4& trf);
@@ -58,7 +59,7 @@ public:
     void deleteFace(heds::FaceHandle fh);
 
     const BoundaryBox& getBoundingBox();
-    const heds::HalfEdgeTable<Vertex>& getHalfEdgeTable() const;
+    heds::HalfEdgeTable<Vertex>& getHalfEdgeTable();
 
     const std::string& getName() const;
     std::string& getName();
@@ -77,8 +78,6 @@ public:
     static std::unique_ptr<Mesh> createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
 
 private:
-    void update();
-
     std::string m_name = "Mesh";
 
     BoundaryBox m_bbox;

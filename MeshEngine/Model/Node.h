@@ -38,9 +38,12 @@ public:
     void deleteFromParent();
 
     template<class Lambda>
-    void processRecursive(Lambda lambda)
+    bool processRecursive(Lambda lambda)
     {
-        lambda(*this);
+        if (!lambda(*this))
+        {
+            return false; // Stop processing this branch but continue others
+        }
 
         for (auto& child : m_children)
         {
@@ -50,7 +53,7 @@ public:
 
 protected:
     std::string m_name = "Node";
-    glm::mat4 m_transform = glm::mat4(1.0f);
+    glm::mat4 m_transform{ 1.0f };
 
     Node* m_parent = nullptr;
     std::unique_ptr<Mesh> m_mesh;
