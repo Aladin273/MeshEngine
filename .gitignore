@@ -426,10 +426,9 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 Build
-
-Build
 !Data/**
 !Shaders/**
-!ThirdParty/**
+!Resources/**
+!MeshEngine/ThirdParty/**
 
 # End of https://www.toptal.com/developers/gitignore/api/c++,cmake,visualstudio

@@ -1,3 +1,25 @@
+Urgently Goals
+----------------------------------------------------------------
+BufferSubData, UniformBuffer, Normals, Manipulators
+
+Shaders, Light, Textures, Shadows, Models, Logger, Gizmo
+UI (Dockpane, Tree, Property, Viewport, Console)
+
+Scene, View, Raycast, Property, Register, Type, Name
+
+Remap Mouse Events, Rename Framebuffer, Non-const Refs
+
+Operators with Selected Node, Selected Outline
+
+Hotkeys, Settings, Shift, Icon, Stats
+
+HalfEdge Join, TextureId (1), Normals, Flat Shading 
+Shadow, Distance, Bias, Guizmo, Selected, Switch
+
+Instanced, Root Properties, Decompose, Deleted
+
+Object, Edit, Vertex, Face - Tab
+Select, Translate, Rotate, Scale - Space
 ----------------------------------------------------------------
 Lab3
 ----------------------------------------------------------------
@@ -93,18 +115,3 @@ Split Operator
 
 NodeComponent, RenderComponent
 Properties, RenderSystem, Shader, Parse
-----------------------------------------------------------------
-Plans
-----------------------------------------------------------------
-Roadmaps
-Scene
-Terrain
-Texture
-Animations
-Lighting
-Shadows
-Postprocess
-Resource
-Octree
-Frustum culling
-Occlusion culling
