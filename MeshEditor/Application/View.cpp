@@ -1,43 +1,35 @@
 #include "View.h"
-#include "Application.h"
-
-#include <glad/gl.h>
 
 View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
-    m_window.reset(Application::instance()->createWindow(title, width, height, icon));
-    m_guiSystem.reset(Application::instance()->createGuiSystem(m_window.get()));
+    m_window.reset(MeshEngine::createWindow(title, width, height, icon));
+    m_guiSystem.reset(MeshEngine::createGuiSystem(m_window.get()));
 
     m_guiSystem->init();
 
     m_renderSystem = rs;
     m_renderSystem->init();
-    m_renderSystem->setViewport(Settings::x, Settings::y, width, height);
-    
-    m_renderSystem->bufferFrame(m_frameId, m_frameRenderId, m_frameTextureId, width, height);
-    m_renderSystem->bufferDepth(m_depthId, m_depthTextureId, m_depthWidth, m_depthHeight);
-    
-    m_shader = Application::instance()->createShader(Settings::shadersPath + "vertex.glsl", Settings::shadersPath + "fragment.glsl");
-    m_shaderDepth = Application::instance()->createShader(Settings::shadersPath + "vertexDepth.glsl", Settings::shadersPath + "fragmentDepth.glsl");
+
+    m_shaderEditor.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "editorVertex.glsl", MeshEngine::Settings::shadersPath + "editorFragment.glsl"));
+    m_shaderOutline.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl"));
 
     m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
     m_consoleLayer = std::make_unique<ConsoleLayer>(this);
     m_propertiesLayer = std::make_unique<PropertiesLayer>(this);
     m_treeLayer = std::make_unique<TreeLayer>(this);
-    m_viewportLayer = std::make_unique<ViewportLayer>(this);
     m_settingsLayer = std::make_unique<SettingsLayer>(this);
+    m_viewportLayer = std::make_unique<ViewportLayer>(this);
 
-    m_viewport.getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
+    m_renderSystem->bufferFrame(m_viewportLayer->frameId, m_viewportLayer->frameRenderId, m_viewportLayer->frameTextureId, width, height);
+
+    m_viewport.getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
     m_viewport.setViewportSize(width, height);
-    m_viewport.setFOV(Settings::fov);
-    m_viewport.setZNear(Settings::znear);
-    m_viewport.setZFar(Settings::zfar);
+    m_viewport.setFOV(MeshEngine::Settings::fov);
+    m_viewport.setZNear(MeshEngine::Settings::znear);
+    m_viewport.setZFar(MeshEngine::Settings::zfar);
 
-    m_plane = std::make_unique<Node>();
-    m_origin = std::make_unique<Triad>();
-
-    decoratePlane(*m_plane);
-    decorateOrigin(*m_origin);
+    m_plane = std::make_unique<PlaneNode>(MeshEngine::Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneHeight(), 16384);
+    m_origin = std::make_unique<OriginNode>();
 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)
         {
@@ -68,7 +60,7 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
         {
             if (m_viewportLayer->wantCaptureMouse())
             {
-                double factor = y > Settings::invalid ? Settings::zoomIn : Settings::zoomOut;
+                double factor = y > MeshEngine::Settings::invalid ? MeshEngine::Settings::zoomIn : MeshEngine::Settings::zoomOut;
                 m_viewport.getCamera().zoom(factor);
             }
         });
@@ -82,10 +74,8 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
         {
             m_viewport.setViewportSize(width, height);
 
-            m_renderSystem->unbufferFrame(m_frameId);
-            m_renderSystem->bufferFrame(m_frameId, m_frameRenderId, m_frameTextureId, width, height);
-
-            m_viewportLayer->attach(m_frameTextureId);
+            m_renderSystem->unbufferFrame(m_viewportLayer->frameId);
+            m_renderSystem->bufferFrame(m_viewportLayer->frameId, m_viewportLayer->frameRenderId, m_viewportLayer->frameTextureId, width, height);
         });
 }
 
@@ -94,95 +84,89 @@ View::~View()
     m_window.reset();
 }
 
-void View::update()
+void View::update(float deltaTime)
 {
-    updateModel();
-    updateShadows();
-}
+    // Scene
+    //////////////////////////////////////////////////
+    m_scene->update(deltaTime);
 
-void View::updateModel()
-{
-    m_renderSystem->bindFrame(m_frameId);
+    // Editor
+    //////////////////////////////////////////////////
+    m_renderSystem->bindFrame(m_viewportLayer->frameId);
+    m_renderSystem->setViewport(MeshEngine::Settings::x, MeshEngine::Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
 
-    m_renderSystem->setViewport(Settings::x, Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
-    m_renderSystem->clearDisplay(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+    // Selected Render
+    //////////////////////////////////////////////////
+    if (getSelected())
+    {
+        m_shaderOutline->bind();
 
-    m_shader->bind();
-    m_shader->setBool("flatShading", flatShading);
+        m_shaderOutline->setMat4("view", m_viewport.getCamera().calcViewMatrix());
+        m_shaderOutline->setMat4("projection", m_viewport.calcProjectionMatrix());
+    
+        getSelected()->processRecursive([&](Node& node) -> bool
+            {
+                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
+                {
+                    m_shaderOutline->setMat4("model", meshNode->getAbsoluteTransform());
+                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderOutline);
+                }
+    
+                return true;
+            });
 
-    m_shader->setInt("depthMap", 3);
-    m_renderSystem->bindTexture(3, m_depthTextureId);
+        m_shaderOutline->unbind();
+    }
 
-    m_shader->setMat4("view", m_viewport.getCamera().calcViewMatrix());
-    m_shader->setMat4("projection", m_viewport.calcProjectionMatrix());
-    m_shader->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+    // Editor Shader
+    //////////////////////////////////////////////////
+    m_shaderEditor->bind();
 
-    m_shader->setInt("numDirLights", 1);
-    m_shader->setInt("numPointLights", 0);
-    m_shader->setInt("numSpotLights", 0);
-
-    if (cameraLight)
-        lightDirection = m_viewport.getCamera().calcForward();
-
-    m_shader->setVec3("dirLights[0].direction", lightDirection);
-    m_shader->setVec3("dirLights[0].ambient", Settings::ambient);
-    m_shader->setVec3("dirLights[0].diffuse", Settings::diffuse);
-    m_shader->setVec3("dirLights[0].specular", Settings::specular);
+    m_shaderEditor->setMat4("view", m_viewport.getCamera().calcViewMatrix());
+    m_shaderEditor->setMat4("projection", m_viewport.calcProjectionMatrix());
 
     // Plane render
+    //////////////////////////////////////////////////
     if (showPlane)
     {
         m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
-        m_shader->setMat4("model", m_plane->calcAbsoluteTransform());
-        m_plane->getMesh()->render(*m_renderSystem, *m_shader);
-    }
-
-    // Selected Render
-    if (getSelected())
-    {
-        m_shader->setVec3("outline", 0.2f, 0.2f, 0.2f);
-        
-        getSelected()->processRecursive([&](Node& node) -> bool
+        m_plane->processRecursive([&](Node& node) -> bool
             {
-                m_shader->setMat4("model", node.calcAbsoluteTransform());
-                node.getMesh()->render(*m_renderSystem, *m_shader);
+                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
+                {
+                    m_shaderEditor->setMat4("model", meshNode->getAbsoluteTransform());
+                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderEditor);
+                }
 
                 return true;
             });
 
-        m_shader->setVec3("outline", 0.0f, 0.0f, 0.0f);
     }
 
-    // Model render
-    m_model->processRecursive([&](Node& node) -> bool
-        {
-            if (&node == getSelected())
-                return false;
-
-            m_shader->setMat4("model", node.calcAbsoluteTransform());
-            node.getMesh()->render(*m_renderSystem, *m_shader);
-
-            return true;
-        });
-
     // Origin render
-    m_renderSystem->clearDepth();
-
+    //////////////////////////////////////////////////
     if (showOrigin)
     {
+        m_renderSystem->clearDepth();
+
         m_origin->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * 0.15f)));
         m_origin->processRecursive([&](Node& node) -> bool
             {
-                m_shader->setMat4("model", node.calcAbsoluteTransform());
-                node.getMesh()->render(*m_renderSystem, *m_shader);
+                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
+                {
+                    m_shaderEditor->setMat4("model", meshNode->getAbsoluteTransform());
+                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderEditor);
+                }
 
                 return true;
             });
     }
 
+    m_shaderEditor->unbind();
     m_renderSystem->unbindFrame();
 
     // UI 
+    //////////////////////////////////////////////////
     m_guiSystem->begin();
 
     m_dockpaneLayer->render();
@@ -193,71 +177,23 @@ void View::updateModel()
     m_settingsLayer->render();
 
     m_guiSystem->end();
-
-    // Request delete
-    if (m_deleted)
-    {
-        m_deleted->deleteFromParent();  // If child
-        m_model->detachNode(m_deleted); // If root
-
-        m_deleted = nullptr;
-    }
 }
 
-void View::updateShadows()
+Scene* View::getScene() const
 {
-    if (!castShadows)
-    {
-        m_renderSystem->bindDepth(m_depthId);
-
-        m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
-        m_renderSystem->clearDepth();
-
-        return;
-    }
-
-    float distance = m_viewport.getCamera().getDistanceToTarget() * 2.f;
-
-    glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)m_viewport.getZNear(), (float)m_viewport.getZFar());
-    glm::mat4 lightView = glm::lookAt(-lightDirection * distance, lightDirection, Settings::worldUp);
-
-    m_lightSpaceMatrix = lightProjection * lightView;
-
-    glCullFace(GL_FRONT);
-
-    m_renderSystem->bindDepth(m_depthId);
-
-    m_renderSystem->setViewport(Settings::x, Settings::y, m_depthWidth, m_depthHeight);
-    m_renderSystem->clearDepth();
-
-    m_shaderDepth->bind();
-    m_shaderDepth->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
-
-    m_model->processRecursive([&](Node& node) -> bool
-        {
-            m_shaderDepth->setMat4("model", node.calcAbsoluteTransform());
-            node.getMesh()->render(*m_renderSystem, *m_shaderDepth);
-
-            return true;
-        });
-
-    m_shaderDepth->unbind();
-
-    m_renderSystem->unbindDepth();
-
-    glCullFace(GL_BACK);
+    return m_scene;
 }
 
-Model* View::getModel() const
+void View::setScene(Scene* scene)
 {
-    return m_model;
-}
-
-void View::setModel(Model* model)
-{
-    if (model)
+    if (scene)
     {
-        m_model = model;
+        m_scene = scene;
+        m_scene->init(m_renderSystem);
+        
+        m_scene->setRenderTarget(m_viewportLayer->frameId);
+        m_scene->setViewport(m_viewport);
+
         zoomToFit();
     }
 }
@@ -319,218 +255,26 @@ void View::addOperator(KeyCode key, std::unique_ptr<Operator> op)
 
 void View::zoomToFit()
 {
-    if (m_model)
-    {
-        if (!m_model->getNodes().empty())
-        {
-            Node* node = m_model->getNodes().front().get();
+    BoundingBox bbox = m_scene->getBoundingBox();
+    double length = glm::distance(bbox.min, bbox.max);
 
-            if (node)
-            {
-                BoundaryBox start_bbox = node->getMesh()->getBoundingBox();
-                const glm::mat4& start_mat = node->calcAbsoluteTransform();
-
-                start_bbox.min = start_mat * glm::vec4(start_bbox.min, 1.0f);
-                start_bbox.max = start_mat * glm::vec4(start_bbox.max, 1.0f);
-
-                m_model->processRecursive([&](Node& node) -> bool
-                    {
-                        BoundaryBox bbox = node.getMesh()->getBoundingBox();
-                        const glm::mat4& mat = node.calcAbsoluteTransform();
-
-                        bbox.min = mat * glm::vec4(bbox.min, 1.0f);
-                        bbox.max = mat * glm::vec4(bbox.max, 1.0f);
-
-                        if (bbox.min.x < start_bbox.min.x)
-                            start_bbox.min.x = bbox.min.x;
-                        if (bbox.min.y < start_bbox.min.y)
-                            start_bbox.min.y = bbox.min.y;
-                        if (bbox.min.z < start_bbox.min.z)
-                            start_bbox.min.z = bbox.min.z;
-
-                        if (bbox.max.x > start_bbox.max.x)
-                            start_bbox.max.x = bbox.max.x;
-                        if (bbox.max.y > start_bbox.max.y)
-                            start_bbox.max.y = bbox.max.y;
-                        if (bbox.max.z > start_bbox.max.z)
-                            start_bbox.max.z = bbox.max.z;
-
-                        return true;
-                    });
-
-
-                double length = glm::length(start_bbox.max - start_bbox.min);
-
-                m_viewport.setZFar(std::min(std::max(length, Settings::zfarMin), Settings::zfarMax));
-                m_viewport.zoomToFit(start_bbox.min, start_bbox.max);
-            }
-        }
-    }
+    m_viewport.setZFar(std::clamp(length, MeshEngine::Settings::zfarMin, MeshEngine::Settings::zfarMax));
+    m_viewport.zoomToFit(bbox.min, bbox.max);
 }
 
 void View::zoomToFit(Node* node)
 {
     if (node)
     {
-        BoundaryBox start_bbox = node->getMesh()->getBoundingBox();
-        const glm::mat4& start_mat = node->calcAbsoluteTransform();
+        BoundingBox bbox = node->getBoundingBox();
+        bbox.tranform(node->getAbsoluteTransform());
 
-        start_bbox.min = start_mat * glm::vec4(start_bbox.min, 1.0f);
-        start_bbox.max = start_mat * glm::vec4(start_bbox.max, 1.0f);
-
-        node->processRecursive([&](Node& node) -> bool
-            {
-                BoundaryBox bbox = node.getMesh()->getBoundingBox();
-                const glm::mat4& mat = node.calcAbsoluteTransform();
-
-                bbox.min = mat * glm::vec4(bbox.min, 1.0f);
-                bbox.max = mat * glm::vec4(bbox.max, 1.0f);
-
-                if (bbox.min.x < start_bbox.min.x)
-                    start_bbox.min.x = bbox.min.x;
-                if (bbox.min.y < start_bbox.min.y)
-                    start_bbox.min.y = bbox.min.y;
-                if (bbox.min.z < start_bbox.min.z)
-                    start_bbox.min.z = bbox.min.z;
-
-                if (bbox.max.x > start_bbox.max.x)
-                    start_bbox.max.x = bbox.max.x;
-                if (bbox.max.y > start_bbox.max.y)
-                    start_bbox.max.y = bbox.max.y;
-                if (bbox.max.z > start_bbox.max.z)
-                    start_bbox.max.z = bbox.max.z;
-
-                return true;
-            });
-
-        m_viewport.zoomToFit(start_bbox.min, start_bbox.max);
+        m_viewport.zoomToFit(bbox.min, bbox.max);
     }
 }
 
 std::vector<Contact> View::raycast(double x, double y, FilterValue filterValues)
 {
-    std::vector<Node*> candidates;
-    std::vector<Contact> contacts;
     Ray ray = m_viewport.calcCursorRay(x, y);
-
-    // Broad Phase TODO Octree
-    m_model->processRecursive([&](Node& node) -> bool
-        {
-            auto bbox = node.getMesh()->getBoundingBox();
-            const auto& mat = node.calcAbsoluteTransform();
-
-            bbox.min = mat * glm::vec4(bbox.min, 1.0f);
-            bbox.max = mat * glm::vec4(bbox.max, 1.0f);
-
-            if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max))
-                candidates.push_back(&node);
-
-            return true;
-        });
-
-    // Narrow Phase
-    for (auto& node : candidates)
-    {
-        const auto& mat = node->calcAbsoluteTransform();
-        const auto& table = node->getMesh()->getHalfEdgeTable();
-
-        for (auto& face : table.getFaces())
-        {
-            heds::HalfEdgeHandle heh0 = face.heh;
-            heds::HalfEdgeHandle heh1 = table.next(heh0);
-            heds::HalfEdgeHandle heh2 = table.next(heh1);
-            heds::HalfEdgeHandle heh3 = table.next(heh2);
-
-            float t;
-            glm::vec3 a = mat * glm::vec4(table.getEndPoint(heh0).position, 1.0f);
-            glm::vec3 b = mat * glm::vec4(table.getEndPoint(heh1).position, 1.0f);
-            glm::vec3 c = mat * glm::vec4(table.getEndPoint(heh2).position, 1.0f);
-
-            if (glm::intersectRayTriangle(ray.orig, ray.dir, t, a, b, c))
-                contacts.push_back({ table.handle(face), node, t, ray.orig + ray.dir * t });
-
-            if (heh3 != heh0)
-            {
-                glm::vec3 d = mat * glm::vec4(table.getEndPoint(heh3).position, 1.0f);
-
-                if (glm::intersectRayTriangle(ray.orig, ray.dir, t, a, c, d))
-                    contacts.push_back({ table.handle(face), node, t, ray.orig + ray.dir * t });
-            }
-        }
-    }
-
-    // Filter value
-    for (size_t index = 0; index < contacts.size();)
-    {
-        if (filterValues == FilterValue::NM)
-        {
-            if (dynamic_cast<Node*>(contacts[index].node) == nullptr)
-            {
-                contacts.erase(contacts.begin() + index);
-                continue;
-            }
-        }
-        else if (filterValues == FilterValue::Manipulator)
-        {
-            if (dynamic_cast<Manipulator*>(contacts[index].node) == nullptr)
-            {
-                contacts.erase(contacts.begin() + index);
-                continue;
-            }
-        }
-        else
-        {
-            if (dynamic_cast<Manipulator*>(contacts[index].node) != nullptr)
-            {
-                contacts.erase(contacts.begin() + index);
-                continue;
-            }
-        }
-
-        ++index;
-    }
-
-    // Sort by distance to Camera
-    std::sort(contacts.begin(), contacts.end(), [&](Contact& a, Contact& b)
-        {
-            return a.distance < b.distance;
-        });
-
-    return contacts;
-}
-
-void View::requestDelete(Node* node)
-{
-    m_deleted = node;
-}
-
-void View::decoratePlane(Node& plane) const
-{
-    std::unique_ptr<Mesh> mesh = Mesh::createPlane(Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384);
-    
-    mesh->renderTriangles = false;
-    mesh->renderLines = true;
-    mesh->colorLines = Settings::colorGray;
-    plane.attachMesh(std::move(mesh));
-}
-
-void View::decorateOrigin(Node& origin) const
-{
-    using namespace Settings;
-
-    std::unique_ptr<Mesh> arrowX = Mesh::createArrow(axisX, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    std::unique_ptr<Mesh> arrowY = Mesh::createArrow(axisY, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(axisZ, pointTR, pointTL, shaftTR, shaftTL, numSubs);
-    
-    arrowX->setMaterial(Settings::red);
-    arrowY->setMaterial(Settings::green);
-    arrowZ->setMaterial(Settings::blue);
-    
-    origin.attachNode(std::make_unique<Node>());
-    origin.attachNode(std::make_unique<Node>());
-    origin.attachNode(std::make_unique<Node>());
-    
-    origin.getChildren()[0]->attachMesh(std::move(arrowX));
-    origin.getChildren()[1]->attachMesh(std::move(arrowY));
-    origin.getChildren()[2]->attachMesh(std::move(arrowZ));
+    return m_scene->raycast(ray, filterValues);
 }

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "MeshEngine/Model/Model.h"
+#include "MeshEngine/Model/MeshNode.h"
 
 class STLParser
 {
@@ -31,9 +32,9 @@ public:
     TriangleSoup read(const std::string& filename);
     void write(const TriangleSoup& soup, const std::string& filename);
 
-    std::unique_ptr<Node> loadNode(const std::string& filename);
+    std::unique_ptr<MeshNode> loadNode(const std::string& filename);
     std::unique_ptr<Model> loadModel(const std::string& filename);
-    void saveNode(TriangleSoup& soup, Node* node);
+    void saveNode(TriangleSoup& soup, MeshNode* node);
     void saveModel(const Model& model, const std::string& filename);
 
     static bool approximatelyEqual(double a, double b, double epsilon);

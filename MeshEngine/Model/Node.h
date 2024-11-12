@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <memory>
 
 #include <glm/glm.hpp>
@@ -8,32 +9,38 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 
-#include "Mesh.h"
+#include "MeshEngine/Base/Base.h"
+#include "MeshEngine/Math/BoundingBox.h"
 
-class Node
+class Node : public Base
 {
+public:
+    friend class Scene;
+
 public:
     Node();
     virtual ~Node();
 
-    void setName(const std::string& name);
-    const std::string& getName() const;
-
-    void attachMesh(std::unique_ptr<Mesh> mesh);
-    Mesh* getMesh() const;
-
-    void setParent(Node* parent);
+public:
     Node* getParent() const;
-
-    void setRelativeTransform(const glm::mat4& trf);
-    const glm::mat4& getRelativeTransform() const;
-
-    void applyRelativeTransform(const glm::mat4& trf);
-
+    Node* getRoot() const;
+    Scene* getScene() const;
     const std::vector<std::unique_ptr<Node>>& getChildren() const;
 
-    glm::mat4 calcAbsoluteTransform() const;
+public:
+    virtual const BoundingBox& getBoundingBox() const;
 
+public:
+    void setRelativeTransform(const glm::mat4& trf);
+    const glm::mat4& getRelativeTransform();
+
+    void setAbsoluteTransform(const glm::mat4& trf);
+    const glm::mat4& getAbsoluteTransform();
+
+    void applyRelativeTransform(const glm::mat4& trf);
+    void applyAbsoluteTransform(const glm::mat4& trf);
+
+public:
     void attachNode(std::unique_ptr<Node> node);
     void deleteFromParent();
 
@@ -52,10 +59,21 @@ public:
     }
 
 protected:
-    std::string m_name = "Node";
+    void setParent(Node* parent);
+    void setScene(Scene* scene);
+
+    bool getDirty() const;
+    void setDirty(bool dirty, bool recursive = true);
+
+protected:
+    BoundingBox m_bbox;
+
+    bool m_dirty = true;
+    glm::mat4 m_absolute{ 1.0f };
     glm::mat4 m_transform{ 1.0f };
 
+    Scene* m_scene = nullptr;
+    Node* m_root = nullptr;
     Node* m_parent = nullptr;
-    std::unique_ptr<Mesh> m_mesh;
     std::vector<std::unique_ptr<Node>> m_children;
 };

@@ -107,7 +107,7 @@ void STLParser::write(const TriangleSoup& soup, const std::string& filename)
     }
 }
 
-std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
+std::unique_ptr<MeshNode> STLParser::loadNode(const std::string& filename)
 {
     TriangleSoup soup = read(filename);
 
@@ -156,7 +156,7 @@ std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 
     halfEdgeTable.connectTwins();
 
-    std::unique_ptr<Node> node = std::make_unique<Node>();
+    std::unique_ptr<MeshNode> node = std::make_unique<MeshNode>();
     node->attachMesh(std::make_unique<Mesh>(halfEdgeTable));
     node->setName(filename);
 
@@ -174,11 +174,11 @@ std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
     return model;
 }
 
-void STLParser::saveNode(TriangleSoup& soup, Node* node)
+void STLParser::saveNode(TriangleSoup& soup, MeshNode* node)
 {
     const heds::HalfEdgeTable<Vertex>& table = node->getMesh()->getHalfEdgeTable();
 
-    const auto transform = node->calcAbsoluteTransform();
+    const auto transform = node->getAbsoluteTransform();
 
     for (auto& face : table.getFaces())
     {
@@ -203,7 +203,7 @@ void STLParser::saveNode(TriangleSoup& soup, Node* node)
     }
 
     for (auto& child : node->getChildren())
-        saveNode(soup, child.get());
+        saveNode(soup, dynamic_cast<MeshNode*>(child.get()));
 }
 
 void STLParser::saveModel(const Model& model, const std::string& filename)
@@ -217,7 +217,7 @@ void STLParser::saveModel(const Model& model, const std::string& filename)
 
     for (auto& node : model.getNodes())
     {
-        saveNode(soup, node.get());
+        saveNode(soup, dynamic_cast<MeshNode*>(node.get()));
     }
 
     write(soup, file);

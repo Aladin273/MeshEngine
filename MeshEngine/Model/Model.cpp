@@ -4,20 +4,19 @@ Model::Model()
 {
 }
 
-void Model::attachNode(std::unique_ptr<Node> node)
+Model::~Model()
 {
-    m_nodes.push_back(std::move(node));
+
 }
 
-void Model::detachNode(Node* inNode)
+void Model::setName(const std::string& name)
 {
-    auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [=](std::unique_ptr<Node>& node)
-        {
-            return node.get() == inNode;
-        });
+    m_name = name;
+}
 
-    if (it != m_nodes.end())
-        m_nodes.erase(it);
+const std::string& Model::getName() const
+{
+    return m_name;
 }
 
 const std::vector<std::unique_ptr<Node>>& Model::getNodes() const
@@ -30,12 +29,18 @@ std::vector<std::unique_ptr<Node>>& Model::getNodes()
     return m_nodes;
 }
 
-void Model::setName(const std::string& inName)
+void Model::attachNode(std::unique_ptr<Node> node)
 {
-    m_name = inName;
+    m_nodes.push_back(std::move(node));
 }
 
-const std::string& Model::getName() const
+void Model::detachNode(Node* node)
 {
-    return m_name;
+    auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [=](std::unique_ptr<Node>& candicate)
+        {
+            return node == candicate.get();
+        });
+
+    if (it != m_nodes.end())
+        m_nodes.erase(it);
 }

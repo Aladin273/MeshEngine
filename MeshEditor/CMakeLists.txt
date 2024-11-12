@@ -7,9 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(MESH_EDITOR_HEADERS
     Application/Application.h
     Application/View.h
-    Application/Settings.h
 
-    Operators/Contact.h
+    Nodes/PlaneNode.h
+    Nodes/OriginNode.h
+
     Operators/Operator.h
     Operators/OperatorDispatcher.h
 
@@ -36,6 +37,9 @@ set(MESH_EDITOR_SOURCES
     Application/Application.cpp
     Application/View.cpp
     
+    Nodes/PlaneNode.cpp
+    Nodes/OriginNode.cpp
+
     Operators/OperatorDispatcher.cpp
 
     Operators/Delete/DeleteFaceOperator.cpp
@@ -71,7 +75,7 @@ target_link_libraries(MeshEditor PRIVATE MeshEngine)
 if (${SHIPPING_PRESET})
     add_compile_definitions(DATA_PATH="Data/")
     add_compile_definitions(SHADERS_PATH="Shaders/")
-    add_compile_definitions(SHADERS_PATH="Resources/")
+    add_compile_definitions(RESOURCES_PATH="Resources/")
 
     add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Data/" ${CMAKE_CURRENT_BINARY_DIR}/"Data/")
     add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Shaders/" ${CMAKE_CURRENT_BINARY_DIR}/"Shaders/")    
@@ -83,4 +87,8 @@ if (${SHIPPING_PRESET})
     else()
         target_link_options(MeshEditor PRIVATE "-mwindows")
     endif()
+
+else()
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/"Resources/" ${CMAKE_CURRENT_BINARY_DIR}/"Resources/")
+    add_custom_command(TARGET MeshEditor POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/"Resources/imgui.ini" ${CMAKE_CURRENT_BINARY_DIR}/"imgui.ini")
 endif()

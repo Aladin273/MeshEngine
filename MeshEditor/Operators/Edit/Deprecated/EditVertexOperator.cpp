@@ -101,7 +101,7 @@ void EditVertexOperator::init()
     heds::HalfEdgeHandle next_heh = start_heh;
     std::vector<glm::vec3> normals;
 
-    glm::vec3 point = glm::inverse(m_contact.node->calcAbsoluteTransform()) * glm::vec4(m_contact.point, 1.0f);
+    glm::vec3 point = glm::inverse(m_contact.node->getAbsoluteTransform()) * glm::vec4(m_contact.point, 1.0f);
 
     float min = glm::length(table.getEndPoint(start_heh).position - point);
     m_vh = table.deref(start_heh).dst;

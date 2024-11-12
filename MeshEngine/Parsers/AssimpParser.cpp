@@ -27,9 +27,9 @@ std::unique_ptr<Model> AssimpParser::loadModel(const std::string& filename)
     return model;
 }
 
-std::unique_ptr<Node> AssimpParser::loadNode(Node* parent, aiNode* aNode, const aiScene* aScene)
+std::unique_ptr<MeshNode> AssimpParser::loadNode(Node* parent, aiNode* aNode, const aiScene* aScene)
 {
-    std::unique_ptr<Node> node = std::make_unique<Node>();
+    std::unique_ptr<MeshNode> node = std::make_unique<MeshNode>();
     
     node->setName(aNode->mName.C_Str());
     node->setRelativeTransform(convertMatrix(aNode->mTransformation));

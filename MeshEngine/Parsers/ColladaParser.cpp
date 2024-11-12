@@ -13,7 +13,7 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     GeometryMap geometries;
     
     std::unique_ptr<Model> model = std::make_unique<Model>();
-    std::unique_ptr<Node> root = std::make_unique<Node>();
+    std::unique_ptr<MeshNode> root = std::make_unique<MeshNode>();
 
     std::stringstream stream;
     std::string element;
@@ -137,7 +137,7 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
 
     while (pNode != nullptr)
     {
-        std::unique_ptr<Node> node = loadNode(root.get(), pNode, geometries);
+        std::unique_ptr<MeshNode> node = loadNode(root.get(), pNode, geometries);
 
         if (node != nullptr)
             root->attachNode(std::move(node));
@@ -153,9 +153,9 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     return model;
 }
 
-std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, const GeometryMap& geometries)
+std::unique_ptr<MeshNode> ColladaParser::loadNode(MeshNode* parent, XMLElement* pNode, const GeometryMap& geometries)
 {
-    std::unique_ptr<Node> node = std::make_unique<Node>();
+    std::unique_ptr<MeshNode> node = std::make_unique<MeshNode>();
     std::stringstream stream;
     std::string element;
 
@@ -301,7 +301,7 @@ void ColladaParser::saveModel(const Model& model, const std::string& filename) /
     // Save new geometry
     for (auto& node : model.getNodes())
     {
-        saveNode(node.get(), pScene, pLib);
+        saveNode(dynamic_cast<MeshNode*>(node.get()), pScene, pLib);
     }
 
     doc.SaveFile((file).c_str());
@@ -309,7 +309,7 @@ void ColladaParser::saveModel(const Model& model, const std::string& filename) /
     MeshEngine::Logger::info("ColladaParser saving to {:}", file);
 }
 
-void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)
+void ColladaParser::saveNode(MeshNode* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)
 {
     std::stringstream stream;
     std::string element;
@@ -400,6 +400,6 @@ void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxm
 
     for (auto& child : parent->getChildren())
     {
-        saveNode(child.get(), pParent, pLib);
+        saveNode(dynamic_cast<MeshNode*>(child.get()), pParent, pLib);
     }
 }

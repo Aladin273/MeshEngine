@@ -7,34 +7,36 @@
 #include "MeshEngine/RenderSystem/Shader.h"
 #include "MeshEngine/HalfEdge/HalfEdge.h"
 
-struct BoundaryBox
-{
-    glm::vec3 min{ 0.0f };
-    glm::vec3 max{ 0.0f };
-};
+#include "MeshEngine/Math/BoundingBox.h"
 
-struct Texture
-{
-    uint32_t id;
-    std::string type;
-    std::string path;
-};
+#include "MeshEngine/Base/Base.h"
+#include "MeshEngine/Base/Texture.h"
+#include "MeshEngine/Base/Material.h"
 
-struct Material
+class Mesh : public Base
 {
-    glm::vec3 ambient{ 0.0f };
-    glm::vec4 diffuse{ 1.0f };
-    glm::vec3 specular{ 1.0f };
-    glm::vec3 emission{ 0.0f };
-    float shininess{ 128.0f };
+public:
+    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable);
+    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
 
-    Texture diffuseMap{ 1, {}, {} };
-    Texture specularMap{ 1, {}, {} };
-    Texture emissionMap{ 1, {}, {} };
-};
+public:
+    virtual void bind() override
+    {
+        bindProperty(renderTriangles);
+        bindProperty(renderLines);
+        bindProperty(renderHoles);
+        bindProperty(renderBoundaries);
 
-class Mesh
-{
+        bindPropertyEx(Property::Color, "colorTriangles", colorTriangles);
+        bindPropertyEx(Property::Color, "colorLines", colorLines);
+        bindPropertyEx(Property::Color, "colorHoles", colorHoles);
+        bindPropertyEx(Property::Color, "colorBoundaries", colorBoundaries);
+        
+        bindProperty(m_material);
+
+        super::bind();
+    };
+
 public:
     bool renderTriangles = true;
     bool renderLines = false;
@@ -47,9 +49,6 @@ public:
     glm::vec4 colorBoundaries{ 0.75f, 0.25f, 0.25f, 1.0f };
 
 public:
-    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable);
-    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
-
     void render(RenderSystem& rs, Shader& shader);
     void update();
 
@@ -58,16 +57,10 @@ public:
     
     void deleteFace(heds::FaceHandle fh);
 
-    const BoundaryBox& getBoundingBox();
+    const BoundingBox& getBoundingBox() const;
     heds::HalfEdgeTable<Vertex>& getHalfEdgeTable();
-
-    const std::string& getName() const;
-    std::string& getName();
     
     const Material& getMaterial() const;
-    Material& getMaterial();
-
-    void setName(const std::string& name);
     void setMaterial(const Material& material);
 
     static std::unique_ptr<Mesh> createCube(glm::vec3 center, float length);
@@ -78,9 +71,7 @@ public:
     static std::unique_ptr<Mesh> createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
 
 private:
-    std::string m_name = "Mesh";
-
-    BoundaryBox m_bbox;
+    BoundingBox m_bbox;
     Material m_material;
 
     heds::HalfEdgeTable<Vertex> m_table;

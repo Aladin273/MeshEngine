@@ -40,17 +40,12 @@ void ViewportLayer::render()
     m_wantCaptureMouse = isActiveWindow && ((m_mouse.x >= m_min.x && m_mouse.x <= m_max.x) && (m_mouse.y >= m_min.y && m_mouse.y <= m_max.y));
     m_wantCaptureKeyboard = isActiveWindow;
 
-    ImGui::Image((void*)(intptr_t)m_textureId, { (float)m_width, (float)m_height }, ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((void*)(intptr_t)frameTextureId, { (float)m_width, (float)m_height }, ImVec2(0, 1), ImVec2(1, 0));
 
     guizmo();
     overlay();
 
     ImGui::End();
-}
-
-void ViewportLayer::attach(uint32_t textureId)
-{
-    m_textureId = textureId;
 }
 
 bool ViewportLayer::wantCaptureMouse() const
