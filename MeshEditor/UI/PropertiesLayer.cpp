@@ -3,10 +3,6 @@
 #include "PropertiesLayer.h"
 #include "../Application/View.h"
 
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 PropertiesLayer::PropertiesLayer(View* view) : BaseLayer(view)
 {
 
@@ -15,98 +11,130 @@ PropertiesLayer::PropertiesLayer(View* view) : BaseLayer(view)
 void PropertiesLayer::render()
 {
     ImGui::Begin("Properties");
-    
+
     if (m_view->getSelected())
     {
-        ImGui::Text(m_view->getSelected()->getName().c_str());
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        glm::vec3 translation, scale, skew;
-        glm::vec4 perspective;
-        glm::quat rotation;
-
-        glm::decompose(m_view->getSelected()->getRelativeTransform(), scale, rotation, translation, skew, perspective);
-        glm::vec3 rotationEuler = glm::eulerAngles(rotation);
-
-        // Translation
-        ImGui::Text("Translation");
-        ImGui::Spacing();
-        ImGui::DragFloat3("##Translation", glm::value_ptr(translation), 0.1f);
-        ImGui::Spacing();
-
-        // Rotation
-        ImGui::Text("Rotation");
-        ImGui::Spacing();
-        glm::vec3 rotationDegrees = glm::degrees(rotationEuler);
-
-        if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotationDegrees), 0.1f))
-        {
-            rotationEuler = glm::radians(rotationDegrees);
-            rotation = glm::quat(rotationEuler);
-        }
-        ImGui::Spacing();
-
-        // Scale
-        ImGui::Text("Scale");
-        ImGui::Spacing();
-        ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.01f);
-        ImGui::Spacing();
-
-        // Recompose the matrix
-        if (scale.x != 0.f && scale.y != 0.f && scale.z != 0.f)
-            m_view->getSelected()->setRelativeTransform(glm::translate(glm::mat4(1.0f), translation) * glm::mat4_cast(rotation) * glm::scale(glm::mat4(1.0f), scale));
-
-        // Mesh
-        ImGui::Separator();
-        ImGui::Text(m_view->getSelected()->getMesh()->getName().c_str());
-        ImGui::Separator();
-        ImGui::Spacing();
-        
-        ImGui::Checkbox("Render Triangles", &(m_view->getSelected()->getMesh()->renderTriangles));
-        ImGui::Spacing();
-        ImGui::Checkbox("Render Lines", &(m_view->getSelected()->getMesh()->renderLines));
-        ImGui::Spacing();
-        ImGui::Checkbox("Render Holes", &(m_view->getSelected()->getMesh()->renderHoles));
-        ImGui::Spacing();
-        ImGui::Checkbox("Render Boundaries", &(m_view->getSelected()->getMesh()->renderBoundaries));
-        ImGui::Spacing();
-
-        ImGui::Separator();
-        ImGui::Text("Material");
-        ImGui::Separator();
-        ImGui::Spacing();
-        
-        ImGui::ColorEdit3("Ambient", glm::value_ptr(m_view->getSelected()->getMesh()->getMaterial().ambient));
-        ImGui::Spacing();
-        ImGui::ColorEdit4("Diffuse", glm::value_ptr(m_view->getSelected()->getMesh()->getMaterial().diffuse));
-        ImGui::Spacing();
-        ImGui::ColorEdit3("Specular", glm::value_ptr(m_view->getSelected()->getMesh()->getMaterial().specular));
-        ImGui::Spacing();
-        ImGui::ColorEdit3("Emission", glm::value_ptr(m_view->getSelected()->getMesh()->getMaterial().emission));
-        ImGui::Spacing();
-        ImGui::SliderFloat("Shininess", &m_view->getSelected()->getMesh()->getMaterial().shininess, 1.0f, 256.0f);
-        ImGui::Spacing();
-
-        ImGui::Separator();
-        ImGui::Text("Colors");
-        ImGui::Separator();
-        ImGui::Spacing();
-
-        ///ImGui::ColorEdit4("Color Triangles", glm::value_ptr(m_view->getSelected()->getMesh()->colorTriangles));
-        //ImGui::Spacing();
-        ImGui::ColorEdit4("Color Lines", glm::value_ptr(m_view->getSelected()->getMesh()->colorLines));
-        ImGui::Spacing();
-        ImGui::ColorEdit4("Color Holes", glm::value_ptr(m_view->getSelected()->getMesh()->colorHoles));
-        ImGui::Spacing();
-        ImGui::ColorEdit4("Color Boundaries", glm::value_ptr(m_view->getSelected()->getMesh()->colorBoundaries));
-        ImGui::Spacing();
-
-        ImGui::Separator();
-        ImGui::Text("Global");
-        ImGui::Separator();
-        ImGui::Spacing();
+        processProperties(m_view->getSelected(), m_view->getSelected()->getName());
     }
-    
+
     ImGui::End();
+}
+
+void PropertiesLayer::processProperties(Base* base, const std::string& name)
+{
+    if (base)
+    {
+        base->bind();
+
+        if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Separator();
+
+            for (const Property& property : base->getProperties())
+            {
+                ImGui::Spacing();
+
+                switch (property.type)
+                {
+                case Property::Int:
+                {
+                    ImGui::DragInt(property.name.c_str(), (int*)property.object);
+                    break;
+                };
+
+                case Property::Float:
+                {
+                    ImGui::DragFloat(property.name.c_str(), (float*)property.object);
+                    break;
+                };
+
+                case Property::Double:
+                {
+                    ImGui::DragFloat(property.name.c_str(), (float*)property.object);
+                    break;
+                };
+
+                case Property::Bool:
+                {
+                    ImGui::Checkbox(property.name.c_str(), (bool*)property.object);
+                    break;
+                };
+
+                case Property::String:
+                {
+                    const std::string& text = *((std::string*)property.object);
+
+                    ImGui::Text((property.name + std::string(": ") + (text.empty() ? std::string("None") : text)).c_str());
+                    break;
+                };
+
+                case Property::Vector2:
+                {
+                    ImGui::DragFloat2(property.name.c_str(), (float*)property.object, 0.05f);
+                    break;
+                };
+                case Property::Vector3:
+                {
+                    ImGui::DragFloat3(property.name.c_str(), (float*)property.object, 0.05f);
+                    break;
+                };
+
+                case Property::Vector4:
+                {
+                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.05f);
+                    break;
+                };
+
+                case Property::Matrix2:
+                {
+                    ImGui::Text(property.name.c_str());
+                    ImGui::DragFloat2("", &((float*)property.object)[0], 0.05f);
+                    ImGui::DragFloat2("", &((float*)property.object)[2], 0.05f);
+                    break;
+                };
+
+                case Property::Matrix3:
+                {
+                    ImGui::Text(property.name.c_str());
+                    ImGui::DragFloat3("", &((float*)property.object)[0], 0.05f);
+                    ImGui::DragFloat3("", &((float*)property.object)[3], 0.05f);
+                    ImGui::DragFloat3("", &((float*)property.object)[6], 0.05f);
+                    break;
+                };
+
+                case Property::Matrix4:
+                {
+                    ImGui::Text(property.name.c_str());
+                    ImGui::DragFloat4("", &((float*)property.object)[0], 0.05f);
+                    ImGui::DragFloat4("", &((float*)property.object)[4], 0.05f);
+                    ImGui::DragFloat4("", &((float*)property.object)[8], 0.05f);
+                    ImGui::DragFloat4("", &((float*)property.object)[12], 0.05f);
+                    break;
+                };
+
+                case Property::Quat:
+                {
+                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.05f);
+                    break;
+                };
+
+                case Property::Color:
+                {
+                    ImGui::ColorEdit4(property.name.c_str(), (float*)property.object);
+                    break;
+                };
+
+                case Property::Base:
+                {
+                    processProperties((Base*)property.object, property.name);
+                    break;
+                }
+                };
+            }
+
+            ImGui::TreePop();
+        }
+    
+        base->unbind();
+    }
 }

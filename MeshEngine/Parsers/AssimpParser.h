@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 
 #include "MeshEngine/Model/Model.h"
+#include "MeshEngine/Model/MeshNode.h"
 
 class AssimpParser
 {    
@@ -16,7 +17,7 @@ public:
     //void saveModel(const Model& model, const std::string& filename);
 
 private:
-    std::unique_ptr<Node> loadNode(Node* parent, aiNode* aNode, const aiScene* aScene);
+    std::unique_ptr<MeshNode> loadNode(Node* parent, aiNode* aNode, const aiScene* aScene);
     std::unique_ptr<Mesh> loadMesh(aiMesh* aMesh, const aiScene* aScene);
     Material loadMaterial(aiMaterial* aMat);
     std::vector<Texture> loadTextures(aiMaterial* aMat, aiTextureType aType, std::string typeName);

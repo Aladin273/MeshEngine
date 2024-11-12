@@ -1,8 +1,9 @@
 #include "TreeLayer.h"
-#include "../Application/View.h"
 
-#include "../Application/Settings.h"
+#include "../Application/View.h"
 #include "../Application/Application.h"
+
+#include "MeshEngine/Misc/Settings.h"
 
 #include <Windows.h>
 #include <commdlg.h>
@@ -51,9 +52,9 @@ void TreeLayer::render()
                 auto model = Application::instance()->loadModel(filePath);
 
                 for (auto& node : model->getNodes())
-                    m_view->getModel()->attachNode(std::move(node));
+                    m_view->getScene()->attachNode(std::move(node));
 
-                m_view->getViewport().getCamera().setEyeTargetUp(Settings::eye, Settings::target, Settings::up);
+                m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }
 
@@ -65,7 +66,7 @@ void TreeLayer::render()
 
     if (ImGui::Button("Remove", { ImGui::GetContentRegionAvail().x, 20 }))
     {   
-        m_view->requestDelete(m_view->getSelected());
+        m_view->getScene()->detachNode(m_view->getSelected());
         
         m_view->setSelected(nullptr);
         m_selectedNode = nullptr;
@@ -74,7 +75,7 @@ void TreeLayer::render()
     ImGui::Separator();
     ImGui::Spacing();
 
-    for (auto& node : m_view->getModel()->getNodes())
+    for (auto& node : m_view->getScene()->getNodes())
     {
         renderNode(node.get());
     }

@@ -5,11 +5,7 @@
 
 #include "Camera.h"
 
-struct Ray
-{
-    glm::vec3 orig{ 0 };
-    glm::vec3 dir{ 0,0,1 };
-};
+#include "MeshEngine/Math/Ray.h"
 
 class Viewport
 {

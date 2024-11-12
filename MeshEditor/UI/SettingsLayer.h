@@ -2,7 +2,7 @@
 
 #include "BaseLayer.h"
 
-class SettingsLayer : public BaseLayer
+class SettingsLayer : public PropertiesLayer
 {
 public:
     SettingsLayer(View* view);

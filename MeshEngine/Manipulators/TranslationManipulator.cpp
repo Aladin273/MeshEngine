@@ -7,7 +7,7 @@ TranslationManipulator::TranslationManipulator(glm::vec3 dir_L)
 
 void TranslationManipulator::handleMovement(MovementType movementType, const Viewport& viewport, double x, double y)
 {
-	const glm::mat4& mat = calcAbsoluteTransform();
+	const glm::mat4& mat = getAbsoluteTransform();
 	const glm::mat4& inverse = glm::inverse(mat);
 
 	Ray cursorRay_W = viewport.calcCursorRay(x, y);

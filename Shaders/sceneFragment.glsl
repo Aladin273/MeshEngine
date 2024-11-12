@@ -70,8 +70,6 @@ uniform SpotLight spotLights[32];
 
 uniform sampler2D depthMap;
 
-uniform vec3 outline;
-
 float CalcShadow(vec4 fragPosLightSpace)
 {
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
@@ -203,9 +201,6 @@ void main()
     // SpotLight
     for(int i = 0; i < numSpotLights; ++i)
         result += CalcSpotLight(spotLights[i], norm, viewDir, FragPos);
-
-    // Outline
-    result += outline;
 
     FragColor = vec4(result, 1.0);
 }

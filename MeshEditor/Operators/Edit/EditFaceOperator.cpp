@@ -29,18 +29,20 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         }
 
         Contact& contact = contacts.front();
-        Node* node = contact.node;
 
         m_view = &view;
         m_contact = contact;
 
-        const auto& table = m_contact.node->getMesh()->getHalfEdgeTable();
+        MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+        if (!node) return;
+
+        const auto& table = node->getMesh()->getHalfEdgeTable();
         heds::HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
         heds::HalfEdgeHandle heh1 = table.next(heh0);
         heds::HalfEdgeHandle heh2 = table.next(heh1);
         heds::HalfEdgeHandle heh3 = table.next(heh2);
 
-        glm::mat4 trf = m_contact.node->calcAbsoluteTransform();
+        glm::mat4 trf = node->getAbsoluteTransform();
 
         glm::vec3 a = trf * glm::vec4(table.getEndPoint(heh0).position, 1.0f);
         glm::vec3 b = trf * glm::vec4(table.getEndPoint(heh1).position, 1.0f);
@@ -59,7 +61,10 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         m_view->getViewportLayer().setGizmoTransform(glm::translate(m_center));
         m_view->getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
             {
-                m_contact.node->getMesh()->applyTransformation(m_contact.face, delta);
+                MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+                if (!node) return;
+
+                node->getMesh()->applyTransformation(m_contact.face, delta);
             });
     }
 }

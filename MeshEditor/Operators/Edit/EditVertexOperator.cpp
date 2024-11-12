@@ -28,17 +28,19 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
         }
 
         Contact& contact = contacts.front();
-        Node* node = contact.node;
 
         m_view = &view;
         m_contact = contact;
 
-        const auto& table = m_contact.node->getMesh()->getHalfEdgeTable();
+        MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+        if (!node) return;
+
+        const auto& table = node->getMesh()->getHalfEdgeTable();
         heds::HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
         heds::HalfEdgeHandle next_heh = start_heh;
         std::vector<glm::vec3> normals;
 
-        glm::mat4 trf = m_contact.node->calcAbsoluteTransform();
+        glm::mat4 trf = m_contact.node->getAbsoluteTransform();
         glm::vec3 point = glm::inverse(trf) * glm::vec4(m_contact.point, 1.0f);
 
         float min = glm::length(table.getEndPoint(start_heh).position - point);
@@ -88,7 +90,10 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
         m_view->getViewportLayer().setGizmoTransform(glm::translate(m_center));
         m_view->getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
             {
-                m_contact.node->getMesh()->applyTransformation(m_vh, delta);
+                MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+                if (!node) return;
+
+                node->getMesh()->applyTransformation(m_vh, delta);
             });
     }
 }

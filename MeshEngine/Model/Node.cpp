@@ -1,37 +1,13 @@
 #include "Node.h" 
+#include "Scene.h"
 
 Node::Node()
 {
-    m_mesh = std::make_unique<Mesh>(heds::HalfEdgeTable<Vertex>()); // empty mesh for valid
+
 }
 
 Node::~Node()
 {
-}
-
-void Node::setName(const std::string& name)
-{
-    m_name = name;
-}
-
-const std::string& Node::getName() const
-{
-    return m_name;
-}
-
-void Node::attachMesh(std::unique_ptr<Mesh> mesh)
-{
-    m_mesh = std::move(mesh);
-}
-
-Mesh* Node::getMesh() const
-{
-    return m_mesh.get();
-}
-
-void Node::setParent(Node* parent)
-{
-    m_parent = parent;
 }
 
 Node* Node::getParent() const
@@ -39,19 +15,21 @@ Node* Node::getParent() const
     return m_parent;
 }
 
-void Node::setRelativeTransform(const glm::mat4& trf)
+Node* Node::getRoot() const
 {
-    m_transform = trf;
+    Node* root = m_parent;
+
+    while (root)
+    {
+        root = root->getParent();
+    }
+
+    return root;
 }
 
-const glm::mat4& Node::getRelativeTransform() const
+Scene* Node::getScene() const
 {
-    return m_transform;
-}
-
-void Node::applyRelativeTransform(const glm::mat4& trf)
-{
-    m_transform = trf * m_transform;
+    return m_scene;
 }
 
 const std::vector<std::unique_ptr<Node>>& Node::getChildren() const
@@ -59,18 +37,55 @@ const std::vector<std::unique_ptr<Node>>& Node::getChildren() const
     return m_children;
 }
 
-glm::mat4 Node::calcAbsoluteTransform() const
+const BoundingBox& Node::getBoundingBox() const
 {
-    Node* parent = m_parent;
-    glm::mat4 absolute = m_transform;
+    return m_bbox;
+}
 
-    while (parent != nullptr)
+void Node::setRelativeTransform(const glm::mat4& trf)
+{
+    setDirty(true);
+    m_transform = trf;
+}
+
+const glm::mat4& Node::getRelativeTransform()
+{
+    return m_transform;
+}
+
+void Node::setAbsoluteTransform(const glm::mat4& trf)
+{
+    setDirty(true);
+    m_transform = trf * glm::inverse(getAbsoluteTransform());
+}
+
+const glm::mat4& Node::getAbsoluteTransform()
+{
+    if (getDirty())
     {
-        absolute = parent->getRelativeTransform() * absolute;
-        parent = parent->getParent();
+        m_absolute = m_transform;
+
+        if (m_parent)
+        {
+            m_absolute = m_parent->getAbsoluteTransform() * m_absolute;
+        }
+
+        setDirty(false, false);
     }
 
-    return absolute;
+    return m_absolute;
+}
+
+void Node::applyRelativeTransform(const glm::mat4& trf)
+{
+    setDirty(true);
+    m_transform = trf * m_transform;
+}
+
+void Node::applyAbsoluteTransform(const glm::mat4& trf)
+{
+    setDirty(true);
+    m_transform = (trf * glm::inverse(getAbsoluteTransform())) * m_transform;
 }
 
 void Node::attachNode(std::unique_ptr<Node> node)
@@ -79,6 +94,8 @@ void Node::attachNode(std::unique_ptr<Node> node)
         throw;
 
     node->setParent(this);
+    node->setScene(m_scene);
+    node->setDirty(true);
     m_children.push_back(std::move(node));
 }
 
@@ -90,5 +107,38 @@ void Node::deleteFromParent()
         {
             return node.get() == this;
         }));
+    }
+}
+
+void Node::setParent(Node* parent)
+{
+    m_parent = parent;
+}
+
+void Node::setScene(Scene* scene)
+{
+    m_scene = scene;
+
+    for (auto& child : m_children)
+    {
+        child->setScene(scene);
+    }
+}
+
+bool Node::getDirty() const
+{
+    return m_dirty;
+}
+
+void Node::setDirty(bool dirty, bool recursive /*= true*/)
+{
+    m_dirty = dirty;
+
+    if (recursive)
+    {
+        for (auto& child : m_children)
+        {
+            child->setDirty(dirty);
+        }
     }
 }

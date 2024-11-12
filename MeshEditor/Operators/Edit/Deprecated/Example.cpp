@@ -14,17 +14,17 @@ void View::decorateTriad(Triad& triad) const
     std::unique_ptr<Mesh> cubeY = Mesh::createCube(axisY * cubeTL, cubeTR);
     std::unique_ptr<Mesh> cubeZ = Mesh::createCube(axisZ * cubeTL, cubeTR);
 
-    arrowX->setMaterial(Settings::red);
-    arrowY->setMaterial(Settings::green);
-    arrowZ->setMaterial(Settings::blue);
+    arrowX->setMaterial(MeshEngine::Settings::red);
+    arrowY->setMaterial(MeshEngine::Settings::green);
+    arrowZ->setMaterial(MeshEngine::Settings::blue);
 
-    torusX->setMaterial(Settings::red);
-    torusY->setMaterial(Settings::green);
-    torusZ->setMaterial(Settings::blue);
+    torusX->setMaterial(MeshEngine::Settings::red);
+    torusY->setMaterial(MeshEngine::Settings::green);
+    torusZ->setMaterial(MeshEngine::Settings::blue);
 
-    cubeX->setMaterial(Settings::red);
-    cubeY->setMaterial(Settings::green);
-    cubeZ->setMaterial(Settings::blue);
+    cubeX->setMaterial(MeshEngine::Settings::red);
+    cubeY->setMaterial(MeshEngine::Settings::green);
+    cubeZ->setMaterial(MeshEngine::Settings::blue);
 
     triad.getChildren()[0]->attachMesh(std::move(arrowX));
     triad.getChildren()[1]->attachMesh(std::move(arrowY));
@@ -45,6 +45,6 @@ void View::decorateArrow(Manipulator& manipulator, glm::vec3 dir) const
 
     std::unique_ptr<Mesh> mesh = Mesh::createArrow(dir, pointAR, pointAL, shaftAR, shaftAL, numSubs);
 
-    mesh->setMaterial(Settings::blue);
+    mesh->setMaterial(MeshEngine::Settings::blue);
     manipulator.attachMesh(std::move(mesh));
 }

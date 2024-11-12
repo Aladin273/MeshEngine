@@ -6,15 +6,18 @@ class Model
 {
 public:
     Model();
+    virtual ~Model();
 
-    void attachNode(std::unique_ptr<Node> node);
-    void detachNode(Node* node);
-    
+public:
+    void setName(const std::string& inName);
+    const std::string& getName() const;
+
+public:
     const std::vector<std::unique_ptr<Node>>& getNodes() const;
     std::vector<std::unique_ptr<Node>>& getNodes();
 
-    void setName(const std::string& inName);
-    const std::string& getName() const;
+    void attachNode(std::unique_ptr<Node> node);
+    void detachNode(Node* node);
 
     template<class Lambda>
     void processNodes(Lambda lambda)
@@ -34,4 +37,3 @@ private:
     std::string m_name = "Model";
     std::vector<std::unique_ptr<Node>> m_nodes;
 };
-

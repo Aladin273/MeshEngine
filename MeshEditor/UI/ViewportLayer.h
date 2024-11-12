@@ -23,14 +23,18 @@ enum class GizmoMode : uint8_t
 class ViewportLayer : public BaseLayer
 {
 public:
+    ViewportLayer(View* view);
+
+public:
     using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&)>;
     using FramebufferSizeCallback = std::function<void(double, double)>;
 
-    ViewportLayer(View* view);
+    uint32_t frameId = 0;
+    uint32_t frameRenderId = 0;
+    uint32_t frameTextureId = 0;
 
+public:
     virtual void render() override;
-
-    void attach(uint32_t textureId);
 
     bool wantCaptureMouse() const;
     bool wantCaptureKeyboard() const;
@@ -52,8 +56,6 @@ public:
 private:
     void guizmo();
     void overlay();
-
-    uint32_t m_textureId;
 
     uint32_t m_width;
     uint32_t m_height;

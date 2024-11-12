@@ -6,12 +6,14 @@
 Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
+    m_name = "Mesh";
     update();
 }
 
 Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material)
     : m_table(halfEdgeTable), m_material(material)
 {
+    m_name = "Mesh";
     update();
 }
 
@@ -88,7 +90,7 @@ void Mesh::render(RenderSystem& rs, Shader& shader)
 
         rs.bindData(m_linesId);
         
-        rs.setLineSize(2.0f);
+        rs.setLineSize(1.0f);
         rs.renderLines();
     }
 
@@ -458,14 +460,9 @@ heds::HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable()
     return m_table;
 }
 
-const BoundaryBox& Mesh::getBoundingBox()
+const BoundingBox& Mesh::getBoundingBox() const
 {
     return m_bbox;
-}
-
-void Mesh::setName(const std::string& name)
-{
-    m_name = name;
 }
 
 void Mesh::setMaterial(const Material& material)
@@ -473,22 +470,7 @@ void Mesh::setMaterial(const Material& material)
     m_material = material;
 }
 
-const std::string& Mesh::getName() const
-{
-    return m_name;
-}
-
-std::string& Mesh::getName()
-{
-    return m_name;
-}
-
 const Material& Mesh::getMaterial() const
-{
-    return m_material;
-}
-
-Material& Mesh::getMaterial()
 {
     return m_material;
 }

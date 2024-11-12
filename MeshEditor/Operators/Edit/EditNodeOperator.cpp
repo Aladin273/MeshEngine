@@ -38,27 +38,33 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
         m_view = &view;
         m_contact = contact;
 
-        glm::vec3 center = glm::vec4((m_contact.node->getMesh()->getBoundingBox().min + m_contact.node->getMesh()->getBoundingBox().max) / 2.0f, 1.0f);
+        MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+        if (!node) return;
+
+        glm::vec3 center = glm::vec4((node->getMesh()->getBoundingBox().min + node->getMesh()->getBoundingBox().max) / 2.0f, 1.0f);
 
         // Re-calculate center
         if (glm::any(glm::notEqual(glm::vec3(0.0f), center, 1e-8)))
         {
-            auto& table = m_contact.node->getMesh()->getHalfEdgeTable();
+            auto& table = node->getMesh()->getHalfEdgeTable();
 
             for (auto& vertex : table.getVertices())
                 vertex.data.position -= center;
 
-            m_contact.node->getMesh()->update();
-            m_contact.node->applyRelativeTransform(glm::translate(center));
+            node->getMesh()->update();
+            node->applyRelativeTransform(glm::translate(center));
         }
 
         m_view->getViewportLayer().setViewportMode(ViewportMode::Translate);
         m_view->getViewportLayer().setGizmoMode(GizmoMode::World);
-        m_view->getViewportLayer().setGizmoTransform(m_contact.node->calcAbsoluteTransform());
+        m_view->getViewportLayer().setGizmoTransform(node->getAbsoluteTransform());
         m_view->getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
             {
-                glm::mat4 parentInverse = m_contact.node->getParent() ? glm::inverse(m_contact.node->getParent()->calcAbsoluteTransform()) : glm::mat4(1.0f);
-                m_contact.node->setRelativeTransform(parentInverse * transform);
+                MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+                if (!node) return;
+
+                glm::mat4 parentInverse = node->getParent() ? glm::inverse(node->getParent()->getAbsoluteTransform()) : glm::mat4(1.0f);
+                node->setRelativeTransform(parentInverse * transform);
             });
     }
 }

@@ -22,7 +22,7 @@ void DeleteFaceOperator::onMouseInput(View& view, ButtonCode button, Action acti
             return;
 
         Contact& contact = contacts.front();
-        Node* node = contact.node;
+        MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
 
         if (node)
         {
