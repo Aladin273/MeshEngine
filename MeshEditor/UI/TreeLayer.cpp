@@ -3,6 +3,10 @@
 #include "../Application/View.h"
 #include "../Application/Application.h"
 
+#include "MeshEngine/Light/DirLightNode.h"
+#include "MeshEngine/Light/PointLightNode.h"
+#include "MeshEngine/Light/SpotLightNode.h"
+
 #include "MeshEngine/Misc/Settings.h"
 
 #include <Windows.h>
@@ -18,7 +22,7 @@ void TreeLayer::render()
 
     std::string filePath;
 
-    if (ImGui::Button("Add", { ImGui::GetContentRegionAvail().x / 2, 20 }))
+    if (ImGui::Button("Mesh", { ImGui::GetContentRegionAvail().x / 5, 20 }))
     {
         if (ImGui::BeginChild("Add from file"))
         {
@@ -60,6 +64,42 @@ void TreeLayer::render()
 
             ImGui::EndChild();
         }
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("DirLight", { ImGui::GetContentRegionAvail().x / 4, 20 }))
+    {
+        std::unique_ptr<DirLightNode> lightNode = std::make_unique<DirLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("PointLight", { ImGui::GetContentRegionAvail().x / 3, 20 }))
+    {
+        std::unique_ptr<PointLightNode> lightNode = std::make_unique<PointLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("SpotLight", { ImGui::GetContentRegionAvail().x / 2, 20 }))
+    {
+        std::unique_ptr<SpotLightNode> lightNode = std::make_unique<SpotLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
     }
 
     ImGui::SameLine();

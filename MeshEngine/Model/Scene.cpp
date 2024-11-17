@@ -221,9 +221,12 @@ void Scene::end()
 
 void Scene::update(float deltaTime)
 {
+    matricesUniform.view = m_viewport->getCamera().calcViewMatrix();
+    matricesUniform.projection = m_viewport->calcProjectionMatrix();
+
     for (auto& node : m_nodes)
         node->update(deltaTime);
-    
+
     requestDelete();
 }
 
@@ -240,8 +243,9 @@ void Scene::renderDepth()
 
     m_renderSystem->clearDepth();
 
-    if (castShadows)
+    if (castShadows && lightsUniform.numDirLights)
     {
+        glm::vec3 lightDirection = lightsUniform.dirLights[0].direction;
         float distance = m_viewport->getCamera().getDistanceToTarget() * 2.f;
 
         const glm::vec3 worldUp = { 0,1,0 };
@@ -271,18 +275,6 @@ void Scene::renderScene()
 
     m_renderSystem->setViewport(0, 0, m_viewport->getWidth(), m_viewport->getHeight());
     m_renderSystem->clearDisplay(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
-
-    matricesUniform.view = m_viewport->getCamera().calcViewMatrix();
-    matricesUniform.projection = m_viewport->calcProjectionMatrix();
-
-    lightsUniform.numDirLights = 1;
-    lightsUniform.numPointLights = 0;
-    lightsUniform.numSpotLights = 0;
-
-    lightsUniform.dirLights[0].ambient = { 0.2f, 0.2f, 0.2f };
-    lightsUniform.dirLights[0].diffuse = { 1.f, 1.f, 1.f };
-    lightsUniform.dirLights[0].specular = { 1.f, 1.f, 1.f };
-    if (cameraLight) lightsUniform.dirLights[0].direction = m_viewport->getCamera().calcForward();;
 
     m_renderSystem->bufferSubUniform(matricesUniformId, 0, sizeof(matricesUniform), &matricesUniform);
     m_renderSystem->bufferSubUniform(lightsUniformId, 0, sizeof(lightsUniform), &lightsUniform);

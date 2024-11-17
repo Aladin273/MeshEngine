@@ -34,6 +34,11 @@ set(MESH_ENGINE_HEADERS
     Model/Scene.h
     Model/Node.h
     Model/MeshNode.h
+    
+    Light/LightNode.h
+    Light/DirLightNode.h
+    Light/PointLightNode.h
+    Light/SpotLightNode.h
 
     Parsers/AssimpParser.h
     Parsers/ColladaParser.h
@@ -84,6 +89,11 @@ set(MESH_ENGINE_SOURCES
     Model/Node.cpp
     Model/MeshNode.cpp
     
+    Light/LightNode.cpp
+    Light/DirLightNode.cpp
+    Light/PointLightNode.cpp
+    Light/SpotLightNode.cpp
+
     Parsers/AssimpParser.cpp
     Parsers/ColladaParser.cpp
     Parsers/STLParser.cpp

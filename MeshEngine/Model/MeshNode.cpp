@@ -4,6 +4,8 @@
 
 MeshNode::MeshNode()
 {
+    m_name = "MeshNode";
+
     m_mesh = std::make_unique<Mesh>(heds::HalfEdgeTable<Vertex>());
     m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshLitVertex.glsl", MeshEngine::Settings::shadersPath + "meshLitFragment.glsl");
 }

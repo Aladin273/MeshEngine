@@ -89,10 +89,10 @@ struct MatricesUniform
 
 struct LightsUniform
 {
-    int32_t numDirLights;
-    int32_t numPointLights;
-    int32_t numSpotLights;
-    int32_t padding;
+    int32_t numDirLights = 0;
+    int32_t numPointLights = 0;
+    int32_t numSpotLights = 0;
+    int32_t padding = 0;
 
     DirLight dirLights[16];
     PointLight pointLights[16];
@@ -111,18 +111,13 @@ public:
 public:
     virtual void bind() override
     {
-        bindProperty(cameraLight);
         bindProperty(castShadows);
-        bindProperty(lightDirection);
         bindPropertyEx(Property::Color, "backgroundColor", backgroundColor);
 
         super::bind();
     }
 
-    bool cameraLight = true;
     bool castShadows = false;
-
-    glm::vec3 lightDirection{ -0.5f, -0.75f, -1.0f };
     glm::vec4 backgroundColor{ 0.15f, 0.15f, 0.15f, 1.0f };
 
 public:

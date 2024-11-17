@@ -9,7 +9,7 @@ static bool s_recursiveRender = true;
 
 Node::Node()
 {
-
+    m_name = "Node";
 }
 
 Node::~Node()
