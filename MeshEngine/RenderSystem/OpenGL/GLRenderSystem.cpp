@@ -78,7 +78,7 @@ void GLRenderSystem::clearDisplay(float r, float g, float b, float a, float d)
 uint32_t GLRenderSystem::bufferData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
     if (vertices.empty() || indices.empty())
-        return -1;
+        return 0;
 
     unsigned int VAO, VBO, EBO;
 
@@ -143,12 +143,38 @@ void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t index, const Vertex
     }
 }
 
+uint32_t GLRenderSystem::bufferUniform(uint32_t bindPoint, uint32_t size, const void* data)
+{
+    uint32_t uniformId;
+
+    glGenBuffers(1, &uniformId);
+    glBindBuffer(GL_UNIFORM_BUFFER, uniformId);
+    glBufferData(GL_UNIFORM_BUFFER, size, data, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, bindPoint, uniformId);
+
+    return uniformId;
+}
+
+void GLRenderSystem::unbufferUniform(uint32_t uniformId)
+{
+    glDeleteBuffers(1, &uniformId);
+}
+
+void GLRenderSystem::bufferSubUniform(uint32_t uniformId, uint32_t offset, uint32_t size, const void* data)
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, uniformId);
+    glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
 uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 {
-    uint32_t textureID = 1;
+    uint32_t textureId = 1;
 
     if (texturePath.empty())
-        return textureID;
+        return textureId;
 
     auto it = m_textureMap.find(texturePath);
 
@@ -160,7 +186,7 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
     
     if (data)
     {
-        glGenTextures(1, &textureID);
+        glGenTextures(1, &textureId);
 
         GLenum format;
         if (nrComponents == 1)
@@ -170,7 +196,7 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
         else if (nrComponents == 4)
             format = GL_RGBA;
 
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        glBindTexture(GL_TEXTURE_2D, textureId);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -183,10 +209,10 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
 
         stbi_image_free(data);
 
-        m_textureMap[texturePath] = textureID;
+        m_textureMap[texturePath] = textureId;
     }
 
-    return textureID;
+    return textureId;
 }
 
 void GLRenderSystem::unbufferTexture(uint32_t textureId)
@@ -327,6 +353,16 @@ void GLRenderSystem::bindDepth(uint32_t depthId)
 void GLRenderSystem::unbindDepth()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void GLRenderSystem::bindUniform(uint32_t uniformId)
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, uniformId);
+}
+
+void GLRenderSystem::unbindUniform()
+{
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void GLRenderSystem::renderTriangles()

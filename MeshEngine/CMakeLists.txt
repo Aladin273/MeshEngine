@@ -25,6 +25,7 @@ set(MESH_ENGINE_HEADERS
     Math/Contact.h
     
     Base/Base.h
+    Base/RenderBase.h
     Base/Texture.h
     Base/Material.h
     Base/Mesh.h
@@ -73,6 +74,7 @@ set(MESH_ENGINE_SOURCES
     Math/Contact.cpp
 
     Base/Base.cpp
+    Base/RenderBase.cpp
     Base/Texture.cpp
     Base/Material.cpp
     Base/Mesh.cpp

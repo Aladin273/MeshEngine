@@ -9,13 +9,7 @@ Application* Application::instance()
 Application::Application()
 {
     MeshEngine::Logger::init("Logs/MeshEditor.txt", 23, 55);
-
     m_renderSystem.reset(MeshEngine::createRenderSystem());
-
-    m_waitEvents = MeshEngine::waitEvents;
-    m_pollEvents = MeshEngine::pollEvents;
-    m_swapDisplayBuffers = MeshEngine::swapDisplayBuffers;
-    m_windowShouldClose = MeshEngine::windowShouldClose;
 }
 
 Application::~Application()
@@ -172,6 +166,9 @@ void Application::run()
 {
     MeshEngine::Timer m_timer;
 
+    for (auto& view : m_views)
+        view->getScene()->start();
+
     while (!m_views.empty())
     {
         float deltaTime = m_timer.elapsed();
@@ -179,20 +176,23 @@ void Application::run()
 
         for (auto& view : m_views)
         {
-            if (!m_windowShouldClose(&view->getWindow()))
+            if (!MeshEngine::windowShouldClose(&view->getWindow()))
             {
                 view->getWindow().setCurrentContext();
+                
                 view->update(deltaTime);
+                view->render();
 
-                m_swapDisplayBuffers(&view->getWindow());
+                MeshEngine::swapDisplayBuffers(&view->getWindow());
             }
             else
             {
+                view->getScene()->end();   
                 view.reset();
             }
         }
 
-        m_pollEvents();
+        MeshEngine::pollEvents();
         m_views.erase(std::remove(m_views.begin(), m_views.end(), nullptr), m_views.end());
     }
 }

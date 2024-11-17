@@ -1,17 +1,16 @@
 #include "View.h"
 
-View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
+View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
     m_window.reset(MeshEngine::createWindow(title, width, height, icon));
     m_guiSystem.reset(MeshEngine::createGuiSystem(m_window.get()));
 
     m_guiSystem->init();
 
-    m_renderSystem = rs;
+    m_renderSystem = renderSystem;
     m_renderSystem->init();
 
-    m_shaderEditor.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "editorVertex.glsl", MeshEngine::Settings::shadersPath + "editorFragment.glsl"));
-    m_shaderOutline.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl"));
+    m_shaderOutline = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl");
 
     m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
     m_consoleLayer = std::make_unique<ConsoleLayer>(this);
@@ -28,8 +27,8 @@ View::View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t 
     m_viewport.setZNear(MeshEngine::Settings::znear);
     m_viewport.setZFar(MeshEngine::Settings::zfar);
 
-    m_plane = std::make_unique<PlaneNode>(MeshEngine::Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneHeight(), 16384);
-    m_origin = std::make_unique<OriginNode>();
+    m_plane = std::make_unique<PlaneNode>(this, MeshEngine::Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneHeight(), 16384);
+    m_origin = std::make_unique<OriginNode>(this);
 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)
         {
@@ -86,9 +85,17 @@ View::~View()
 
 void View::update(float deltaTime)
 {
+    m_scene->update(deltaTime);
+    
+    m_plane->update(deltaTime);
+    m_origin->update(deltaTime);
+}
+
+void View::render()
+{
     // Scene
     //////////////////////////////////////////////////
-    m_scene->update(deltaTime);
+    m_scene->render();
 
     // Editor
     //////////////////////////////////////////////////
@@ -99,71 +106,27 @@ void View::update(float deltaTime)
     //////////////////////////////////////////////////
     if (getSelected())
     {
-        m_shaderOutline->bind();
-
-        m_shaderOutline->setMat4("view", m_viewport.getCamera().calcViewMatrix());
-        m_shaderOutline->setMat4("projection", m_viewport.calcProjectionMatrix());
-    
-        getSelected()->processRecursive([&](Node& node) -> bool
-            {
-                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
-                {
-                    m_shaderOutline->setMat4("model", meshNode->getAbsoluteTransform());
-                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderOutline);
-                }
-    
-                return true;
-            });
-
-        m_shaderOutline->unbind();
+        getSelected()->renderEx(m_renderSystem, m_shaderOutline);
     }
-
-    // Editor Shader
-    //////////////////////////////////////////////////
-    m_shaderEditor->bind();
-
-    m_shaderEditor->setMat4("view", m_viewport.getCamera().calcViewMatrix());
-    m_shaderEditor->setMat4("projection", m_viewport.calcProjectionMatrix());
 
     // Plane render
     //////////////////////////////////////////////////
     if (showPlane)
     {
-        m_plane->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget())));
-        m_plane->processRecursive([&](Node& node) -> bool
-            {
-                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
-                {
-                    m_shaderEditor->setMat4("model", meshNode->getAbsoluteTransform());
-                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderEditor);
-                }
-
-                return true;
-            });
-
+        m_plane->render(m_renderSystem);
     }
+
+    m_renderSystem->clearDepth();
 
     // Origin render
     //////////////////////////////////////////////////
     if (showOrigin)
     {
-        m_renderSystem->clearDepth();
-
-        m_origin->setRelativeTransform(glm::scale(glm::vec3(m_viewport.getCamera().getDistanceToTarget() * 0.15f)));
-        m_origin->processRecursive([&](Node& node) -> bool
-            {
-                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
-                {
-                    m_shaderEditor->setMat4("model", meshNode->getAbsoluteTransform());
-                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderEditor);
-                }
-
-                return true;
-            });
+        m_origin->render(m_renderSystem);
     }
 
-    m_shaderEditor->unbind();
     m_renderSystem->unbindFrame();
+    
 
     // UI 
     //////////////////////////////////////////////////
@@ -206,6 +169,26 @@ Node* View::getSelected() const
 void View::setSelected(Node* selected)
 {
     m_selected = selected;
+}
+
+RenderSystem& View::getRenderSystem()
+{
+    return *m_renderSystem;
+}
+
+const RenderSystem& View::getRenderSystem() const
+{
+    return *m_renderSystem;
+}
+
+GuiSystem& View::getGuiSystem()
+{
+    return *m_guiSystem.get();
+}
+
+const GuiSystem& View::getGuiSystem() const
+{
+    return *m_guiSystem.get();
 }
 
 Window& View::getWindow()

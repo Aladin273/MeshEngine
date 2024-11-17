@@ -54,10 +54,5 @@ private:
     STLParser m_stl;
     ColladaParser m_collada;
     AssimpParser m_assimp;
-
-    std::function<void()> m_waitEvents;
-    std::function<void()> m_pollEvents;
-    std::function<void(Window*)> m_swapDisplayBuffers;
-    std::function<bool(Window*)> m_windowShouldClose;
 };
 

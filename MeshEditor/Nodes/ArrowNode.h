@@ -4,11 +4,11 @@
 
 class View;
 
-class OriginNode : public MeshNode
+class ArrowNode : public MeshNode
 {
 public:
-    OriginNode(View* view);
-    virtual ~OriginNode();
+    ArrowNode(View* view);
+    virtual ~ArrowNode();
 
     virtual void update(float deltaTime) override;
 

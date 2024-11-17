@@ -12,13 +12,15 @@ Scene::~Scene()
 
 }
 
-void Scene::init(RenderSystem* rs)
+void Scene::init(RenderSystem* renderSystem)
 {
-    m_renderSystem = rs;
-    m_renderSystem->bufferDepth(m_depthId, m_depthTextureId, m_depthWidth, m_depthHeight);
+    m_renderSystem = renderSystem;
+    
+    matricesUniformId = m_renderSystem->bufferUniform(0, sizeof(matricesUniform), &matricesUniform);
+    lightsUniformId = m_renderSystem->bufferUniform(1, sizeof(lightsUniform), &lightsUniform);
 
-    m_shaderScene.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "sceneVertex.glsl", MeshEngine::Settings::shadersPath + "sceneFragment.glsl"));
-    m_shaderDepth.reset(MeshEngine::createShader(MeshEngine::Settings::shadersPath + "depthVertex.glsl", MeshEngine::Settings::shadersPath + "depthFragment.glsl"));
+    m_renderSystem->bufferDepth(m_depthId, m_depthTextureId, m_depthWidth, m_depthHeight);
+    m_shaderDepth = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "depthVertex.glsl", MeshEngine::Settings::shadersPath + "depthFragment.glsl");
 }
 
 void Scene::setRenderSystem(RenderSystem* rs)
@@ -82,7 +84,8 @@ void Scene::attachNode(std::unique_ptr<Node> node)
     {
         node->setParent(nullptr);
         node->setScene(this);
-        node->setDirty(true);
+        node->setTranformDirty(true);
+        node->start();
 
         m_nodes.push_back(std::move(node));
     }
@@ -93,12 +96,12 @@ void Scene::detachNode(Node* node)
     m_deleted = node;
 }
 
-Node* Scene::getNodeByID(uint32_t id)
+Node* Scene::getNodeById(uint32_t id)
 {
     Node* target = nullptr;
     processRecursive([&](Node& node) -> bool
         {
-            if (node.getID() == id)
+            if (node.getId() == id)
                 target = &node;
 
             return true;
@@ -204,15 +207,33 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     return contacts;
 }
 
+void Scene::start()
+{
+    for (auto& node : m_nodes)
+        node->start();
+}
+
+void Scene::end()
+{
+    for (auto& node : m_nodes)
+        node->end();
+}
+
 void Scene::update(float deltaTime)
 {
-    updateDepth(deltaTime);
-    updateScene(deltaTime);
+    for (auto& node : m_nodes)
+        node->update(deltaTime);
     
     requestDelete();
 }
 
-void Scene::updateDepth(float deltaTime)
+void Scene::render()
+{
+    renderDepth();
+    renderScene();
+}
+
+void Scene::renderDepth()
 {
     m_renderSystem->bindDepth(m_depthId);
     m_renderSystem->setViewport(0, 0, m_depthWidth, m_depthHeight);
@@ -228,74 +249,49 @@ void Scene::updateDepth(float deltaTime)
         glm::mat4 lightProjection = glm::ortho(-distance, distance, -distance, distance, (float)m_viewport->getZNear(), (float)m_viewport->getZFar());
         glm::mat4 lightView = glm::lookAt(-lightDirection * distance, lightDirection, worldUp);
 
-        m_lightSpaceMatrix = lightProjection * lightView;
-
-        m_shaderDepth->bind();
-        m_shaderDepth->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+        matricesUniform.lightSpaceMatrix = lightProjection * lightView;
+        m_renderSystem->bufferSubUniform(matricesUniformId, 0, sizeof(matricesUniform), &matricesUniform);
 
         glCullFace(GL_FRONT);
 
-        processRecursive([&](Node& node) -> bool
-            {
-                if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
-                {
-                    m_shaderDepth->setMat4("model", meshNode->getAbsoluteTransform());
-                    meshNode->getMesh()->render(*m_renderSystem, *m_shaderDepth);
-                }
-
-                return true;
-            });
+        for (auto& node : m_nodes)
+        {
+            node->renderEx(m_renderSystem, m_shaderDepth);
+        }
 
         glCullFace(GL_BACK);
-
-        m_shaderDepth->unbind();
     }
 
     m_renderSystem->unbindDepth();
 }
 
-void Scene::updateScene(float deltaTime)
+void Scene::renderScene()
 {
     m_renderSystem->bindFrame(m_renderTarget);
 
     m_renderSystem->setViewport(0, 0, m_viewport->getWidth(), m_viewport->getHeight());
     m_renderSystem->clearDisplay(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
-    m_shaderScene->bind();
+    matricesUniform.view = m_viewport->getCamera().calcViewMatrix();
+    matricesUniform.projection = m_viewport->calcProjectionMatrix();
 
-    m_shaderScene->setInt("depthMap", 3);
-    m_renderSystem->bindTexture(3, m_depthTextureId);
+    lightsUniform.numDirLights = 1;
+    lightsUniform.numPointLights = 0;
+    lightsUniform.numSpotLights = 0;
 
-    m_shaderScene->setMat4("view", m_viewport->getCamera().calcViewMatrix());
-    m_shaderScene->setMat4("projection", m_viewport->calcProjectionMatrix());
-    m_shaderScene->setMat4("lightSpaceMatrix", m_lightSpaceMatrix);
+    lightsUniform.dirLights[0].ambient = { 0.2f, 0.2f, 0.2f };
+    lightsUniform.dirLights[0].diffuse = { 1.f, 1.f, 1.f };
+    lightsUniform.dirLights[0].specular = { 1.f, 1.f, 1.f };
+    if (cameraLight) lightsUniform.dirLights[0].direction = m_viewport->getCamera().calcForward();;
 
-    m_shaderScene->setInt("numDirLights", 1);
-    m_shaderScene->setInt("numPointLights", 0);
-    m_shaderScene->setInt("numSpotLights", 0);
+    m_renderSystem->bufferSubUniform(matricesUniformId, 0, sizeof(matricesUniform), &matricesUniform);
+    m_renderSystem->bufferSubUniform(lightsUniformId, 0, sizeof(lightsUniform), &lightsUniform);
 
-    const glm::vec3 ambient = { 0.2f, 0.2f, 0.2f };
-    const glm::vec3 diffuse = { 1.f, 1.f, 1.f };
-    const glm::vec3 specular = { 1.f, 1.f, 1.f };
-    if (cameraLight) lightDirection = m_viewport->getCamera().calcForward();
+    for (auto& node : m_nodes)
+    {
+        node->render(m_renderSystem);
+    }
 
-    m_shaderScene->setVec3("dirLights[0].ambient", ambient);
-    m_shaderScene->setVec3("dirLights[0].diffuse", diffuse);
-    m_shaderScene->setVec3("dirLights[0].specular", specular);
-    m_shaderScene->setVec3("dirLights[0].direction", lightDirection);
-
-    processRecursive([&](Node& node) -> bool
-        {
-            if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
-            {
-                m_shaderScene->setMat4("model", meshNode->getAbsoluteTransform());
-                meshNode->getMesh()->render(*m_renderSystem, *m_shaderScene);
-            }
-
-            return true;
-        });
-
-    m_shaderScene->unbind();
     m_renderSystem->unbindFrame();
 }
 
@@ -314,7 +310,7 @@ void Scene::requestDelete()
         }
         else
         {
-            m_deleted->deleteFromParent();
+            m_deleted->detachNode();
         }
 
         m_deleted = nullptr;
