@@ -17,132 +17,29 @@ Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& mat
     update();
 }
 
-void Mesh::render(RenderSystem& rs, Shader& shader)
-{
-    if (m_vertices.empty())
-        return;
-
-    if (m_bufferData)
-    {
-        m_bufferData = false;
-        
-        rs.unbufferData(m_trianglesId);
-        rs.unbufferData(m_linesId);
-        rs.unbufferData(m_holesId);
-        rs.unbufferData(m_boundariesId);
-       
-        rs.unbufferTexture(m_material.diffuseMap.id);
-        rs.unbufferTexture(m_material.specularMap.id);
-        rs.unbufferTexture(m_material.emissionMap.id);
-
-        m_trianglesId = rs.bufferData(m_vertices, m_triangles);
-        m_linesId = rs.bufferData(m_vertices, m_lines);
-        m_holesId = rs.bufferData(m_vertices, m_holes);
-        m_boundariesId = rs.bufferData(m_vertices, m_boundaries);
-
-        m_material.diffuseMap.id = rs.bufferTexture(m_material.diffuseMap.path);
-        m_material.specularMap.id = rs.bufferTexture(m_material.specularMap.path);
-        m_material.emissionMap.id = rs.bufferTexture(m_material.emissionMap.path);
-    }
-
-    if (m_bufferSubData)
-    {
-        m_bufferSubData = false;
-
-        for (auto& indice : m_subDataIndices)
-        {
-            rs.bufferSubData(m_trianglesId, indice, m_vertices[indice]);
-            rs.bufferSubData(m_linesId, indice, m_vertices[indice]);
-            rs.bufferSubData(m_holesId, indice, m_vertices[indice]);
-            rs.bufferSubData(m_boundariesId, indice, m_vertices[indice]);
-        }
-    }
-    
-    shader.bind();
-    
-    if (renderTriangles && !m_triangles.empty())
-    {
-        shader.setVec3("material.ambient", m_material.ambient);
-        shader.setVec3("material.diffuse", glm::vec3(m_material.diffuse));
-        shader.setVec3("material.specular", m_material.specular);
-        shader.setVec3("material.emission", m_material.emission);
-        shader.setFloat("material.shininess", m_material.shininess);
-
-        shader.setInt("material.diffuseMap", 0);
-        shader.setInt("material.specularMap", 1);
-        shader.setInt("material.emissionMap", 2);
-        
-        rs.bindTexture(0, m_material.diffuseMap.id);
-        rs.bindTexture(1, m_material.specularMap.id);
-        rs.bindTexture(2, m_material.emissionMap.id);
-
-        rs.bindData(m_trianglesId);
-        rs.renderTriangles();
-    }
-
-    if (renderLines && !m_lines.empty())
-    {
-        shader.setVec3("material.ambient", glm::vec3(0.f));
-        shader.setVec3("material.diffuse", glm::vec3(0.f));
-        shader.setVec3("material.specular", glm::vec3(0.f));
-        shader.setVec3("material.emission", colorLines);
-        shader.setFloat("material.shininess", 0);
-
-        rs.bindData(m_linesId);
-        
-        rs.setLineSize(1.0f);
-        rs.renderLines();
-    }
-
-    if (renderHoles && !m_holes.empty())
-    {
-        shader.setVec3("material.ambient", glm::vec3(0.f));
-        shader.setVec3("material.diffuse", glm::vec3(0.f));
-        shader.setVec3("material.specular", glm::vec3(0.f));
-        shader.setVec3("material.emission", colorHoles);
-        shader.setFloat("material.shininess", 0);
-
-        rs.bindData(m_holesId);
-
-        rs.setLineSize(4.0f);
-        rs.renderLines();
-    }
-
-    if (renderBoundaries && !m_boundaries.empty())
-    {
-        shader.setVec3("material.ambient", glm::vec3(0.f));
-        shader.setVec3("material.diffuse", glm::vec3(0.f));
-        shader.setVec3("material.specular", glm::vec3(0.f));
-        shader.setVec3("material.emission", colorBoundaries);
-        shader.setFloat("material.shininess", 0);
-
-        rs.bindData(m_boundariesId);
-        rs.renderTriangles();
-    }
-
-    rs.unbindTexture();
-    rs.unbindData();   
-}
-
 void Mesh::update()
 {
-    m_bufferData = true;
-    m_vertices.clear();
-    m_triangles.clear();
-    m_lines.clear();
-    m_holes.clear();
-    m_boundaries.clear();
+    m_renderDataDirty = true;
+    m_renderSubDataDirty = true;
+
+    m_renderVertices.clear();
+    m_renderTriangles.clear();
+    m_renderLines.clear();
+    m_renderHoles.clear();
+    m_renderBoundaries.clear();
+    
+    m_renderSubData.clear();
 
     if (m_table.getVertices().empty()) return;
 
     const auto& vertices = m_table.getVertices();
     const auto& faces = m_table.getFaces();
 
-    m_vertices.reserve(vertices.size());
-    m_triangles.reserve(faces.size() * 6);
-    m_lines.reserve(faces.size() * 8);
-    m_holes.reserve(faces.size() * 8);
-    m_boundaries.reserve(faces.size() * 6);
+    m_renderVertices.reserve(vertices.size());
+    m_renderTriangles.reserve(faces.size() * 6);
+    m_renderLines.reserve(faces.size() * 8);
+    m_renderHoles.reserve(faces.size() * 8);
+    m_renderBoundaries.reserve(faces.size() * 6);
 
     m_bbox.min = m_bbox.max = vertices.front().data.position;
 
@@ -158,7 +55,7 @@ void Mesh::update()
         m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
         m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-        m_vertices.push_back(data);
+        m_renderVertices.push_back(data);
     }
 
     std::vector<std::pair<glm::vec3, float>> normalsMap{ 0 };
@@ -170,14 +67,14 @@ void Mesh::update()
         heds::HalfEdgeHandle hehs[4];
 
         hehs[0] = face.heh;
-        for (int i = 1; i < 4; ++i) 
+        for (int i = 1; i < 4; ++i)
             hehs[i] = m_table.next(hehs[i - 1]);
 
         for (int i = 0; i < 4; ++i)
             vhs[i] = m_table.sourceVertex(hehs[i]);
 
-        glm::vec3 ab = m_vertices[vhs[1]].position - m_vertices[vhs[0]].position;
-        glm::vec3 bc = m_vertices[vhs[2]].position - m_vertices[vhs[1]].position;
+        glm::vec3 ab = m_renderVertices[vhs[1]].position - m_renderVertices[vhs[0]].position;
+        glm::vec3 bc = m_renderVertices[vhs[2]].position - m_renderVertices[vhs[1]].position;
         glm::vec3 normal = glm::cross(ab, bc);
 
         for (const auto& vh : vhs)
@@ -186,25 +83,25 @@ void Mesh::update()
             normalsMap[vh].second += 1;
         }
 
-        m_triangles.push_back(vhs[0]);
-        m_triangles.push_back(vhs[1]);
-        m_triangles.push_back(vhs[2]);
+        m_renderTriangles.push_back(vhs[0]);
+        m_renderTriangles.push_back(vhs[1]);
+        m_renderTriangles.push_back(vhs[2]);
 
-        m_lines.push_back(vhs[0]);
-        m_lines.push_back(vhs[1]);
-        m_lines.push_back(vhs[1]);
-        m_lines.push_back(vhs[2]);
-        m_lines.push_back(vhs[2]);
-        m_lines.push_back(vhs[3]);
+        m_renderLines.push_back(vhs[0]);
+        m_renderLines.push_back(vhs[1]);
+        m_renderLines.push_back(vhs[1]);
+        m_renderLines.push_back(vhs[2]);
+        m_renderLines.push_back(vhs[2]);
+        m_renderLines.push_back(vhs[3]);
 
         if (hehs[3] != hehs[0])
         {
-            m_triangles.push_back(vhs[2]);
-            m_triangles.push_back(vhs[3]);
-            m_triangles.push_back(vhs[0]);
+            m_renderTriangles.push_back(vhs[2]);
+            m_renderTriangles.push_back(vhs[3]);
+            m_renderTriangles.push_back(vhs[0]);
 
-            m_lines.push_back(vhs[3]);
-            m_lines.push_back(vhs[0]);
+            m_renderLines.push_back(vhs[3]);
+            m_renderLines.push_back(vhs[0]);
         }
 
         bool boundary = false;
@@ -215,30 +112,30 @@ void Mesh::update()
             {
                 boundary = true;
 
-                m_holes.push_back(vhs[i]);
-                m_holes.push_back(vhs[i == 3 ? 0 : i + 1]);
+                m_renderHoles.push_back(vhs[i]);
+                m_renderHoles.push_back(vhs[i == 3 ? 0 : i + 1]);
             }
         }
 
         if (boundary)
         {
-            m_boundaries.push_back(vhs[0]);
-            m_boundaries.push_back(vhs[1]);
-            m_boundaries.push_back(vhs[2]);
-            m_boundaries.push_back(vhs[2]);
-            m_boundaries.push_back(vhs[3]);
-            m_boundaries.push_back(vhs[0]);
+            m_renderBoundaries.push_back(vhs[0]);
+            m_renderBoundaries.push_back(vhs[1]);
+            m_renderBoundaries.push_back(vhs[2]);
+            m_renderBoundaries.push_back(vhs[2]);
+            m_renderBoundaries.push_back(vhs[3]);
+            m_renderBoundaries.push_back(vhs[0]);
         }
     }
 
     for (size_t i = 0; i < normalsMap.size(); ++i)
-        m_vertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
+        m_renderVertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
 }
 
 void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 {
-    m_bufferSubData = true;
-    m_subDataIndices.clear();
+    m_renderSubDataDirty = true;
+    m_renderSubData.clear();
 
     glm::vec3 center{ 0 }; uint32_t vertices = 0;
     
@@ -274,7 +171,7 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
         m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
         m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-        m_vertices[vh].position = data.position;
+        m_renderVertices[vh].position = data.position;
 
         next_heh = m_table.next(next_heh);
 
@@ -345,22 +242,22 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
                     heds::HalfEdgeHandle heh1 = m_table.next(heh0);
                     heds::HalfEdgeHandle heh2 = m_table.next(heh1);
 
-                    glm::vec3 ab = m_vertices[m_table.sourceVertex(heh1)].position - m_vertices[m_table.sourceVertex(heh0)].position;
-                    glm::vec3 bc = m_vertices[m_table.sourceVertex(heh2)].position - m_vertices[m_table.sourceVertex(heh1)].position;
+                    glm::vec3 ab = m_renderVertices[m_table.sourceVertex(heh1)].position - m_renderVertices[m_table.sourceVertex(heh0)].position;
+                    glm::vec3 bc = m_renderVertices[m_table.sourceVertex(heh2)].position - m_renderVertices[m_table.sourceVertex(heh1)].position;
                     normalsSum += glm::cross(ab, bc);
                 }
             }
 
-            m_vertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
-            m_subDataIndices.push_back(vh);
+            m_renderVertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
+            m_renderSubData.push_back(vh);
         }
     }
 }
 
 void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 {
-    m_bufferSubData = true;
-    m_subDataIndices.clear();
+    m_renderSubDataDirty = true;
+    m_renderSubData.clear();
     
     Vertex center = m_table.getPoint(vh);
 
@@ -379,7 +276,7 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
     m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
-    m_vertices[vh].position = data.position;
+    m_renderVertices[vh].position = data.position;
     
     // Calculate normals
     std::set<heds::FaceHandle> affectedFaces;
@@ -437,14 +334,14 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
                     heds::HalfEdgeHandle heh1 = m_table.next(heh0);
                     heds::HalfEdgeHandle heh2 = m_table.next(heh1);
 
-                    glm::vec3 ab = m_vertices[m_table.sourceVertex(heh1)].position - m_vertices[m_table.sourceVertex(heh0)].position;
-                    glm::vec3 bc = m_vertices[m_table.sourceVertex(heh2)].position - m_vertices[m_table.sourceVertex(heh1)].position;
+                    glm::vec3 ab = m_renderVertices[m_table.sourceVertex(heh1)].position - m_renderVertices[m_table.sourceVertex(heh0)].position;
+                    glm::vec3 bc = m_renderVertices[m_table.sourceVertex(heh2)].position - m_renderVertices[m_table.sourceVertex(heh1)].position;
                     normalsSum += glm::cross(ab, bc);
                 }
             }
 
-            m_vertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
-            m_subDataIndices.push_back(vh);
+            m_renderVertices[vh].normal = glm::normalize(normalsSum / static_cast<float>(adjacentFaces.size()));
+            m_renderSubData.push_back(vh);
         }
     }
 }

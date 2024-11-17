@@ -2,8 +2,16 @@
 
 #include "MeshEngine/Model/MeshNode.h"
 
+class View;
+
 class PlaneNode : public MeshNode
 {
 public:
-	PlaneNode(glm::vec3 worldUp, float width, float height, uint32_t numSubs);
+	PlaneNode(View* view, glm::vec3 worldUp, float width, float height, uint32_t numSubs);
+    virtual ~PlaneNode();
+
+    virtual void update(float deltaTime) override;
+
+private:
+    View* m_view;
 };

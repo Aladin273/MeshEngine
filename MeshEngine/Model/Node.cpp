@@ -1,5 +1,11 @@
 #include "Node.h" 
-#include "Scene.h"
+
+#include "MeshEngine/Model/Scene.h"
+
+static bool s_recursiveStart = true;
+static bool s_recursiveEnd = true;
+static bool s_recursiveUpdate = true;
+static bool s_recursiveRender = true;
 
 Node::Node()
 {
@@ -8,6 +14,7 @@ Node::Node()
 
 Node::~Node()
 {
+    end();
 }
 
 Node* Node::getParent() const
@@ -42,35 +49,45 @@ const BoundingBox& Node::getBoundingBox() const
     return m_bbox;
 }
 
+Shader* Node::getShader() const
+{
+    return m_shader;
+}
+
+void Node::setShader(Shader* shader)
+{
+    m_shader = shader;
+}
+
 void Node::setRelativeTransform(const glm::mat4& trf)
 {
-    setDirty(true);
-    m_transform = trf;
+    setTranformDirty(true);
+    m_relative = trf;
 }
 
 const glm::mat4& Node::getRelativeTransform()
 {
-    return m_transform;
+    return m_relative;
 }
 
 void Node::setAbsoluteTransform(const glm::mat4& trf)
 {
-    setDirty(true);
-    m_transform = trf * glm::inverse(getAbsoluteTransform());
+    setTranformDirty(true);
+    m_relative = trf * glm::inverse(getAbsoluteTransform());
 }
 
 const glm::mat4& Node::getAbsoluteTransform()
 {
-    if (getDirty())
+    if (getTranformDirty())
     {
-        m_absolute = m_transform;
+        m_absolute = m_relative;
 
         if (m_parent)
         {
             m_absolute = m_parent->getAbsoluteTransform() * m_absolute;
         }
 
-        setDirty(false, false);
+        setTranformDirty(false, false);
     }
 
     return m_absolute;
@@ -78,14 +95,67 @@ const glm::mat4& Node::getAbsoluteTransform()
 
 void Node::applyRelativeTransform(const glm::mat4& trf)
 {
-    setDirty(true);
-    m_transform = trf * m_transform;
+    setTranformDirty(true);
+    m_relative = trf * m_relative;
 }
 
 void Node::applyAbsoluteTransform(const glm::mat4& trf)
 {
-    setDirty(true);
-    m_transform = (trf * glm::inverse(getAbsoluteTransform())) * m_transform;
+    setTranformDirty(true);
+    m_relative = (trf * glm::inverse(getAbsoluteTransform())) * m_relative;
+}
+
+void Node::start()
+{
+    if (s_recursiveStart)
+    {
+        for (auto& child : m_children)
+            child->start();
+    }
+}
+
+void Node::end()
+{
+    if (s_recursiveEnd)
+    {
+        for (auto& child : m_children)
+            child->end();
+    }
+}
+
+void Node::update(float deltaTime)
+{
+    if (s_recursiveUpdate)
+    {
+        for (auto& child : m_children)
+            child->update(deltaTime);
+    }
+}
+
+void Node::render(RenderSystem* renderSystem)
+{
+    if (s_recursiveRender)
+    {
+        for (auto& child : m_children)
+            child->render(renderSystem);
+    }
+}
+
+void Node::renderEx(RenderSystem* renderSystem, Shader* shader)
+{
+    s_recursiveRender = false;
+
+    Shader* temp = m_shader;
+    m_shader = shader;
+    render(renderSystem);
+    m_shader = temp;
+
+    s_recursiveRender = true;
+
+    for (auto& child : m_children)
+    {
+        child->renderEx(renderSystem, shader);
+    }
 }
 
 void Node::attachNode(std::unique_ptr<Node> node)
@@ -95,11 +165,13 @@ void Node::attachNode(std::unique_ptr<Node> node)
 
     node->setParent(this);
     node->setScene(m_scene);
-    node->setDirty(true);
+    node->setTranformDirty(true);
+    node->start();
+
     m_children.push_back(std::move(node));
 }
 
-void Node::deleteFromParent()
+void Node::detachNode()
 {
     if (m_parent)
     {
@@ -125,20 +197,20 @@ void Node::setScene(Scene* scene)
     }
 }
 
-bool Node::getDirty() const
+bool Node::getTranformDirty() const
 {
-    return m_dirty;
+    return m_transformDirty;
 }
 
-void Node::setDirty(bool dirty, bool recursive /*= true*/)
+void Node::setTranformDirty(bool dirty, bool recursive /*= true*/)
 {
-    m_dirty = dirty;
+    m_transformDirty = dirty;
 
     if (recursive)
     {
         for (auto& child : m_children)
         {
-            child->setDirty(dirty);
+            child->setTranformDirty(dirty);
         }
     }
 }

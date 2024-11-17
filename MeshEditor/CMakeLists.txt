@@ -9,6 +9,7 @@ set(MESH_EDITOR_HEADERS
     Application/View.h
 
     Nodes/PlaneNode.h
+    Nodes/ArrowNode.h
     Nodes/OriginNode.h
 
     Operators/Operator.h
@@ -38,6 +39,7 @@ set(MESH_EDITOR_SOURCES
     Application/View.cpp
     
     Nodes/PlaneNode.cpp
+    Nodes/ArrowNode.cpp
     Nodes/OriginNode.cpp
 
     Operators/OperatorDispatcher.cpp

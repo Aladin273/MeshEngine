@@ -19,6 +19,86 @@
 #include "MeshEngine/Model/Node.h"
 #include "MeshEngine/Model/MeshNode.h"
 
+struct DirLight
+{
+    glm::vec3 direction;
+    float padding1;
+
+    glm::vec3 ambient;
+    float padding2;
+
+    glm::vec3 diffuse;
+    float padding3;
+
+    glm::vec3 specular;
+    float padding4;
+};
+
+struct PointLight
+{
+    glm::vec3 position;
+    float padding1;
+
+    float constant;
+    float linear;
+    float quadratic;
+    float padding2;
+
+    glm::vec3 ambient;
+    float padding3;
+
+    glm::vec3 diffuse;
+    float padding4;
+
+    glm::vec3 specular;
+    float padding5;
+};
+
+struct SpotLight
+{
+    glm::vec3 position;
+    float padding1;
+
+    glm::vec3 direction;
+    float padding2;
+
+    float cutOff;
+    float outerCutOff;
+    float constant;
+    float linear;
+
+    float quadratic;
+    glm::vec3 padding3;
+
+    glm::vec3 ambient;
+    float padding4;
+
+    glm::vec3 diffuse;
+    float padding5;
+
+    glm::vec3 specular;
+    float padding6;
+};
+
+struct MatricesUniform
+{
+    glm::mat4 view;
+    glm::mat4 projection;
+    glm::mat4 lightSpaceMatrix;
+};
+
+struct LightsUniform
+{
+    int32_t numDirLights;
+    int32_t numPointLights;
+    int32_t numSpotLights;
+    int32_t padding;
+
+    DirLight dirLights[16];
+    PointLight pointLights[16];
+    SpotLight spotLights[16];
+};
+
 class Scene : public Base
 {
 public:
@@ -26,7 +106,7 @@ public:
     virtual ~Scene();
 
 public:
-    void init(RenderSystem* rs);
+    void init(RenderSystem* renderSystem);
 
 public:
     virtual void bind() override
@@ -46,6 +126,13 @@ public:
     glm::vec4 backgroundColor{ 0.15f, 0.15f, 0.15f, 1.0f };
 
 public:
+    uint32_t matricesUniformId;
+    MatricesUniform matricesUniform;
+
+    uint32_t lightsUniformId;
+    LightsUniform lightsUniform;
+
+public:
     void setRenderSystem(RenderSystem* rs);
     RenderSystem* getRenderSystem() const;
 
@@ -62,7 +149,7 @@ public:
     void attachNode(std::unique_ptr<Node> node);
     void detachNode(Node* node);
 
-    Node* getNodeByID(uint32_t id);
+    Node* getNodeById(uint32_t id);
 
     const std::vector<std::unique_ptr<Node>>& getNodes() const;
     std::vector<std::unique_ptr<Node>>& getNodes();
@@ -78,18 +165,20 @@ public:
     std::vector<Contact> raycast(const Ray& ray, FilterValue filterValues);
 
 public:
+    void start();
+    void end();
+
     void update(float deltaTime);
+    void render();
 
 protected:
-    void updateDepth(float deltaTime);
-    void updateScene(float deltaTime);
+    void renderDepth();
+    void renderScene();
     
     void requestDelete();
 
 protected:
     RenderSystem* m_renderSystem = nullptr;
-    std::unique_ptr<Shader> m_shaderScene;
-    std::unique_ptr<Shader> m_shaderDepth;
 
     uint32_t m_renderTarget = 0;
     Viewport* m_viewport = nullptr;
@@ -98,7 +187,7 @@ protected:
     uint32_t m_depthTextureId = 0;
     uint32_t m_depthWidth = 4096;
     uint32_t m_depthHeight = 4096;
-    glm::mat4 m_lightSpaceMatrix{ 1.0f };
+    Shader* m_shaderDepth;
 
 private:
     Node* m_deleted = nullptr;

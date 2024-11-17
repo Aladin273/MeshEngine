@@ -48,7 +48,7 @@ public:
     virtual void bind();
     virtual void unbind();
 
-    uint32_t getID() const;
+    uint32_t getId() const;
 
     void setName(const std::string& name);
     const std::string& getName() const;

@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 in vec3 ViewPos;
 in vec3 FragPos;
 in vec4 FragPosLightSpace;
@@ -6,6 +6,79 @@ in vec3 Normal;
 in vec2 TexCoords;
 
 out vec4 FragColor;
+
+struct DirLight
+{
+    vec3 direction;
+    float padding1;
+
+    vec3 ambient;
+    float padding2;
+
+    vec3 diffuse;
+    float padding3;
+
+    vec3 specular;
+    float padding4;
+};
+
+struct PointLight
+{
+    vec3 position;
+    float padding1;
+
+    float constant;
+    float linear;
+    float quadratic;
+    float padding2;
+
+    vec3 ambient;
+    float padding3;
+
+    vec3 diffuse;
+    float padding4;
+
+    vec3 specular;
+    float padding5;
+};
+
+struct SpotLight
+{
+    vec3 position;
+    float padding1;
+
+    vec3 direction;
+    float padding2;
+
+    float cutOff;
+    float outerCutOff;
+    float constant;
+    float linear;
+
+    float quadratic;
+    vec3 padding3;
+
+    vec3 ambient;
+    float padding4;
+
+    vec3 diffuse;
+    float padding5;
+
+    vec3 specular;
+    float padding6;
+};
+
+layout(std140, binding = 1) uniform Lights
+{
+    int numDirLights;
+    int numPointLights;
+    int numSpotLights;
+    int padding;
+
+    DirLight dirLights[16];
+    PointLight pointLights[16];
+    SpotLight spotLights[16];
+};
 
 struct Material
 {
@@ -20,53 +93,7 @@ struct Material
     sampler2D emissionMap;
 }; 
 
-struct DirLight 
-{
-    vec3 direction;
-
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};
-
-struct PointLight 
-{    
-    vec3 position;
-    
-    float constant;
-    float linear;
-    float quadratic;  
- 
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-};  
-
-struct SpotLight 
-{
-    vec3 position;
-    vec3 direction;
-    float cutOff;
-    float outerCutOff;
-  
-    float constant;
-    float linear;
-    float quadratic;
-  
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;       
-};
-
 uniform Material material;
-
-uniform int numDirLights = 0;
-uniform int numPointLights = 0;
-uniform int numSpotLights = 0;
-
-uniform DirLight dirLights[32];
-uniform PointLight pointLights[32];
-uniform SpotLight spotLights[32];
 
 uniform sampler2D depthMap;
 
@@ -116,7 +143,6 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadow)
     vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rgb;
     vec3 emission = material.emission * texture(material.emissionMap, TexCoords).rgb;
     
-    //return (ambient + diffuse + specular + emission);
     return (ambient + (1.0 - shadow) * (diffuse + specular) + emission);
 }
 
@@ -186,7 +212,7 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(ViewPos - FragPos);
 
-    float shadow = CalcShadow(FragPosLightSpace);
+    float shadow = 0.0 /*CalcShadow(FragPosLightSpace)*/;
 
     vec3 result = vec3(0.0);
 

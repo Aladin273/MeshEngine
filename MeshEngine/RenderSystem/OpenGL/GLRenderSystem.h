@@ -27,6 +27,11 @@ public:
 
     virtual void bufferSubData(uint32_t dataId, uint32_t index, const Vertex& vertex) override;
 
+    virtual uint32_t bufferUniform(uint32_t bindPoint, uint32_t size, const void* data) override;
+    virtual void unbufferUniform(uint32_t uniformId) override;
+
+    virtual void bufferSubUniform(uint32_t uniformId, uint32_t offset, uint32_t size, const void* data) override;
+
     virtual uint32_t bufferTexture(const std::string& texturePath) override;
     virtual void unbufferTexture(uint32_t textureId) override;
 
@@ -48,6 +53,9 @@ public:
 
     virtual void bindDepth(uint32_t depthId) override;
     virtual void unbindDepth() override;
+
+    virtual void bindUniform(uint32_t uniformId) override;
+    virtual void unbindUniform() override;
 
     // Render
     virtual void renderTriangles() override;

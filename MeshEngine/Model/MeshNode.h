@@ -13,17 +13,40 @@ public:
 public:
     virtual void bind() override
     {
+        bindProperty(renderTriangles);
+        bindProperty(renderLines);
+        bindProperty(renderHoles);
+        bindProperty(renderBoundaries);
+
         bindPropertyEx(Property::Base, "Mesh", *m_mesh.get());
         
         super::bind();
     }
 
+    bool renderTriangles = true;
+    bool renderLines = false;
+    bool renderHoles = false;
+    bool renderBoundaries = false;
+
 public:
     virtual const BoundingBox& getBoundingBox() const override;
 
 public:
+    virtual void start() override;
+    virtual void end() override;
+
+    virtual void update(float deltaTime) override;
+    virtual void render(RenderSystem* renderSystem) override;
+
+public:
     void attachMesh(std::unique_ptr<Mesh> mesh);
     Mesh* getMesh() const;
+
+protected:
+    uint32_t m_renderTrianglesId = 0;
+    uint32_t m_renderLinesId = 0;
+    uint32_t m_renderHolesId = 0;
+    uint32_t m_renderBoundariesId = 0;
 
 protected:
     std::unique_ptr<Mesh> m_mesh;

@@ -37,7 +37,8 @@ public:
     virtual void setMat4(const std::string& name, const glm::mat4& mat) const override;
 
 private:
-    bool checkCompileErrors(unsigned int shader, std::string type);
+    void create(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
+    bool check(unsigned int shader, std::string type);
 
     uint32_t m_vertexId = 0;
     uint32_t m_fragmentId = 0;

@@ -34,11 +34,12 @@
 class View : public Base
 {
 public:
-    View(RenderSystem* rs, const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
+    View(RenderSystem* renderSystem, const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
     ~View();
 
 public:
     void update(float deltaTime);
+    void render();
 
 public:
     Scene* getScene() const;
@@ -48,6 +49,12 @@ public:
     void setSelected(Node* selected);
 
 public:
+    RenderSystem& getRenderSystem();
+    const RenderSystem& getRenderSystem() const;
+
+    GuiSystem& getGuiSystem();
+    const GuiSystem& getGuiSystem() const;
+
     Window& getWindow();
     const Window& getWindow() const;
 
@@ -91,9 +98,8 @@ private:
     std::unique_ptr<Window> m_window;
     std::unique_ptr<GuiSystem> m_guiSystem;
 
+    Shader* m_shaderOutline = nullptr;
     RenderSystem* m_renderSystem = nullptr;
-    std::unique_ptr<Shader> m_shaderEditor;
-    std::unique_ptr<Shader> m_shaderOutline;
     
     std::unique_ptr<ConsoleLayer> m_consoleLayer;
     std::unique_ptr<DockpaneLayer> m_dockpaneLayer;

@@ -9,11 +9,11 @@
 
 #include "MeshEngine/Math/BoundingBox.h"
 
-#include "MeshEngine/Base/Base.h"
+#include "MeshEngine/Base/RenderBase.h"
 #include "MeshEngine/Base/Texture.h"
 #include "MeshEngine/Base/Material.h"
 
-class Mesh : public Base
+class Mesh : public RenderBase
 {
 public:
     Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable);
@@ -22,36 +22,15 @@ public:
 public:
     virtual void bind() override
     {
-        bindProperty(renderTriangles);
-        bindProperty(renderLines);
-        bindProperty(renderHoles);
-        bindProperty(renderBoundaries);
-
-        bindPropertyEx(Property::Color, "colorTriangles", colorTriangles);
-        bindPropertyEx(Property::Color, "colorLines", colorLines);
-        bindPropertyEx(Property::Color, "colorHoles", colorHoles);
-        bindPropertyEx(Property::Color, "colorBoundaries", colorBoundaries);
-        
         bindProperty(m_material);
 
         super::bind();
     };
 
 public:
-    bool renderTriangles = true;
-    bool renderLines = false;
-    bool renderHoles = false;
-    bool renderBoundaries = false;
-
-    glm::vec4 colorTriangles{ 0.25f, 0.75f, 0.25f, 1.0f };
-    glm::vec4 colorLines{ 0.0f, 0.0f, 0.0f, 1.0f };
-    glm::vec4 colorHoles{ 0.75f, 0.25f, 0.25f, 1.0f };
-    glm::vec4 colorBoundaries{ 0.75f, 0.25f, 0.25f, 1.0f };
-
-public:
-    void render(RenderSystem& rs, Shader& shader);
     void update();
 
+public:
     void applyTransformation(heds::FaceHandle fh, const glm::mat4& trf);
     void applyTransformation(heds::VertexHandle fh, const glm::mat4& trf);
     
@@ -73,21 +52,5 @@ public:
 private:
     BoundingBox m_bbox;
     Material m_material;
-
     heds::HalfEdgeTable<Vertex> m_table;
-    
-    std::vector<Vertex> m_vertices;
-    std::vector<uint32_t> m_triangles;
-    std::vector<uint32_t> m_lines;
-    std::vector<uint32_t> m_holes;
-    std::vector<uint32_t> m_boundaries;
-
-    bool m_bufferData = true;
-    uint32_t m_trianglesId = 0;
-    uint32_t m_linesId = 0;
-    uint32_t m_holesId = 0;
-    uint32_t m_boundariesId = 0;
-
-    bool m_bufferSubData = false;
-    std::vector<uint32_t> m_subDataIndices;
 };
