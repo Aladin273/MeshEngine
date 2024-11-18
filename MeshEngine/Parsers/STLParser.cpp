@@ -4,10 +4,31 @@
 
 #include "MeshEngine/Misc/Logger.h"
 
-STLParser::TriangleSoup STLParser::read(const std::string& filename)
+std::unique_ptr<Node> STLParser::loadModel(const std::string& filename)
 {
-    TriangleSoup soup;
-    Triangle triangle;
+    MeshEngine::Logger::info("STLParser loading from {:}", filename);
+    return loadNode(filename);
+}
+
+void STLParser::saveModel(Node& model, const std::string& filename)
+{
+    std::string file = filename;
+
+    file.pop_back(); file.pop_back(); file.pop_back(); file.pop_back();
+    file = file + "_modified.stl";
+
+    std::vector<STLParser::Triangle> soup;
+    saveNode(soup, &model);
+
+    write(soup, file);
+
+    MeshEngine::Logger::info("STLParser saving to {:}", file);
+}
+
+std::vector<STLParser::Triangle> STLParser::read(const std::string& filename)
+{
+    std::vector<STLParser::Triangle> soup;
+    STLParser::Triangle triangle;
 
     std::string read;
     std::ifstream fin;
@@ -79,7 +100,7 @@ STLParser::TriangleSoup STLParser::read(const std::string& filename)
     return soup;
 }
 
-void STLParser::write(const TriangleSoup& soup, const std::string& filename)
+void STLParser::write(const std::vector<STLParser::Triangle>& soup, const std::string& filename)
 {
     if (!soup.empty())
     {
@@ -107,9 +128,9 @@ void STLParser::write(const TriangleSoup& soup, const std::string& filename)
     }
 }
 
-std::unique_ptr<MeshNode> STLParser::loadNode(const std::string& filename)
+std::unique_ptr<Node> STLParser::loadNode(const std::string& filename)
 {
-    TriangleSoup soup = read(filename);
+    std::vector<STLParser::Triangle> soup = read(filename);
 
     std::map<Vec, heds::VertexHandle> vertices;
     std::map<Vec, heds::VertexHandle>::iterator it0;
@@ -163,66 +184,39 @@ std::unique_ptr<MeshNode> STLParser::loadNode(const std::string& filename)
     return node;
 }
 
-std::unique_ptr<Model> STLParser::loadModel(const std::string& filename)
+void STLParser::saveNode(std::vector<STLParser::Triangle>& soup, Node* node)
 {
-    MeshEngine::Logger::info("STLParser loading from {:}", filename);
-
-    std::unique_ptr<Model> model = std::make_unique<Model>();
-    model->attachNode(loadNode(filename));
-    model->setName(filename);
-
-    return model;
-}
-
-void STLParser::saveNode(TriangleSoup& soup, MeshNode* node)
-{
-    const heds::HalfEdgeTable<Vertex>& table = node->getMesh()->getHalfEdgeTable();
-
-    const auto transform = node->getAbsoluteTransform();
-
-    for (auto& face : table.getFaces())
+    if (MeshNode* meshNode = dynamic_cast<MeshNode*>(node))
     {
-        heds::HalfEdgeHandle heh0 = face.heh;
-        heds::HalfEdgeHandle heh1 = table.next(heh0);
-        heds::HalfEdgeHandle heh2 = table.next(heh1);
-        heds::HalfEdgeHandle heh3 = table.next(heh2);
+        const heds::HalfEdgeTable<Vertex>& table = meshNode->getMesh()->getHalfEdgeTable();
 
-        glm::vec3 a = transform * glm::vec4(table.getEndPoint(heh0).position, 1.f);
-        glm::vec3 b = transform * glm::vec4(table.getEndPoint(heh1).position, 1.f);
-        glm::vec3 c = transform * glm::vec4(table.getEndPoint(heh2).position, 1.f);
+        const auto transform = node->getAbsoluteTransform();
 
-        glm::vec3 normal = glm::normalize(glm::cross(b - a, c - b));
-
-        soup.push_back(Triangle{ {a.x, a.y, a.z}, {b.x, b.y, b.z}, {c.x, c.y, c.z}, {normal.x, normal.y, normal.z} });
-
-        if (heh3 != heh0) // if 4 vertices
+        for (auto& face : table.getFaces())
         {
-            glm::vec3 d = transform * glm::vec4(table.getEndPoint(heh3).position, 1.f);
-            soup.push_back(Triangle{ {c.x, c.y, c.z}, {d.x, d.y, d.z}, {a.x, a.y, a.z}, {normal.x, normal.y, normal.z} });
+            heds::HalfEdgeHandle heh0 = face.heh;
+            heds::HalfEdgeHandle heh1 = table.next(heh0);
+            heds::HalfEdgeHandle heh2 = table.next(heh1);
+            heds::HalfEdgeHandle heh3 = table.next(heh2);
+
+            glm::vec3 a = transform * glm::vec4(table.getEndPoint(heh0).position, 1.f);
+            glm::vec3 b = transform * glm::vec4(table.getEndPoint(heh1).position, 1.f);
+            glm::vec3 c = transform * glm::vec4(table.getEndPoint(heh2).position, 1.f);
+
+            glm::vec3 normal = glm::normalize(glm::cross(b - a, c - b));
+
+            soup.push_back(Triangle{ {a.x, a.y, a.z}, {b.x, b.y, b.z}, {c.x, c.y, c.z}, {normal.x, normal.y, normal.z} });
+
+            if (heh3 != heh0) // if 4 vertices
+            {
+                glm::vec3 d = transform * glm::vec4(table.getEndPoint(heh3).position, 1.f);
+                soup.push_back(Triangle{ {c.x, c.y, c.z}, {d.x, d.y, d.z}, {a.x, a.y, a.z}, {normal.x, normal.y, normal.z} });
+            }
         }
     }
 
     for (auto& child : node->getChildren())
-        saveNode(soup, dynamic_cast<MeshNode*>(child.get()));
-}
-
-void STLParser::saveModel(const Model& model, const std::string& filename)
-{
-    std::string file = filename;
-
-    file.pop_back(); file.pop_back(); file.pop_back(); file.pop_back();
-    file = file + "_modified.stl";
-
-    TriangleSoup soup;
-
-    for (auto& node : model.getNodes())
-    {
-        saveNode(soup, dynamic_cast<MeshNode*>(node.get()));
-    }
-
-    write(soup, file);
-
-    MeshEngine::Logger::info("STLParser saving to {:}", file);
+        saveNode(soup, child.get());
 }
 
 bool STLParser::approximatelyEqual(double a, double b, double epsilon)

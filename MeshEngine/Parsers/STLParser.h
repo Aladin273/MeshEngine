@@ -3,12 +3,15 @@
 #include <string>
 #include <vector>
 
-#include "MeshEngine/Model/Model.h"
 #include "MeshEngine/Model/MeshNode.h"
 
 class STLParser
 {
 public:
+    std::unique_ptr<Node> loadModel(const std::string& filename);
+    void saveModel(Node& model, const std::string& filename);
+
+private:
     static constexpr double epsilon = 1e-8;
 
     struct Vec
@@ -27,15 +30,11 @@ public:
         Vec normal;
     };
 
-    using TriangleSoup = std::vector<Triangle>;
+    std::unique_ptr<Node> loadNode(const std::string& filename);
+    void saveNode(std::vector<Triangle>& soup, Node* node);
 
-    TriangleSoup read(const std::string& filename);
-    void write(const TriangleSoup& soup, const std::string& filename);
-
-    std::unique_ptr<MeshNode> loadNode(const std::string& filename);
-    std::unique_ptr<Model> loadModel(const std::string& filename);
-    void saveNode(TriangleSoup& soup, MeshNode* node);
-    void saveModel(const Model& model, const std::string& filename);
+    std::vector<Triangle> read(const std::string& filename);
+    void write(const std::vector<Triangle>& soup, const std::string& filename);
 
     static bool approximatelyEqual(double a, double b, double epsilon);
 };

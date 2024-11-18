@@ -30,7 +30,6 @@ set(MESH_ENGINE_HEADERS
     Base/Material.h
     Base/Mesh.h
 
-    Model/Model.h
     Model/Scene.h
     Model/Node.h
     Model/MeshNode.h
@@ -84,7 +83,6 @@ set(MESH_ENGINE_SOURCES
     Base/Material.cpp
     Base/Mesh.cpp
 
-    Model/Model.cpp
     Model/Scene.cpp
     Model/Node.cpp
     Model/MeshNode.cpp

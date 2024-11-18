@@ -145,7 +145,7 @@ View* Application::createView(const std::string& title, uint32_t width, uint32_t
     return m_views.back().get();
 }
 
-std::unique_ptr<Model> Application::loadModel(const std::string& filename)
+std::unique_ptr<Node> Application::loadModel(const std::string& filename)
 {
     if (filename.find(".stl") != MeshEngine::Settings::invalid)
         return m_stl.loadModel(filename);
@@ -155,7 +155,7 @@ std::unique_ptr<Model> Application::loadModel(const std::string& filename)
         return m_assimp.loadModel(filename);
 }
 
-void Application::saveModel(const Model& model, const std::string& filename)
+void Application::saveModel(Node& model, const std::string& filename)
 {
     if (filename.find(".stl") != MeshEngine::Settings::invalid)
         m_stl.saveModel(model, filename);

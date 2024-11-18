@@ -1,8 +1,9 @@
 #include "AssimpParser.h"
 
 #include "MeshEngine/Misc/Logger.h"
+#include "MeshEngine/Model/MeshNode.h"
 
-std::unique_ptr<Model> AssimpParser::loadModel(const std::string& filename)
+std::unique_ptr<Node> AssimpParser::loadModel(const std::string& filename)
 {
     MeshEngine::Logger::info("AssimpParser loading from {:}", filename);
 
@@ -13,21 +14,19 @@ std::unique_ptr<Model> AssimpParser::loadModel(const std::string& filename)
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
         MeshEngine::Logger::error("{:}", importer.GetErrorString());   
-        return std::make_unique<Model>();
+        return std::make_unique<Node>();
     }
 
     m_filename = filename;
     m_directory = filename.substr(0, filename.find_last_of('\\'));
     
-    std::unique_ptr<Model> model = std::make_unique<Model>();
-    
+    std::unique_ptr<Node> model = loadNode(nullptr, scene->mRootNode, scene);
     model->setName(filename);
-    model->attachNode(loadNode(nullptr, scene->mRootNode, scene));
 
     return model;
 }
 
-std::unique_ptr<MeshNode> AssimpParser::loadNode(Node* parent, aiNode* aNode, const aiScene* aScene)
+std::unique_ptr<Node> AssimpParser::loadNode(Node* parent, aiNode* aNode, const aiScene* aScene)
 {
     std::unique_ptr<MeshNode> node = std::make_unique<MeshNode>();
     

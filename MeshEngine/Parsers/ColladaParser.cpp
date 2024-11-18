@@ -3,18 +3,16 @@
 #include <sstream>
 
 #include "MeshEngine/Misc/Logger.h"
+#include "MeshEngine/Model/MeshNode.h"
 
 using namespace tinyxml2;
 
-std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // Refact
+std::unique_ptr<Node> ColladaParser::loadModel(const std::string& filename)
 {
     MeshEngine::Logger::info("ColladaParser loading from {:}", filename);
 
     GeometryMap geometries;
     
-    std::unique_ptr<Model> model = std::make_unique<Model>();
-    std::unique_ptr<MeshNode> root = std::make_unique<MeshNode>();
-
     std::stringstream stream;
     std::string element;
 
@@ -26,7 +24,7 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     if (doc.Error())
     {
         MeshEngine::Logger::error("Unable to load {:}", filename);
-        return std::make_unique<Model>();
+        return std::make_unique<Node>();
     }
 
     pGeometry = doc.RootElement()->FirstChildElement("library_geometries")->FirstChildElement("geometry");
@@ -134,26 +132,33 @@ std::unique_ptr<Model> ColladaParser::loadModel(const std::string& filename) // 
     }
 
     pNode = doc.RootElement()->FirstChildElement("library_visual_scenes")->FirstChildElement("visual_scene")->FirstChildElement("node");
+    
+    std::unique_ptr<Node> root;
 
-    while (pNode != nullptr)
+    if (pNode != nullptr && pNode->NextSiblingElement("node") == nullptr)
     {
-        std::unique_ptr<MeshNode> node = loadNode(root.get(), pNode, geometries);
+        root = loadNode(root.get(), pNode, geometries);
+    }
+    else
+    {
+        root = std::make_unique<Node>();
 
-        if (node != nullptr)
-            root->attachNode(std::move(node));
+        while (pNode != nullptr)
+        {
+            std::unique_ptr<Node> node = loadNode(root.get(), pNode, geometries);
 
-        pNode = pNode->NextSiblingElement("node");
+            if (node != nullptr)
+                root->attachNode(std::move(node));
+
+            pNode = pNode->NextSiblingElement("node");
+        }
     }
 
     root->setName(filename);
-
-    model->setName(filename);
-    model->attachNode(std::move(root));
-
-    return model;
+    return root;
 }
 
-std::unique_ptr<MeshNode> ColladaParser::loadNode(MeshNode* parent, XMLElement* pNode, const GeometryMap& geometries)
+std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, const GeometryMap& geometries)
 {
     std::unique_ptr<MeshNode> node = std::make_unique<MeshNode>();
     std::stringstream stream;
@@ -252,11 +257,8 @@ std::unique_ptr<MeshNode> ColladaParser::loadNode(MeshNode* parent, XMLElement* 
     return node;
 }
 
-void ColladaParser::saveModel(const Model& model, const std::string& filename) // Refact
+void ColladaParser::saveModel(Node& model, const std::string& filename)
 {
-    if (model.getNodes().empty())
-        return;
-
     XMLDocument doc;
     XMLElement* pCollada, * pScene, * pLib, * pNode;
 
@@ -298,99 +300,24 @@ void ColladaParser::saveModel(const Model& model, const std::string& filename) /
         }
     }
 
-    // Save new geometry
-    for (auto& node : model.getNodes())
-    {
-        saveNode(dynamic_cast<MeshNode*>(node.get()), pScene, pLib);
-    }
+    saveNode(&model, pScene, pLib);
 
     doc.SaveFile((file).c_str());
 
     MeshEngine::Logger::info("ColladaParser saving to {:}", file);
 }
 
-void ColladaParser::saveNode(MeshNode* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)
+void ColladaParser::saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib)
 {
     std::stringstream stream;
     std::string element;
 
-    XMLElement* pGeometry, * pMesh, * pVertices, * pInput, * pSource, * pPrimitive, * pData;
-
-    pGeometry = pLib->InsertNewChildElement("geometry");
-    pGeometry->SetAttribute("id", (parent->getName() + "-mesh").c_str());
-
-    pMesh = pGeometry->InsertNewChildElement("mesh");
-
-    pSource = pMesh->InsertNewChildElement("source");
-    pSource->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-positions").c_str());
-
-    const heds::HalfEdgeTable<Vertex>& table = parent->getMesh()->getHalfEdgeTable();
-
-    pData = pSource->InsertNewChildElement("float_array");
-    pData->SetAttribute("id", (std::string(pSource->Attribute("id")) + "-array").c_str());
-    pData->SetAttribute("count", table.getVertices().size() * 3);
-
     stream.clear();
     stream.str("");
-
-    for (auto& vertex : table.getVertices())
-    {
-        const glm::vec3& point = table.getPoint(table.handle(vertex)).position;
-
-        stream << point.x << " ";
-        stream << point.y << " ";
-        stream << point.z << " ";
-    }
-
-    pData->SetText(stream.str().c_str());
-
-    pVertices = pMesh->InsertNewChildElement("vertices");
-    pVertices->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-vertices").c_str());
-
-    pInput = pVertices->InsertNewChildElement("input");
-    pInput->SetAttribute("semantic", "POSITION");
-    pInput->SetAttribute("source", ("#" + std::string(pSource->Attribute("id"))).c_str());
-
-    pPrimitive = pMesh->InsertNewChildElement("polylist");
-    pPrimitive->SetAttribute("material", "Material1");
-    pPrimitive->SetAttribute("count", table.getFaces().size());
-
-    pInput = pPrimitive->InsertNewChildElement("input");
-    pInput->SetAttribute("semantic", "VERTEX");
-    pInput->SetAttribute("offset", 0);
-    pInput->SetAttribute("source", ("#" + std::string(pVertices->Attribute("id"))).c_str());
-
-    element.clear();
-    stream.clear();
-    stream.str("");
-
-    for (auto& face : table.getFaces())
-    {
-        heds::HalfEdgeHandle start_heh = face.heh;
-        heds::HalfEdgeHandle next_heh = face.heh;
-
-        int64_t size = 0;
-
-        do
-        {
-            ++size;
-            stream << table.destVertex(next_heh).index << " ";
-            next_heh = table.next(next_heh);
-        } while (next_heh != start_heh);
-
-        element += std::to_string(size) + " ";
-    }
-
-    pPrimitive->InsertNewChildElement("vcount")->SetText(element.c_str());
-    pPrimitive->InsertNewChildElement("p")->SetText(stream.str().c_str());
 
     pParent = pParent->InsertNewChildElement("node");
     pParent->SetAttribute("id", parent->getName().c_str());
     pParent->SetAttribute("type", "NODE");
-    pParent->InsertNewChildElement("instance_geometry")->SetAttribute("url", ("#" + std::string(pGeometry->Attribute("id"))).c_str());
-
-    stream.clear();
-    stream.str("");
 
     for (int i = 0; i < parent->getRelativeTransform().length(); ++i)
         for (int j = 0; j < parent->getRelativeTransform()[i].length(); ++j)
@@ -398,8 +325,83 @@ void ColladaParser::saveNode(MeshNode* parent, tinyxml2::XMLElement* pParent, ti
 
     pParent->InsertNewChildElement("matrix")->SetText(stream.str().c_str());
 
+    if (MeshNode* meshNode = dynamic_cast<MeshNode*>(parent))
+    {
+        XMLElement* pGeometry, * pMesh, * pVertices, * pInput, * pSource, * pPrimitive, * pData;
+
+        pGeometry = pLib->InsertNewChildElement("geometry");
+        pGeometry->SetAttribute("id", (meshNode->getName() + "-mesh").c_str());
+
+        pMesh = pGeometry->InsertNewChildElement("mesh");
+
+        pSource = pMesh->InsertNewChildElement("source");
+        pSource->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-positions").c_str());
+
+        const heds::HalfEdgeTable<Vertex>& table = meshNode->getMesh()->getHalfEdgeTable();
+
+        pData = pSource->InsertNewChildElement("float_array");
+        pData->SetAttribute("id", (std::string(pSource->Attribute("id")) + "-array").c_str());
+        pData->SetAttribute("count", table.getVertices().size() * 3);
+
+        stream.clear();
+        stream.str("");
+
+        for (auto& vertex : table.getVertices())
+        {
+            const glm::vec3& point = table.getPoint(table.handle(vertex)).position;
+
+            stream << point.x << " ";
+            stream << point.y << " ";
+            stream << point.z << " ";
+        }
+
+        pData->SetText(stream.str().c_str());
+
+        pVertices = pMesh->InsertNewChildElement("vertices");
+        pVertices->SetAttribute("id", (std::string(pGeometry->Attribute("id")) + "-vertices").c_str());
+
+        pInput = pVertices->InsertNewChildElement("input");
+        pInput->SetAttribute("semantic", "POSITION");
+        pInput->SetAttribute("source", ("#" + std::string(pSource->Attribute("id"))).c_str());
+
+        pPrimitive = pMesh->InsertNewChildElement("polylist");
+        pPrimitive->SetAttribute("material", "Material1");
+        pPrimitive->SetAttribute("count", table.getFaces().size());
+
+        pInput = pPrimitive->InsertNewChildElement("input");
+        pInput->SetAttribute("semantic", "VERTEX");
+        pInput->SetAttribute("offset", 0);
+        pInput->SetAttribute("source", ("#" + std::string(pVertices->Attribute("id"))).c_str());
+
+        element.clear();
+        stream.clear();
+        stream.str("");
+
+        for (auto& face : table.getFaces())
+        {
+            heds::HalfEdgeHandle start_heh = face.heh;
+            heds::HalfEdgeHandle next_heh = face.heh;
+
+            int64_t size = 0;
+
+            do
+            {
+                ++size;
+                stream << table.destVertex(next_heh).index << " ";
+                next_heh = table.next(next_heh);
+            } while (next_heh != start_heh);
+
+            element += std::to_string(size) + " ";
+        }
+
+        pPrimitive->InsertNewChildElement("vcount")->SetText(element.c_str());
+        pPrimitive->InsertNewChildElement("p")->SetText(stream.str().c_str());
+
+        pParent->InsertNewChildElement("instance_geometry")->SetAttribute("url", ("#" + std::string(pGeometry->Attribute("id"))).c_str());
+    }
+
     for (auto& child : parent->getChildren())
     {
-        saveNode(dynamic_cast<MeshNode*>(child.get()), pParent, pLib);
+        saveNode(child.get(), pParent, pLib);
     }
 }

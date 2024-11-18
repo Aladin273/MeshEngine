@@ -53,11 +53,7 @@ void TreeLayer::render()
 
             if (!filePath.empty())
             {
-                auto model = Application::instance()->loadModel(filePath);
-
-                for (auto& node : model->getNodes())
-                    m_view->getScene()->attachNode(std::move(node));
-
+                m_view->getScene()->attachNode(Application::instance()->loadModel(filePath));
                 m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }

@@ -6,9 +6,7 @@
 #include <functional>
 
 #include <tinyxml2/tinyxml2.h>
-
-#include "MeshEngine/Model/Model.h"
-#include "MeshEngine/Model/MeshNode.h"
+#include "MeshEngine/Model/Node.h"
 
 class ColladaParser
 {
@@ -36,11 +34,11 @@ class ColladaParser
         {"scale", [](std::vector<float>& data) { return glm::scale(glm::make_vec3(data.data())); }}
     };
 
-    void saveNode(MeshNode* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib);
-    std::unique_ptr<MeshNode> loadNode(MeshNode* parent, tinyxml2::XMLElement* pNode, const GeometryMap& geometries);
+    void saveNode(Node* parent, tinyxml2::XMLElement* pParent, tinyxml2::XMLElement* pLib);
+    std::unique_ptr<Node> loadNode(Node* parent, tinyxml2::XMLElement* pNode, const GeometryMap& geometries);
 
 public:
-    std::unique_ptr<Model> loadModel(const std::string& filename);
-    void saveModel(const Model& model, const std::string& filename);
+    std::unique_ptr<Node> loadModel(const std::string& filename);
+    void saveModel(Node& model, const std::string& filename);
 };
 

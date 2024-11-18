@@ -13,7 +13,6 @@
 #include "MeshEngine/Parsers/STLParser.h"
 #include "MeshEngine/Parsers/AssimpParser.h"
 
-#include "MeshEngine/Model/Model.h"
 #include "MeshEngine/Model/Scene.h"
 #include "MeshEngine/Model/Node.h"
 #include "MeshEngine/Model/MeshNode.h"
@@ -35,8 +34,8 @@ class Application
 public:
     View* createView(const std::string& title, uint32_t width, uint32_t height, const std::string& icon = "");
 
-    std::unique_ptr<Model> loadModel(const std::string& filename);
-    void saveModel(const Model& model, const std::string& filename);
+    std::unique_ptr<Node> loadModel(const std::string& filename);
+    void saveModel(Node& model, const std::string& filename);
 
     void run();
 
