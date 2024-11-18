@@ -52,9 +52,9 @@ std::unique_ptr<Node> AssimpParser::loadNode(Node* parent, aiNode* aNode, const 
 
 std::unique_ptr<Mesh> AssimpParser::loadMesh(aiMesh* aMesh, const aiScene* aScene)
 {
-    heds::HalfEdgeTable<Vertex> table;
+    HalfEdgeTable<Vertex> table;
 
-    std::vector<heds::VertexHandle> vhs;
+    std::vector<HalfEdgeVertexHandle> vhs;
 
     for (size_t i = 0; i < aMesh->mNumVertices; ++i)
     {
@@ -82,9 +82,9 @@ std::unique_ptr<Mesh> AssimpParser::loadMesh(aiMesh* aMesh, const aiScene* aScen
     {
         aiFace aFace = aMesh->mFaces[i];
 
-        heds::VertexHandle vh0 = vhs[aFace.mIndices[0]];
-        heds::VertexHandle vh1 = vhs[aFace.mIndices[1]];
-        heds::VertexHandle vh2 = vhs[aFace.mIndices[2]];
+        HalfEdgeVertexHandle vh0 = vhs[aFace.mIndices[0]];
+        HalfEdgeVertexHandle vh1 = vhs[aFace.mIndices[1]];
+        HalfEdgeVertexHandle vh2 = vhs[aFace.mIndices[2]];
 
         table.addFace(vh0, vh1, vh2);
     }

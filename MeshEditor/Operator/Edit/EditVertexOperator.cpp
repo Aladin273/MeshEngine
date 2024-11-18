@@ -36,8 +36,8 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
         if (!node) return;
 
         const auto& table = node->getMesh()->getHalfEdgeTable();
-        heds::HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
-        heds::HalfEdgeHandle next_heh = start_heh;
+        HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
+        HalfEdgeHandle next_heh = start_heh;
         std::vector<glm::vec3> normals;
 
         glm::mat4 trf = m_contact.node->getAbsoluteTransform();
@@ -65,9 +65,9 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
         // Find adjacent normals
         do
         {
-            heds::HalfEdgeHandle heh0 = next_heh;
-            heds::HalfEdgeHandle heh1 = table.next(heh0);
-            heds::HalfEdgeHandle heh2 = table.next(heh1);
+            HalfEdgeHandle heh0 = next_heh;
+            HalfEdgeHandle heh1 = table.next(heh0);
+            HalfEdgeHandle heh2 = table.next(heh1);
 
             glm::vec3 a = table.getEndPoint(heh0).position;
             glm::vec3 b = table.getEndPoint(heh1).position;

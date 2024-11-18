@@ -5,7 +5,7 @@
 LightNode::LightNode()
 {
     m_name = "LightNode";
-    m_renderMesh = std::make_unique<Mesh>(heds::HalfEdgeTable<Vertex>());
+    m_renderMesh = std::make_unique<Mesh>(HalfEdgeTable<Vertex>());
     m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshUnlitVertex.glsl", MeshEngine::Settings::shadersPath + "meshUnlitFragment.glsl");
 }
 

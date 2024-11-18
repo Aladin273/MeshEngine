@@ -20,7 +20,7 @@ private:
     glm::vec3 m_center { 0.0f};
     glm::vec3 m_normal { 0.0f};
 
-    heds::VertexHandle m_vh;
+    HalfEdgeVertexHandle m_vh;
     Contact m_contact;
     View* m_view;
 };

@@ -37,10 +37,10 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         if (!node) return;
 
         const auto& table = node->getMesh()->getHalfEdgeTable();
-        heds::HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
-        heds::HalfEdgeHandle heh1 = table.next(heh0);
-        heds::HalfEdgeHandle heh2 = table.next(heh1);
-        heds::HalfEdgeHandle heh3 = table.next(heh2);
+        HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
+        HalfEdgeHandle heh1 = table.next(heh0);
+        HalfEdgeHandle heh2 = table.next(heh1);
+        HalfEdgeHandle heh3 = table.next(heh2);
 
         glm::mat4 trf = node->getAbsoluteTransform();
 

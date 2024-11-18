@@ -128,10 +128,10 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
 
             for (auto& face : table.getFaces())
             {
-                heds::HalfEdgeHandle heh0 = face.heh;
-                heds::HalfEdgeHandle heh1 = table.next(heh0);
-                heds::HalfEdgeHandle heh2 = table.next(heh1);
-                heds::HalfEdgeHandle heh3 = table.next(heh2);
+                HalfEdgeHandle heh0 = face.heh;
+                HalfEdgeHandle heh1 = table.next(heh0);
+                HalfEdgeHandle heh2 = table.next(heh1);
+                HalfEdgeHandle heh3 = table.next(heh2);
 
                 float t;
                 glm::vec3 a = mat * glm::vec4(table.getEndPoint(heh0).position, 1.0f);
@@ -153,7 +153,7 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
         else
         {
             glm::vec3 point = glm::vec4(1.f) * mat;
-            contacts.push_back({ heds::invalid, node, glm::distance(ray.orig, point), point });
+            contacts.push_back({ invalid, node, glm::distance(ray.orig, point), point });
         }
     }
 
