@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DockpaneLayer.h"
-#include "../Application/View.h"
+#include "MeshEditor/Editor/View.h"
 
 DockpaneLayer::DockpaneLayer(View* view) : BaseLayer(view)
 {

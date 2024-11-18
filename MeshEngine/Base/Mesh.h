@@ -3,10 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "MeshEngine/RenderSystem/RenderSystem.h"
-#include "MeshEngine/RenderSystem/Shader.h"
-#include "MeshEngine/HalfEdge/HalfEdge.h"
-
+#include "MeshEngine/Math/HalfEdge.h"
 #include "MeshEngine/Math/BoundingBox.h"
 
 #include "MeshEngine/Base/RenderBase.h"

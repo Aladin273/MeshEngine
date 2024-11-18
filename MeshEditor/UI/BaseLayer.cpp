@@ -1,7 +1,8 @@
 #pragma once
 
 #include "BaseLayer.h"
-#include "../Application/View.h"
+
+#include "MeshEditor/Editor/View.h"
 
 BaseLayer::BaseLayer(View* view) : m_view(view)
 {

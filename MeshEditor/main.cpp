@@ -1,9 +1,9 @@
-﻿#include "Application/Application.h"
+﻿#include "Editor/Editor.h"
 
 int main()
 {    
-    Application* app = Application::instance();
-    View* view = app->createView(MeshEngine::Settings::title, MeshEngine::Settings::width, MeshEngine::Settings::height, MeshEngine::Settings::icon);
+    Editor* editor = Editor::instance();
+    View* view = editor->createView(MeshEngine::Settings::title, MeshEngine::Settings::width, MeshEngine::Settings::height, MeshEngine::Settings::icon);
 
     std::unique_ptr<Scene> scene = std::make_unique<Scene>();
     std::unique_ptr<MeshNode> floor = std::make_unique<MeshNode>();
@@ -16,7 +16,7 @@ int main()
     scene->attachNode(std::move(floor));
 
     view->setScene(scene.get());
-    app->run();
+    editor->run();
 
     return 0;
 }

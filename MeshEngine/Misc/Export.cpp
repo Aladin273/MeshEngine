@@ -2,10 +2,10 @@
 
 #ifdef OGL_RENDER_SYSTEM_API_DLL
 
-#include "../RenderSystem/OpenGL/GLRenderSystem.h"
-#include "../RenderSystem/OpenGL/GLGuiSystem.h"
-#include "../RenderSystem/OpenGL/GLShader.h"
-#include "../RenderSystem/OpenGL/GLWindow.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLRenderSystem.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLGuiSystem.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLShader.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLWindow.h"
 
 #include <glad/gl.h>
 #include <glfw/glfw3.h>
@@ -54,10 +54,10 @@ __declspec(dllimport) bool windowShouldClose(Window* window)
 
 #ifdef OGL_RENDER_SYSTEM_API_STATIC
 
-#include "../RenderSystem/OpenGL/GLRenderSystem.h"
-#include "../RenderSystem/OpenGL/GLGuiSystem.h"
-#include "../RenderSystem/OpenGL/GLShader.h"
-#include "../RenderSystem/OpenGL/GLWindow.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLRenderSystem.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLGuiSystem.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLShader.h"
+#include "MeshEngine/RenderSystem/OpenGL/GLWindow.h"
 
 #include <glad/gl.h>
 #include <glfw/glfw3.h>

@@ -1,11 +1,11 @@
 #include "TreeLayer.h"
 
-#include "../Application/View.h"
-#include "../Application/Application.h"
+#include "MeshEditor/Editor/View.h"
+#include "MeshEditor/Editor/Editor.h"
 
-#include "MeshEngine/Light/DirLightNode.h"
-#include "MeshEngine/Light/PointLightNode.h"
-#include "MeshEngine/Light/SpotLightNode.h"
+#include "MeshEngine/Node/DirLightNode.h"
+#include "MeshEngine/Node/PointLightNode.h"
+#include "MeshEngine/Node/SpotLightNode.h"
 
 #include "MeshEngine/Misc/Settings.h"
 
@@ -53,7 +53,7 @@ void TreeLayer::render()
 
             if (!filePath.empty())
             {
-                m_view->getScene()->attachNode(Application::instance()->loadModel(filePath));
+                m_view->getScene()->attachNode(Editor::instance()->loadModel(filePath));
                 m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }

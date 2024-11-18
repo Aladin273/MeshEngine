@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PropertiesLayer.h"
-#include "../Application/View.h"
+#include "MeshEditor/Editor/View.h"
 
 PropertiesLayer::PropertiesLayer(View* view) : BaseLayer(view)
 {

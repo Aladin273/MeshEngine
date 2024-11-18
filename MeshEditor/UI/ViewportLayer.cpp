@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ViewportLayer.h"
-#include "../Application/View.h"
+#include "MeshEditor/Editor/View.h"
 
 #include <ImGuizmo.h>
 

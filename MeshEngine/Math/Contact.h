@@ -1,7 +1,7 @@
 #pragma once
 
-#include "MeshEngine/HalfEdge/HalfEdge.h"
-#include "MeshEngine/Model/Node.h"
+#include "MeshEngine/Node/Node.h"
+#include "MeshEngine/Math/HalfEdge.h"
 
 enum class FilterValue
 {
