@@ -5,7 +5,7 @@
 PointLightNode::PointLightNode()
 {
     m_name = "PointLightNode";
-    m_mesh = Mesh::createCube(glm::vec3(0.f), 1.0f);
+    m_renderMesh = Mesh::createCube(glm::vec3(0.f), 1.0f);
 }
 
 PointLightNode::~PointLightNode()
@@ -28,6 +28,7 @@ void PointLightNode::end()
 {
     if (Scene* scene = getScene())
     {
+        m_id = 0;
         scene->lightsUniform.numPointLights -= 1;
     }
 

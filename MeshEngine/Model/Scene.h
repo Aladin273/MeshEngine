@@ -131,9 +131,6 @@ public:
     void setRenderSystem(RenderSystem* rs);
     RenderSystem* getRenderSystem() const;
 
-    void setRenderTarget(uint32_t target);
-    uint32_t getRenderTarget() const;
-
     void setViewport(Viewport& viewport);
     Viewport& getViewport() const;
 
@@ -164,18 +161,16 @@ public:
     void end();
 
     void update(float deltaTime);
-    void render();
+    void render(uint32_t targetId);
 
 protected:
-    void renderDepth();
-    void renderScene();
+    void renderDepth(uint32_t targetId);
+    void renderScene(uint32_t targetId);
     
     void requestDelete();
 
 protected:
     RenderSystem* m_renderSystem = nullptr;
-
-    uint32_t m_renderTarget = 0;
     Viewport* m_viewport = nullptr;
 
     uint32_t m_depthId = 0;

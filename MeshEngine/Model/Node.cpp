@@ -14,7 +14,7 @@ Node::Node()
 
 Node::~Node()
 {
-    end();
+
 }
 
 Node* Node::getParent() const
@@ -173,6 +173,8 @@ void Node::attachNode(std::unique_ptr<Node> node)
 
 void Node::detachNode()
 {
+    end();
+
     if (m_parent)
     {
         m_parent->m_children.erase(std::find_if(m_parent->m_children.begin(), m_parent->m_children.end(), [&](std::unique_ptr<Node>& node)

@@ -18,17 +18,29 @@ PlaneNode::PlaneNode(View* view, glm::vec3 worldUp, float width, float height, u
 
 PlaneNode::~PlaneNode()
 {
-    m_view->getRenderSystem().unbufferData(m_renderTrianglesId);
+
 }
 
-void PlaneNode::update(float deltaTime)
+void PlaneNode::start()
 {
-    if (m_mesh->getRenderDataDirty())
+    if (m_view && m_mesh->getRenderDataDirty())
     {
         m_renderLinesId = m_view->getRenderSystem().bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderLines());
         m_mesh->setRenderDataDirty(false);
     }
+}
 
+void PlaneNode::end()
+{
+    if (m_view)
+    {
+        m_view->getRenderSystem().unbufferData(m_renderLinesId);
+        m_mesh->setRenderDataDirty(true);
+    }
+}
+
+void PlaneNode::update(float deltaTime)
+{
     setRelativeTransform(glm::scale(glm::vec3(m_view->getViewport().getCamera().getDistanceToTarget())));
     super::update(deltaTime);
 }

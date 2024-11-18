@@ -94,29 +94,8 @@ protected:
         m_properties.push_back(prop);
     }
 
-    std::string formatString(const std::string& camelCase) 
-    {
-        std::string title;
-
-        size_t startIdx = (camelCase.rfind("m_", 0) == 0) ? 2 : 0;
-
-        for (size_t i = startIdx; i < camelCase.length(); ++i) 
-        {
-            char ch = camelCase[i];
-            if (std::isupper(ch) && !title.empty()) 
-            {
-                title += ' ';
-            }
-            title += ch;
-        }
-
-        if (!title.empty()) 
-        {
-            title[0] = std::toupper(title[0]);
-        }
-
-        return title;
-    }
+protected:
+    std::string formatString(const std::string& camelCase);
 
 protected:
     std::string m_name = "Base";

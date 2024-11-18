@@ -15,17 +15,28 @@ ArrowNode::ArrowNode(View* view)
 
 ArrowNode::~ArrowNode()
 {
-    m_view->getRenderSystem().unbufferData(m_renderTrianglesId);
+
 }
 
-void ArrowNode::update(float deltaTime)
+void ArrowNode::start()
 {
-    if (m_mesh->getRenderDataDirty())
+    if (m_view && m_mesh->getRenderDataDirty())
     {
         m_renderTrianglesId = m_view->getRenderSystem().bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderTriangles());
         m_mesh->setRenderDataDirty(false);
     }
+}
 
+void ArrowNode::end()
+{
+    if (m_view)
+    {
+        m_view->getRenderSystem().unbufferData(m_renderTrianglesId);
+    }
+}
+
+void ArrowNode::update(float deltaTime)
+{
     super::update(deltaTime);
 }
 

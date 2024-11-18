@@ -5,7 +5,7 @@
 SpotLightNode::SpotLightNode()
 {
     m_name = "SpotLightNode";
-    m_mesh = Mesh::createCone(glm::vec3(0.f, 1.f, 0.f), 1.f, 3.f, 32);
+    m_renderMesh = Mesh::createCone(glm::vec3(0.f, 1.f, 0.f), 1.f, 3.f, 32);
 }
 
 SpotLightNode::~SpotLightNode()
@@ -28,6 +28,7 @@ void SpotLightNode::end()
 {
     if (Scene* scene = getScene())
     {
+        m_id = 0;
         scene->lightsUniform.numSpotLights -= 1;
     }
 

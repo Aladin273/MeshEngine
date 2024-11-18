@@ -5,26 +5,13 @@
 MeshNode::MeshNode()
 {
     m_name = "MeshNode";
-
     m_mesh = std::make_unique<Mesh>(heds::HalfEdgeTable<Vertex>());
     m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshLitVertex.glsl", MeshEngine::Settings::shadersPath + "meshLitFragment.glsl");
 }
 
 MeshNode::~MeshNode()
 {
-    if (getScene() && getScene()->getRenderSystem())
-    {
-        RenderSystem* renderSystem = getScene()->getRenderSystem();
 
-        renderSystem->unbufferData(m_renderTrianglesId);
-        renderSystem->unbufferData(m_renderLinesId);
-        renderSystem->unbufferData(m_renderHolesId);
-        renderSystem->unbufferData(m_renderBoundariesId);
-
-        renderSystem->unbufferTexture(m_mesh->getMaterial().diffuseMap.id);
-        renderSystem->unbufferTexture(m_mesh->getMaterial().specularMap.id);
-        renderSystem->unbufferTexture(m_mesh->getMaterial().emissionMap.id);
-    }
 }
 
 const BoundingBox& MeshNode::getBoundingBox() const
@@ -34,30 +21,11 @@ const BoundingBox& MeshNode::getBoundingBox() const
 
 void MeshNode::start()
 {
-    super::start();
-}
-
-void MeshNode::end()
-{
-    super::end();
-}
-
-void MeshNode::update(float deltaTime)
-{
     if (getScene() && getScene()->getRenderSystem())
     {
         if (m_mesh->getRenderDataDirty())
         {
             RenderSystem* renderSystem = getScene()->getRenderSystem();
-
-            renderSystem->unbufferData(m_renderTrianglesId);
-            renderSystem->unbufferData(m_renderLinesId);
-            renderSystem->unbufferData(m_renderHolesId);
-            renderSystem->unbufferData(m_renderBoundariesId);
-
-            renderSystem->unbufferTexture(m_mesh->getMaterial().diffuseMap.id);
-            renderSystem->unbufferTexture(m_mesh->getMaterial().specularMap.id);
-            renderSystem->unbufferTexture(m_mesh->getMaterial().emissionMap.id);
 
             m_renderTrianglesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderTriangles());
             m_renderLinesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderLines());
@@ -72,7 +40,36 @@ void MeshNode::update(float deltaTime)
 
             m_mesh->setRenderDataDirty(false);
         }
+    }
 
+    super::start();
+}
+
+void MeshNode::end()
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+
+        renderSystem->unbufferData(m_renderTrianglesId);
+        renderSystem->unbufferData(m_renderLinesId);
+        renderSystem->unbufferData(m_renderHolesId);
+        renderSystem->unbufferData(m_renderBoundariesId);
+
+        renderSystem->unbufferTexture(m_mesh->getMaterial().diffuseMap.id);
+        renderSystem->unbufferTexture(m_mesh->getMaterial().specularMap.id);
+        renderSystem->unbufferTexture(m_mesh->getMaterial().emissionMap.id);
+
+        m_mesh->setRenderDataDirty(true);
+    }
+
+    super::end();
+}
+
+void MeshNode::update(float deltaTime)
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
         if (m_mesh->getRenderSubDataDirty())
         {
             RenderSystem* renderSystem = getScene()->getRenderSystem();

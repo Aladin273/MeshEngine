@@ -5,7 +5,7 @@
 DirLightNode::DirLightNode()
 {
     m_name = "DirLightNode";
-    m_mesh = Mesh::createArrow(glm::vec3(0.f, -1.f, 0.f), 0.5f, 1.0f, 0.25f, 3.f, 32);
+    m_renderMesh = Mesh::createArrow(glm::vec3(0.f, -1.f, 0.f), 0.5f, 1.0f, 0.25f, 3.f, 32);
 }
 
 DirLightNode::~DirLightNode()
@@ -28,6 +28,7 @@ void DirLightNode::end()
 {
     if (Scene* scene = getScene())
     {
+        m_id = 0;
         scene->lightsUniform.numDirLights -= 1;
     }
 

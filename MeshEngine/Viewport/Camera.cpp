@@ -181,53 +181,7 @@ void Camera::rotate(glm::vec3 point, glm::vec3 axis, double angle)
 
 void Camera::zoom(double factor)
 {
-    double distance = getDistanceToTarget();
-    float signFactor = static_cast<float>(factor > 1.0 ? factor : -factor);
-
-    if (signFactor > 0)
-    {
-        if (distance > 1.0)
-        {
-            setDistanceToTarget(getDistanceToTarget() / factor);
-        }
-        else
-        {
-            if (!m_zoomEnabled)
-            {
-                m_zoomEnabled = true;
-                m_zoomDistance = 0.0f;
-            }
-
-            glm::vec3 direction = calcForward() * signFactor;
-
-            m_eye += direction;
-            m_target += direction;
-
-            m_zoomDistance += glm::length(direction);
-        }
-    }
-    else
-    {
-        if (m_zoomEnabled && distance < 1.0)
-        {
-            glm::vec3 direction = calcForward() * signFactor;
-
-            m_eye += direction;
-            m_target += direction;
-
-            m_zoomDistance -= glm::length(direction);
-
-            if (m_zoomDistance < 0.0f)
-            {
-                m_zoomEnabled = false;
-                setDistanceToTarget(getDistanceToTarget() / factor);
-            }
-        }
-        else
-        {
-            setDistanceToTarget(getDistanceToTarget() / factor);
-        }
-    }
+    setDistanceToTarget(getDistanceToTarget() / factor);
 }
 
 void Camera::transform(const glm::mat4& trf)

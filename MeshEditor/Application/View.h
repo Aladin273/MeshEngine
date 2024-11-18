@@ -38,6 +38,9 @@ public:
     ~View();
 
 public:
+    void start();
+    void end();
+
     void update(float deltaTime);
     void render();
 
@@ -55,12 +58,14 @@ public:
     GuiSystem& getGuiSystem();
     const GuiSystem& getGuiSystem() const;
 
+public:
     Window& getWindow();
     const Window& getWindow() const;
 
     Viewport& getViewport();
     const Viewport& getViewport() const;
 
+public:
     ViewportLayer& getViewportLayer();
     const ViewportLayer& getViewportLayer() const;
 

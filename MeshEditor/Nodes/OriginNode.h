@@ -10,6 +10,7 @@ public:
     OriginNode(View* view);
     virtual ~OriginNode();
 
+public:
     virtual void update(float deltaTime) override;
 
 private:

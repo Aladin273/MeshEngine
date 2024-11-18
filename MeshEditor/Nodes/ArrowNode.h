@@ -10,6 +10,10 @@ public:
     ArrowNode(View* view);
     virtual ~ArrowNode();
 
+public:
+    virtual void start() override;
+    virtual void end() override;
+
     virtual void update(float deltaTime) override;
 
 private:

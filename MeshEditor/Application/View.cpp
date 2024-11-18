@@ -83,6 +83,22 @@ View::~View()
     m_window.reset();
 }
 
+void View::start()
+{
+    m_scene->start();
+
+    m_plane->start();
+    m_origin->start();
+}
+
+void View::end()
+{
+    m_scene->end();
+
+    m_plane->end();
+    m_origin->end();
+}
+
 void View::update(float deltaTime)
 {
     m_scene->update(deltaTime);
@@ -95,7 +111,7 @@ void View::render()
 {
     // Scene
     //////////////////////////////////////////////////
-    m_scene->render();
+    m_scene->render(m_viewportLayer->frameId);
 
     // Editor
     //////////////////////////////////////////////////
@@ -153,8 +169,6 @@ void View::setScene(Scene* scene)
     {
         m_scene = scene;
         m_scene->init(m_renderSystem);
-        
-        m_scene->setRenderTarget(m_viewportLayer->frameId);
         m_scene->setViewport(m_viewport);
 
         zoomToFit();

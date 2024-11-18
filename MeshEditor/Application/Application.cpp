@@ -167,7 +167,7 @@ void Application::run()
     MeshEngine::Timer m_timer;
 
     for (auto& view : m_views)
-        view->getScene()->start();
+        view->start();
 
     while (!m_views.empty())
     {
@@ -187,7 +187,7 @@ void Application::run()
             }
             else
             {
-                view->getScene()->end();   
+                view->end();   
                 view.reset();
             }
         }

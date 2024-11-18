@@ -4,47 +4,52 @@
 
 LightNode::LightNode()
 {
+    m_name = "LightNode";
+    m_renderMesh = std::make_unique<Mesh>(heds::HalfEdgeTable<Vertex>());
     m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshUnlitVertex.glsl", MeshEngine::Settings::shadersPath + "meshUnlitFragment.glsl");
 }
 
 LightNode::~LightNode()
 {
-    if (getScene() && getScene()->getRenderSystem())
-    {
-        RenderSystem* renderSystem = getScene()->getRenderSystem();
-        renderSystem->unbufferData(m_renderTrianglesId);
-    }
+
 }
 
 const BoundingBox& LightNode::getBoundingBox() const
 {
-    return m_mesh->getBoundingBox();
+    return m_renderMesh->getBoundingBox();
 }
 
 void LightNode::start()
 {
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        if (m_renderMesh->getRenderDataDirty())
+        {
+            RenderSystem* renderSystem = getScene()->getRenderSystem();
+            m_renderId = renderSystem->bufferData(m_renderMesh->getRenderVertices(), m_renderMesh->getRenderTriangles());
+            
+            m_renderMesh->setRenderDataDirty(false);
+        }
+    }
+
     super::start();
 }
 
 void LightNode::end()
 {
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+        renderSystem->unbufferData(m_renderId);
+
+        m_renderMesh->setRenderDataDirty(true);
+    }
+
     super::end();
 }
 
 void LightNode::update(float deltaTime)
 {
-    if (getScene() && getScene()->getRenderSystem())
-    {
-        if (m_mesh->getRenderDataDirty())
-        {
-            RenderSystem* renderSystem = getScene()->getRenderSystem();
-            renderSystem->unbufferData(m_renderTrianglesId);
-
-            m_renderTrianglesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderTriangles());
-            m_mesh->setRenderDataDirty(false);
-        }
-    }
-
     super::update(deltaTime);
 }
 
@@ -59,7 +64,7 @@ void LightNode::render(RenderSystem* renderSystem)
     m_shader->setVec3("material.emission", m_renderColor);
     m_shader->setFloat("material.shininess", 0);
 
-    renderSystem->bindData(m_renderTrianglesId);
+    renderSystem->bindData(m_renderId);
     renderSystem->renderTriangles();
     renderSystem->unbindData();
 

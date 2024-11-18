@@ -20,9 +20,7 @@ public:
     virtual void render(RenderSystem* renderSystem) override;
 
 protected:
-    uint32_t m_renderTrianglesId = 0;
-
-protected:
+    uint32_t m_renderId = 0;
     glm::vec3 m_renderColor;
-    std::unique_ptr<Mesh> m_mesh;
+    std::unique_ptr<Mesh> m_renderMesh;
 };

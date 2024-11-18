@@ -33,16 +33,6 @@ RenderSystem* Scene::getRenderSystem() const
     return m_renderSystem;
 }
 
-void Scene::setRenderTarget(uint32_t target)
-{
-    m_renderTarget = target;
-}
-
-uint32_t Scene::getRenderTarget() const
-{
-    return m_renderTarget;
-}
-
 void Scene::setViewport(Viewport& viewport)
 {
     m_viewport = &viewport;
@@ -230,15 +220,15 @@ void Scene::update(float deltaTime)
     requestDelete();
 }
 
-void Scene::render()
+void Scene::render(uint32_t targetId)
 {
-    renderDepth();
-    renderScene();
+    renderDepth(m_depthId);
+    renderScene(targetId);
 }
 
-void Scene::renderDepth()
+void Scene::renderDepth(uint32_t targetId)
 {
-    m_renderSystem->bindDepth(m_depthId);
+    m_renderSystem->bindDepth(targetId);
     m_renderSystem->setViewport(0, 0, m_depthWidth, m_depthHeight);
 
     m_renderSystem->clearDepth();
@@ -269,9 +259,9 @@ void Scene::renderDepth()
     m_renderSystem->unbindDepth();
 }
 
-void Scene::renderScene()
+void Scene::renderScene(uint32_t targetId)
 {
-    m_renderSystem->bindFrame(m_renderTarget);
+    m_renderSystem->bindFrame(targetId);
 
     m_renderSystem->setViewport(0, 0, m_viewport->getWidth(), m_viewport->getHeight());
     m_renderSystem->clearDisplay(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
@@ -291,6 +281,8 @@ void Scene::requestDelete()
 {
     if (m_deleted)
     {
+        m_deleted->detachNode();
+
         auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [=](std::unique_ptr<Node>& candicate)
             {
                 return candicate.get() == m_deleted;
@@ -299,10 +291,6 @@ void Scene::requestDelete()
         if (it != m_nodes.end())
         {
             m_nodes.erase(it);
-        }
-        else
-        {
-            m_deleted->detachNode();
         }
 
         m_deleted = nullptr;
