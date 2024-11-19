@@ -67,7 +67,7 @@ void TreeLayer::render()
     if (ImGui::Button("DirLight", { ImGui::GetContentRegionAvail().x / 4, 20 }))
     {
         std::unique_ptr<DirLightNode> lightNode = std::make_unique<DirLightNode>();
-        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)) * glm::rotate(glm::radians(60.f), glm::vec3(1.f, -1.f, -1.f)));
 
         m_view->getScene()->attachNode(std::move(lightNode));
         m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
@@ -79,7 +79,7 @@ void TreeLayer::render()
     if (ImGui::Button("PointLight", { ImGui::GetContentRegionAvail().x / 3, 20 }))
     {
         std::unique_ptr<PointLightNode> lightNode = std::make_unique<PointLightNode>();
-        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)));
 
         m_view->getScene()->attachNode(std::move(lightNode));
         m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
@@ -91,7 +91,7 @@ void TreeLayer::render()
     if (ImGui::Button("SpotLight", { ImGui::GetContentRegionAvail().x / 2, 20 }))
     {
         std::unique_ptr<SpotLightNode> lightNode = std::make_unique<SpotLightNode>();
-        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 5.f, 0.f)));
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)));
 
         m_view->getScene()->attachNode(std::move(lightNode));
         m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);

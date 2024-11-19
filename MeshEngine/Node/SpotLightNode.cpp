@@ -39,20 +39,11 @@ void SpotLightNode::update(float deltaTime)
 {
     if (Scene* scene = getScene())
     {
-        scene->lightsUniform.spotLights[m_id].position = getAbsoluteTransform() * glm::vec4(0.f, 0.f, 0.f, 1.f);
-        scene->lightsUniform.spotLights[m_id].direction = getAbsoluteTransform() * glm::vec4(0.f, -1.f, 0.f, 0.f);
-        
-        scene->lightsUniform.spotLights[m_id].ambient = ambient;
-        scene->lightsUniform.spotLights[m_id].diffuse = diffuse;
-        scene->lightsUniform.spotLights[m_id].specular = specular;
-        
-        scene->lightsUniform.spotLights[m_id].cutOff = cutOff;
-        scene->lightsUniform.spotLights[m_id].outerCutOff = outerCutOff;
-        scene->lightsUniform.spotLights[m_id].constant = constant;
-        scene->lightsUniform.spotLights[m_id].linear = linear;
-        scene->lightsUniform.spotLights[m_id].quadratic = quadratic;
+        m_light.position = getAbsoluteTransform() * glm::vec4(0.f, 0.f, 0.f, 1.f);
+        m_light.direction = getAbsoluteTransform() * glm::vec4(0.f, -1.f, 0.f, 0.f);
+        scene->lightsUniform.spotLights[m_id] = m_light;
 
-        m_renderColor = diffuse;
+        m_renderColor = m_light.diffuse;
     }
 
     super::update(deltaTime);

@@ -1,5 +1,9 @@
 Urgently Goals
 ----------------------------------------------------------------
+Add transforming to properties layer
+
+Light:Base, Recursive, Transform, Select, Missing
+
 Instanced, Sprite, Light, UniformBuffer, Shadows
 
 Lit, Unlit, Flat Shading, Transform, Dirty, Model, Batch

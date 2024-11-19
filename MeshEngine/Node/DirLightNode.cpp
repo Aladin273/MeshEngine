@@ -39,13 +39,10 @@ void DirLightNode::update(float deltaTime)
 {
     if (Scene* scene = getScene())
     {
-        scene->lightsUniform.dirLights[m_id].direction = getAbsoluteTransform() * glm::vec4(0.f, -1.f, 0.f, 0.f);
-        
-        scene->lightsUniform.dirLights[m_id].ambient = ambient;
-        scene->lightsUniform.dirLights[m_id].diffuse = diffuse;
-        scene->lightsUniform.dirLights[m_id].specular = specular;
+        m_light.direction = getAbsoluteTransform() * glm::vec4(0.f, -1.f, 0.f, 0.f);
+        scene->lightsUniform.dirLights[m_id] = m_light;
 
-        m_renderColor = diffuse;
+        m_renderColor = m_light.diffuse;
     }
 
     super::update(deltaTime);

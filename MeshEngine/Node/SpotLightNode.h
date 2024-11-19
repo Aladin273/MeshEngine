@@ -2,6 +2,7 @@
 
 #include "LightNode.h"
 
+#include "MeshEngine/Base/Light.h"
 #include "MeshEngine/Base/Mesh.h"
 
 class SpotLightNode : public LightNode
@@ -13,29 +14,19 @@ public:
 public:
     virtual void bind() override
     {
-        bindPropertyEx(Property::Color, "ambient", ambient);
-        bindPropertyEx(Property::Color, "diffuse", diffuse);
-        bindPropertyEx(Property::Color, "specular", specular);
+        bindPropertyEx(Property::Color, "ambient", m_light.ambient);
+        bindPropertyEx(Property::Color, "diffuse", m_light.diffuse);
+        bindPropertyEx(Property::Color, "specular", m_light.specular);
 
-        bindProperty(cutOff);
-        bindProperty(outerCutOff);
-        bindProperty(constant);
-        bindProperty(linear);
-        bindProperty(quadratic);
+        bindPropertyEx(Property::Float, "constant", m_light.constant);
+        bindPropertyEx(Property::Float, "linear", m_light.linear);
+        bindPropertyEx(Property::Float, "quadratic", m_light.quadratic);
+
+        bindPropertyEx(Property::Float, "cutOff", m_light.cutOff);
+        bindPropertyEx(Property::Float, "outerCutOff", m_light.outerCutOff);
 
         super::bind();
     }
-
-public:
-    glm::vec3 ambient{ 1.f };
-    glm::vec3 diffuse{ 1.f };
-    glm::vec3 specular{ 1.f };
-
-    float cutOff = glm::cos(glm::radians(25.f));
-    float outerCutOff = glm::cos(glm::radians(35.f));
-    float constant = 1.0f;
-    float linear = 0.09f;
-    float quadratic = 0.032f;
 
 public:
     virtual void start() override;
@@ -45,5 +36,6 @@ public:
     virtual void render(RenderSystem* renderSystem) override;
 
 private:
+    SpotLight m_light;
     uint32_t m_id = 0;
 };

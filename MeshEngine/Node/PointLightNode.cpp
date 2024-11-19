@@ -39,17 +39,10 @@ void PointLightNode::update(float deltaTime)
 {
     if (Scene* scene = getScene())
     {
-        scene->lightsUniform.pointLights[m_id].position = getAbsoluteTransform() * glm::vec4(0.f, 0.f, 0.f, 1.f);
-        
-        scene->lightsUniform.pointLights[m_id].ambient = ambient;
-        scene->lightsUniform.pointLights[m_id].diffuse = diffuse;
-        scene->lightsUniform.pointLights[m_id].specular = specular;
+        m_light.position = getAbsoluteTransform() * glm::vec4(0.f, 0.f, 0.f, 1.f);
+        scene->lightsUniform.pointLights[m_id] = m_light;
 
-        scene->lightsUniform.pointLights[m_id].constant = constant;
-        scene->lightsUniform.pointLights[m_id].linear = linear;
-        scene->lightsUniform.pointLights[m_id].quadratic = quadratic;
-
-        m_renderColor = diffuse;
+        m_renderColor = m_light.diffuse;
     }
 
     super::update(deltaTime);

@@ -14,70 +14,10 @@
 #include "MeshEngine/Viewport/Viewport.h"
 
 #include "MeshEngine/Base/Base.h"
+#include "MeshEngine/Base/Light.h"
 
 #include "MeshEngine/Node/Node.h"
 #include "MeshEngine/Node/MeshNode.h"
-
-struct DirLight
-{
-    glm::vec3 direction;
-    float padding1;
-
-    glm::vec3 ambient;
-    float padding2;
-
-    glm::vec3 diffuse;
-    float padding3;
-
-    glm::vec3 specular;
-    float padding4;
-};
-
-struct PointLight
-{
-    glm::vec3 position;
-    float padding1;
-
-    float constant;
-    float linear;
-    float quadratic;
-    float padding2;
-
-    glm::vec3 ambient;
-    float padding3;
-
-    glm::vec3 diffuse;
-    float padding4;
-
-    glm::vec3 specular;
-    float padding5;
-};
-
-struct SpotLight
-{
-    glm::vec3 position;
-    float padding1;
-
-    glm::vec3 direction;
-    float padding2;
-
-    float cutOff;
-    float outerCutOff;
-    float constant;
-    float linear;
-
-    float quadratic;
-    glm::vec3 padding3;
-
-    glm::vec3 ambient;
-    float padding4;
-
-    glm::vec3 diffuse;
-    float padding5;
-
-    glm::vec3 specular;
-    float padding6;
-};
 
 struct MatricesUniform
 {
