@@ -32,7 +32,7 @@ void GLGuiSystem::init()
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    ImGui::StyleColorsDark();
+    ImGui::StyleColorsGray();
     ImGuiStyle& style = ImGui::GetStyle();
 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
