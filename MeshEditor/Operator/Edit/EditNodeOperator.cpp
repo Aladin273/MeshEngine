@@ -41,11 +41,11 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
         Node* node = m_contact.node;
         if (!node) return;
 
-        glm::vec3 center = glm::vec4((node->getBoundingBox().min + node->getBoundingBox().max) / 2.0f, 1.0f);
-
         if (MeshNode* meshNode = dynamic_cast<MeshNode*>(node))
         {
             // Re-calculate center
+            glm::vec3 center = glm::vec4((meshNode->getBoundingBox().min + meshNode->getBoundingBox().max) / 2.0f, 1.0f);
+
             if (glm::any(glm::notEqual(glm::vec3(0.0f), center, 1e-8)))
             {
                 auto& table = meshNode->getMesh()->getHalfEdgeTable();
@@ -55,6 +55,9 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
 
                 meshNode->getMesh()->update();
                 meshNode->applyRelativeTransform(glm::translate(center));
+
+                meshNode->end();
+                meshNode->start();
             }
         }
 
