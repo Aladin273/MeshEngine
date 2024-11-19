@@ -162,7 +162,8 @@ void Editor::saveModel(Node& model, const std::string& filename)
     else
         m_collada.saveModel(model, filename);
 }
-void Editor::run()
+
+uint32_t Editor::start()
 {
     MeshEngine::Timer m_timer;
 
@@ -195,4 +196,6 @@ void Editor::run()
         MeshEngine::pollEvents();
         m_views.erase(std::remove(m_views.begin(), m_views.end(), nullptr), m_views.end());
     }
+
+    return 0;
 }

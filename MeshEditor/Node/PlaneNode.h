@@ -15,6 +15,7 @@ public:
     virtual void end() override;
 
     virtual void update(float deltaTime) override;
+    virtual void render(RenderSystem* renderSystem) override;
 
 private:
     View* m_view;

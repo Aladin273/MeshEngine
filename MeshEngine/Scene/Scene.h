@@ -57,7 +57,7 @@ public:
     }
 
     bool castShadows = false;
-    glm::vec4 backgroundColor{ 0.15f, 0.15f, 0.15f, 1.0f };
+    glm::vec4 backgroundColor{ 0.f };
 
 public:
     uint32_t matricesUniformId;
@@ -83,7 +83,6 @@ public:
     Node* getNodeById(uint32_t id);
 
     const std::vector<std::unique_ptr<Node>>& getNodes() const;
-    std::vector<std::unique_ptr<Node>>& getNodes();
 
     template<class Lambda>
     void processRecursive(Lambda lambda)
@@ -119,6 +118,7 @@ protected:
     Shader* m_shaderDepth;
 
 private:
+    bool m_running = false;
     Node* m_deleted = nullptr;
     std::vector<std::unique_ptr<Node>> m_nodes;
 };

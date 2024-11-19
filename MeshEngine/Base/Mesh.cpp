@@ -589,15 +589,15 @@ std::unique_ptr<Mesh> Mesh::createArrow(glm::vec3 inDir, float R1, float h1, flo
     return std::make_unique<Mesh>(table2);
 }
 
-std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
+std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float height, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     int segments = glm::sqrt(numSubdivisions);
     float stepW = width / segments;
-    float stepH = heigth / segments;
+    float stepH = height / segments;
     float halfWidth = width / 2;
-    float halfHeight = heigth / 2;
-    float cx = 0.0f, cy = 0.0f, cz = 0.0f;
+    float halfHeight = height / 2;
+    float cz = 0.0f;
 
     std::vector<std::vector<HalfEdgeVertexHandle>> vertices;
     HalfEdgeTable<Vertex> table;
@@ -612,12 +612,11 @@ std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heig
         }
     }
 
-    for (int row = 0, row_next = 1; row_next < vertices.size(); ++row, ++row_next)
+    for (int row = 0; row < vertices.size() - 1; ++row)
     {
-        for (int col = 0, col_next = 1; col_next < vertices[row_next].size(); ++col, ++col_next)
+        for (int col = 0; col < vertices[row].size() - 1; ++col)
         {
-            table.addFace(vertices[row][col], vertices[row][col_next], vertices[row_next][col]);
-            table.addFace(vertices[row_next][col], vertices[row][col_next], vertices[row_next][col_next]);
+            table.addFace(vertices[row][col], vertices[row][col + 1], vertices[row + 1][col + 1], vertices[row + 1][col]);
         }
     }
 
@@ -626,10 +625,12 @@ std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heig
         const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
 
         for (auto& vertex : table.getVertices())
+        {
             vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+        }
     }
 
     table.connectTwins();
 
-    return std::make_unique<Mesh>(table);;
+    return std::make_unique<Mesh>(table);
 }

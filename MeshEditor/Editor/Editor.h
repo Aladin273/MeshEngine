@@ -16,7 +16,6 @@
 
 #include "MeshEngine/Scene/Scene.h"
 #include "MeshEngine/Node/Node.h"
-#include "MeshEngine/Node/MeshNode.h"
 
 #include "Operator/View/Select.h"
 #include "Operator/View/Pan.h"
@@ -38,7 +37,7 @@ public:
     std::unique_ptr<Node> loadModel(const std::string& filename);
     void saveModel(Node& model, const std::string& filename);
 
-    void run();
+    uint32_t start();
 
     static Editor* instance();
 

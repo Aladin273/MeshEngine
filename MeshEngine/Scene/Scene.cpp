@@ -4,7 +4,7 @@
 
 Scene::Scene()
 {
-
+    m_name = "Scene";
 }
 
 Scene::~Scene()
@@ -63,11 +63,6 @@ const std::vector<std::unique_ptr<Node>>& Scene::getNodes() const
     return m_nodes;
 }
 
-std::vector<std::unique_ptr<Node>>& Scene::getNodes()
-{
-    return m_nodes;
-}
-
 void Scene::attachNode(std::unique_ptr<Node> node)
 {
     if (node)
@@ -75,7 +70,7 @@ void Scene::attachNode(std::unique_ptr<Node> node)
         node->setParent(nullptr);
         node->setScene(this);
         node->setTranformDirty(true);
-        node->start();
+        if (m_running) node->start();
 
         m_nodes.push_back(std::move(node));
     }
@@ -199,12 +194,16 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
 
 void Scene::start()
 {
+    m_running = true;
+
     for (auto& node : m_nodes)
         node->start();
 }
 
 void Scene::end()
 {
+    m_running = false;
+
     for (auto& node : m_nodes)
         node->end();
 }

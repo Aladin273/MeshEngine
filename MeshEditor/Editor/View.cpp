@@ -2,6 +2,8 @@
 
 View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width, uint32_t height, const std::string& icon)
 {
+    m_name = "View";
+
     m_window.reset(MeshEngine::createWindow(title, width, height, icon));
     m_guiSystem.reset(MeshEngine::createGuiSystem(m_window.get()));
 
@@ -27,7 +29,7 @@ View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width,
     m_viewport.setZNear(MeshEngine::Settings::znear);
     m_viewport.setZFar(MeshEngine::Settings::zfar);
 
-    m_plane = std::make_unique<PlaneNode>(this, MeshEngine::Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneHeight(), 16384);
+    m_plane = std::make_unique<PlaneNode>(this, MeshEngine::Settings::worldUp, m_viewport.calcTargetPlaneWidth(), m_viewport.calcTargetPlaneWidth(), 16384);
     m_origin = std::make_unique<OriginNode>(this);
 
     m_window->setKeyCallback([&](KeyCode key, Action action, Modifier mods)

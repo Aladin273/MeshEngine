@@ -5,10 +5,10 @@
 
 struct Material : public Base
 {
-    Material() {};
+    Material() { m_name = "Material"; };
 
     Material(const glm::vec3& ambient, const glm::vec4& diffuse, const glm::vec3& specular, const glm::vec3& emission, float shininess)
-        : ambient(ambient), diffuse(diffuse), specular(specular), emission(emission), shininess(shininess) {};
+        : ambient(ambient), diffuse(diffuse), specular(specular), emission(emission), shininess(shininess) { m_name = "Material"; };
 
     virtual ~Material() {};
 
@@ -33,7 +33,7 @@ struct Material : public Base
     glm::vec3 emission{ 0.0f };
     float shininess{ 128.0f };
 
-    Texture diffuseMap { 1, {}, {} };
-    Texture specularMap { 1, {}, {} };
-    Texture emissionMap { 1, {}, {} };
+    Texture diffuseMap;
+    Texture specularMap;
+    Texture emissionMap;
 };
