@@ -4,10 +4,10 @@
 
 struct Texture : public Base
 {
-    Texture() {};
+    Texture() { m_name = "Texture"; };
 
     Texture(uint32_t id, const std::string& type, const std::string& path)
-        : id(id), type(type), path(path) {};
+        : id(id), type(type), path(path) { m_name = "Texture"; };
 
     virtual ~Texture() {};
 
@@ -20,7 +20,7 @@ struct Texture : public Base
         super::bind();
     };
 
-    uint32_t id;
-    std::string type;
-    std::string path;
+    uint32_t id = 1;
+    std::string type = "None";
+    std::string path = "None";
 };

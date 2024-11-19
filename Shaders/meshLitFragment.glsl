@@ -55,8 +55,8 @@ struct SpotLight
     float constant;
     float linear;
 
-    float quadratic;
     vec3 padding3;
+    float quadratic;
 
     vec3 ambient;
     float padding4;

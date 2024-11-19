@@ -3,10 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "MeshEngine/RenderSystem/RenderSystem.h"
-#include "MeshEngine/RenderSystem/Shader.h"
-#include "MeshEngine/HalfEdge/HalfEdge.h"
-
+#include "MeshEngine/Math/HalfEdge.h"
 #include "MeshEngine/Math/BoundingBox.h"
 
 #include "MeshEngine/Base/RenderBase.h"
@@ -16,8 +13,8 @@
 class Mesh : public RenderBase
 {
 public:
-    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable);
-    Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
+    Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable);
+    Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material);
 
 public:
     virtual void bind() override
@@ -31,13 +28,13 @@ public:
     void update();
 
 public:
-    void applyTransformation(heds::FaceHandle fh, const glm::mat4& trf);
-    void applyTransformation(heds::VertexHandle fh, const glm::mat4& trf);
+    void applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf);
+    void applyTransformation(HalfEdgeVertexHandle fh, const glm::mat4& trf);
     
-    void deleteFace(heds::FaceHandle fh);
+    void deleteFace(HalfEdgeFaceHandle fh);
 
     const BoundingBox& getBoundingBox() const;
-    heds::HalfEdgeTable<Vertex>& getHalfEdgeTable();
+    HalfEdgeTable<Vertex>& getHalfEdgeTable();
     
     const Material& getMaterial() const;
     void setMaterial(const Material& material);
@@ -52,5 +49,5 @@ public:
 private:
     BoundingBox m_bbox;
     Material m_material;
-    heds::HalfEdgeTable<Vertex> m_table;
+    HalfEdgeTable<Vertex> m_table;
 };

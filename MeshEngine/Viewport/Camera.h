@@ -45,9 +45,6 @@ private:
     glm::vec3 m_eye{ 0, 0, 1 };
     glm::vec3 m_target{ 0, 0, 0 };
     glm::vec3 m_up{ 0, 1, 0 };
-
-    bool m_zoomEnabled = false;
-    double m_zoomDistance = 0.0;
 };
 
 

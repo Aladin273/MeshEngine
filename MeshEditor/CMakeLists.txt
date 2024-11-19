@@ -5,25 +5,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(MESH_EDITOR_HEADERS
-    Application/Application.h
-    Application/View.h
+    Editor/Editor.h
+    Editor/View.h
 
-    Nodes/PlaneNode.h
-    Nodes/ArrowNode.h
-    Nodes/OriginNode.h
+    Node/PlaneNode.h
+    Node/ArrowNode.h
+    Node/OriginNode.h
 
-    Operators/Operator.h
-    Operators/OperatorDispatcher.h
+    Operator/Operator.h
+    Operator/OperatorDispatcher.h
 
-    Operators/Delete/DeleteFaceOperator.h
+    Operator/Delete/DeleteFaceOperator.h
 
-    Operators/Edit/EditFaceOperator.h
-    Operators/Edit/EditNodeOperator.h
-    Operators/Edit/EditVertexOperator.h
+    Operator/Edit/EditFaceOperator.h
+    Operator/Edit/EditNodeOperator.h
+    Operator/Edit/EditVertexOperator.h
 
-    Operators/View/Arcball.h
-    Operators/View/Pan.h
-    Operators/View/Select.h
+    Operator/View/Arcball.h
+    Operator/View/Pan.h
+    Operator/View/Select.h
 
     UI/BaseLayer.h
     UI/DockpaneLayer.h
@@ -35,24 +35,24 @@ set(MESH_EDITOR_HEADERS
 )
 
 set(MESH_EDITOR_SOURCES
-    Application/Application.cpp
-    Application/View.cpp
+    Editor/Editor.cpp
+    Editor/View.cpp
     
-    Nodes/PlaneNode.cpp
-    Nodes/ArrowNode.cpp
-    Nodes/OriginNode.cpp
+    Node/PlaneNode.cpp
+    Node/ArrowNode.cpp
+    Node/OriginNode.cpp
 
-    Operators/OperatorDispatcher.cpp
+    Operator/OperatorDispatcher.cpp
 
-    Operators/Delete/DeleteFaceOperator.cpp
+    Operator/Delete/DeleteFaceOperator.cpp
     
-    Operators/Edit/EditFaceOperator.cpp
-    Operators/Edit/EditNodeOperator.cpp
-    Operators/Edit/EditVertexOperator.cpp
+    Operator/Edit/EditFaceOperator.cpp
+    Operator/Edit/EditNodeOperator.cpp
+    Operator/Edit/EditVertexOperator.cpp
 
-    Operators/View/Arcball.cpp
-    Operators/View/Pan.cpp
-    Operators/View/Select.cpp
+    Operator/View/Arcball.cpp
+    Operator/View/Pan.cpp
+    Operator/View/Select.cpp
 
     UI/BaseLayer.cpp
     UI/DockpaneLayer.cpp

@@ -1,7 +1,11 @@
 #include "TreeLayer.h"
 
-#include "../Application/View.h"
-#include "../Application/Application.h"
+#include "MeshEditor/Editor/View.h"
+#include "MeshEditor/Editor/Editor.h"
+
+#include "MeshEngine/Node/DirLightNode.h"
+#include "MeshEngine/Node/PointLightNode.h"
+#include "MeshEngine/Node/SpotLightNode.h"
 
 #include "MeshEngine/Misc/Settings.h"
 
@@ -18,7 +22,7 @@ void TreeLayer::render()
 
     std::string filePath;
 
-    if (ImGui::Button("Add", { ImGui::GetContentRegionAvail().x / 2, 20 }))
+    if (ImGui::Button("Mesh", { ImGui::GetContentRegionAvail().x / 5, 20 }))
     {
         if (ImGui::BeginChild("Add from file"))
         {
@@ -49,17 +53,49 @@ void TreeLayer::render()
 
             if (!filePath.empty())
             {
-                auto model = Application::instance()->loadModel(filePath);
-
-                for (auto& node : model->getNodes())
-                    m_view->getScene()->attachNode(std::move(node));
-
+                m_view->getScene()->attachNode(Editor::instance()->loadModel(filePath));
                 m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }
 
             ImGui::EndChild();
         }
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("DirLight", { ImGui::GetContentRegionAvail().x / 4, 20 }))
+    {
+        std::unique_ptr<DirLightNode> lightNode = std::make_unique<DirLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)) * glm::rotate(glm::radians(60.f), glm::vec3(1.f, -0.25f, -1.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("PointLight", { ImGui::GetContentRegionAvail().x / 3, 20 }))
+    {
+        std::unique_ptr<PointLightNode> lightNode = std::make_unique<PointLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("SpotLight", { ImGui::GetContentRegionAvail().x / 2, 20 }))
+    {
+        std::unique_ptr<SpotLightNode> lightNode = std::make_unique<SpotLightNode>();
+        lightNode->setRelativeTransform(glm::translate(glm::vec3(0.f, 10.f, 0.f)));
+
+        m_view->getScene()->attachNode(std::move(lightNode));
+        m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
+        m_view->zoomToFit();
     }
 
     ImGui::SameLine();

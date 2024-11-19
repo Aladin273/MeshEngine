@@ -4,7 +4,7 @@
 
 #include <imgui_internal.h>
 
-#include "../Application/View.h"
+#include "MeshEditor/Editor/View.h"
 #include "MeshEngine/Misc/Logger.h"
 
 std::shared_ptr<MeshEngine::Logger::ringbuffer_sink_mt> g_sink;

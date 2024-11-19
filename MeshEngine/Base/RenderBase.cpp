@@ -2,7 +2,7 @@
 
 RenderBase::RenderBase()
 {
-
+    m_name = "RenderBase";
 }
 
 RenderBase::~RenderBase()

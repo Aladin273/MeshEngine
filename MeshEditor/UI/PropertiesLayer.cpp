@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PropertiesLayer.h"
-#include "../Application/View.h"
+#include "MeshEditor/Editor/View.h"
 
 PropertiesLayer::PropertiesLayer(View* view) : BaseLayer(view)
 {
@@ -64,7 +64,7 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
                 {
                     const std::string& text = *((std::string*)property.object);
 
-                    ImGui::Text((property.name + std::string(": ") + (text.empty() ? std::string("None") : text)).c_str());
+                    ImGui::Text((property.name + std::string(": ") + text).c_str());
                     break;
                 };
 

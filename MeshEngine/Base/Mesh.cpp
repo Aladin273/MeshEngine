@@ -3,14 +3,14 @@
 #include <set>
 #include <numeric>
 
-Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable)
+Mesh::Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
     m_name = "Mesh";
     update();
 }
 
-Mesh::Mesh(const heds::HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material)
+Mesh::Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material)
     : m_table(halfEdgeTable), m_material(material)
 {
     m_name = "Mesh";
@@ -63,8 +63,8 @@ void Mesh::update()
 
     for (const auto& face : faces)
     {
-        heds::VertexHandle vhs[4];
-        heds::HalfEdgeHandle hehs[4];
+        HalfEdgeVertexHandle vhs[4];
+        HalfEdgeHandle hehs[4];
 
         hehs[0] = face.heh;
         for (int i = 1; i < 4; ++i)
@@ -108,7 +108,7 @@ void Mesh::update()
 
         for (size_t i = 0; i < 4; ++i)
         {
-            if (m_table.deref(m_table.twin(hehs[i])).fh.index == heds::invalid)
+            if (m_table.deref(m_table.twin(hehs[i])).fh.index == invalid)
             {
                 boundary = true;
 
@@ -132,15 +132,15 @@ void Mesh::update()
         m_renderVertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
 }
 
-void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
+void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
 {
     m_renderSubDataDirty = true;
     m_renderSubData.clear();
 
     glm::vec3 center{ 0 }; uint32_t vertices = 0;
     
-    heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
-    heds::HalfEdgeHandle next_heh = start_heh;
+    HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+    HalfEdgeHandle next_heh = start_heh;
 
     do
     {
@@ -154,7 +154,7 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 
     do
     {
-        heds::VertexHandle vh = m_table.destVertex(next_heh);
+        HalfEdgeVertexHandle vh = m_table.destVertex(next_heh);
 
         Vertex data = m_table.getPoint(vh);
         data.position = glm::translate(-center) * glm::vec4(data.position, 1.0f);
@@ -179,15 +179,15 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 
 
     // Calculate normals
-    std::set<heds::FaceHandle> affectedFaces;
-    std::set<heds::VertexHandle> affectedVertices;
+    std::set<HalfEdgeFaceHandle> affectedFaces;
+    std::set<HalfEdgeVertexHandle> affectedVertices;
 
     do
     {
-        heds::VertexHandle vh = m_table.destVertex(next_heh);
+        HalfEdgeVertexHandle vh = m_table.destVertex(next_heh);
 
-        heds::HalfEdgeHandle inner_start_heh = m_table.deref(vh).heh;
-        heds::HalfEdgeHandle inner_next_heh = inner_start_heh;
+        HalfEdgeHandle inner_start_heh = m_table.deref(vh).heh;
+        HalfEdgeHandle inner_next_heh = inner_start_heh;
 
         do
         {
@@ -202,10 +202,10 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 
     for (auto& fh : affectedFaces)
     {
-        if (fh != heds::invalid)
+        if (fh != invalid)
         {
-            heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
-            heds::HalfEdgeHandle next_heh = start_heh;
+            HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+            HalfEdgeHandle next_heh = start_heh;
 
             do
             {
@@ -218,12 +218,12 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 
     for (auto& vh : affectedVertices)
     {
-        if (vh != heds::invalid)
+        if (vh != invalid)
         {
-            std::set<heds::FaceHandle> adjacentFaces;
+            std::set<HalfEdgeFaceHandle> adjacentFaces;
 
-            heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
-            heds::HalfEdgeHandle next_heh = start_heh;
+            HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+            HalfEdgeHandle next_heh = start_heh;
 
             do
             {
@@ -236,11 +236,11 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
 
             for (auto& fh : adjacentFaces)
             {
-                if (fh != heds::invalid)
+                if (fh != invalid)
                 {
-                    heds::HalfEdgeHandle heh0 = m_table.deref(fh).heh;
-                    heds::HalfEdgeHandle heh1 = m_table.next(heh0);
-                    heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+                    HalfEdgeHandle heh0 = m_table.deref(fh).heh;
+                    HalfEdgeHandle heh1 = m_table.next(heh0);
+                    HalfEdgeHandle heh2 = m_table.next(heh1);
 
                     glm::vec3 ab = m_renderVertices[m_table.sourceVertex(heh1)].position - m_renderVertices[m_table.sourceVertex(heh0)].position;
                     glm::vec3 bc = m_renderVertices[m_table.sourceVertex(heh2)].position - m_renderVertices[m_table.sourceVertex(heh1)].position;
@@ -254,7 +254,7 @@ void Mesh::applyTransformation(heds::FaceHandle fh, const glm::mat4& trf)
     }
 }
 
-void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
+void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
 {
     m_renderSubDataDirty = true;
     m_renderSubData.clear();
@@ -279,11 +279,11 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     m_renderVertices[vh].position = data.position;
     
     // Calculate normals
-    std::set<heds::FaceHandle> affectedFaces;
-    std::set<heds::VertexHandle> affectedVertices;
+    std::set<HalfEdgeFaceHandle> affectedFaces;
+    std::set<HalfEdgeVertexHandle> affectedVertices;
 
-    heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
-    heds::HalfEdgeHandle next_heh = start_heh;
+    HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+    HalfEdgeHandle next_heh = start_heh;
 
     do
     {
@@ -294,10 +294,10 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 
     for (auto& fh : affectedFaces)
     {
-        if (fh != heds::invalid)
+        if (fh != invalid)
         {
-            heds::HalfEdgeHandle start_heh = m_table.deref(fh).heh;
-            heds::HalfEdgeHandle next_heh = start_heh;
+            HalfEdgeHandle start_heh = m_table.deref(fh).heh;
+            HalfEdgeHandle next_heh = start_heh;
 
             do
             {
@@ -310,12 +310,12 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 
     for (auto& vh : affectedVertices)
     {
-        if (vh != heds::invalid)
+        if (vh != invalid)
         {
-            std::set<heds::FaceHandle> adjacentFaces;
+            std::set<HalfEdgeFaceHandle> adjacentFaces;
 
-            heds::HalfEdgeHandle start_heh = m_table.deref(vh).heh;
-            heds::HalfEdgeHandle next_heh = start_heh;
+            HalfEdgeHandle start_heh = m_table.deref(vh).heh;
+            HalfEdgeHandle next_heh = start_heh;
 
             do
             {
@@ -328,11 +328,11 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
 
             for (auto& fh : adjacentFaces)
             {
-                if (fh != heds::invalid)
+                if (fh != invalid)
                 {
-                    heds::HalfEdgeHandle heh0 = m_table.deref(fh).heh;
-                    heds::HalfEdgeHandle heh1 = m_table.next(heh0);
-                    heds::HalfEdgeHandle heh2 = m_table.next(heh1);
+                    HalfEdgeHandle heh0 = m_table.deref(fh).heh;
+                    HalfEdgeHandle heh1 = m_table.next(heh0);
+                    HalfEdgeHandle heh2 = m_table.next(heh1);
 
                     glm::vec3 ab = m_renderVertices[m_table.sourceVertex(heh1)].position - m_renderVertices[m_table.sourceVertex(heh0)].position;
                     glm::vec3 bc = m_renderVertices[m_table.sourceVertex(heh2)].position - m_renderVertices[m_table.sourceVertex(heh1)].position;
@@ -346,13 +346,13 @@ void Mesh::applyTransformation(heds::VertexHandle vh, const glm::mat4& trf)
     }
 }
 
-void Mesh::deleteFace(heds::FaceHandle fh)
+void Mesh::deleteFace(HalfEdgeFaceHandle fh)
 {
     m_table.deleteFace(fh);
     update();
 }
 
-heds::HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable()
+HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable()
 {
     return m_table;
 }
@@ -374,17 +374,17 @@ const Material& Mesh::getMaterial() const
 
 std::unique_ptr<Mesh> Mesh::createCube(glm::vec3 center, float length)
 {
-    heds::HalfEdgeTable<Vertex> table;
+    HalfEdgeTable<Vertex> table;
     float halfLength = length / 2;
 
-    heds::VertexHandle vh0 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength, -halfLength) + center, {}, {} });
-    heds::VertexHandle vh1 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength, -halfLength) + center, {}, {} });
-    heds::VertexHandle vh2 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength, -halfLength) + center, {}, {} });
-    heds::VertexHandle vh3 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength, -halfLength) + center, {}, {} });
-    heds::VertexHandle vh4 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength,  halfLength) + center, {}, {} });
-    heds::VertexHandle vh5 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength,  halfLength) + center, {}, {} });
-    heds::VertexHandle vh6 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength,  halfLength) + center, {}, {} });
-    heds::VertexHandle vh7 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength,  halfLength)  + center, {}, {} });
+    HalfEdgeVertexHandle vh0 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh1 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh2 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh3 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh4 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength,  halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh5 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength,  halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh6 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength,  halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh7 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength,  halfLength)  + center, {}, {} });
 
     table.addFace(vh0, vh1, vh2, vh3);
     table.addFace(vh4, vh7, vh6, vh5);
@@ -403,8 +403,8 @@ std::unique_ptr<Mesh> Mesh::createCylinder(glm::vec3 inDir, float R, float h, ui
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<heds::VertexHandle> vertices;
-    heds::HalfEdgeTable<Vertex> table;
+    std::vector<HalfEdgeVertexHandle> vertices;
+    HalfEdgeTable<Vertex> table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -449,8 +449,8 @@ std::unique_ptr<Mesh> Mesh::createCone(glm::vec3 inDir, float R, float h, uint32
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f, cz = 0.0f, radius = R; int segments = numSubdivisions;
 
-    std::vector<heds::VertexHandle> vertices;
-    heds::HalfEdgeTable<Vertex> table;
+    std::vector<HalfEdgeVertexHandle> vertices;
+    HalfEdgeTable<Vertex> table;
 
     for (int i = 0; i < segments; ++i)
     {
@@ -490,8 +490,8 @@ std::unique_ptr<Mesh> Mesh::createTorus(glm::vec3 inDir, float minorRadius, floa
     const glm::vec3 dir(0, 0, 1);
     float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(majorSegments);
 
-    std::vector<heds::VertexHandle> vertices;
-    heds::HalfEdgeTable<Vertex> table;
+    std::vector<HalfEdgeVertexHandle> vertices;
+    HalfEdgeTable<Vertex> table;
 
     auto mainSegmentAngleStep = glm::radians(360.0f / segments);
     auto tubeSegmentAngleStep = glm::radians(360.0f / segments);
@@ -562,24 +562,24 @@ std::unique_ptr<Mesh> Mesh::createTorus(glm::vec3 inDir, float minorRadius, floa
 
 std::unique_ptr<Mesh> Mesh::createArrow(glm::vec3 inDir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions)
 {
-    heds::HalfEdgeTable<Vertex> table1 = Mesh::createCone(inDir, R1, h1, numSubdivisions)->getHalfEdgeTable();
-    heds::HalfEdgeTable<Vertex> table2 = Mesh::createCylinder(inDir, R2, h2, numSubdivisions)->getHalfEdgeTable();
+    HalfEdgeTable<Vertex> table1 = Mesh::createCone(inDir, R1, h1, numSubdivisions)->getHalfEdgeTable();
+    HalfEdgeTable<Vertex> table2 = Mesh::createCylinder(inDir, R2, h2, numSubdivisions)->getHalfEdgeTable();
 
     glm::vec3 delta = inDir * h2;
 
     for (auto& face : table1.getFaces())
     {
-        heds::HalfEdgeHandle heh0 = face.heh;
-        heds::HalfEdgeHandle heh1 = table1.next(heh0);
-        heds::HalfEdgeHandle heh2 = table1.next(heh1);
+        HalfEdgeHandle heh0 = face.heh;
+        HalfEdgeHandle heh1 = table1.next(heh0);
+        HalfEdgeHandle heh2 = table1.next(heh1);
 
         glm::vec3 vec0{ table1.getEndPoint(heh0).position }; vec0 += delta;
         glm::vec3 vec1{ table1.getEndPoint(heh1).position }; vec1 += delta;
         glm::vec3 vec2{ table1.getEndPoint(heh2).position }; vec2 += delta;
 
-        heds::VertexHandle v0 = table2.addVertex({ {vec0}, {}, {} });
-        heds::VertexHandle v1 = table2.addVertex({ {vec1}, {}, {} });
-        heds::VertexHandle v2 = table2.addVertex({ {vec2}, {}, {} });
+        HalfEdgeVertexHandle v0 = table2.addVertex({ {vec0}, {}, {} });
+        HalfEdgeVertexHandle v1 = table2.addVertex({ {vec1}, {}, {} });
+        HalfEdgeVertexHandle v2 = table2.addVertex({ {vec2}, {}, {} });
 
         table2.addFace(v0, v1, v2);
     }
@@ -589,18 +589,18 @@ std::unique_ptr<Mesh> Mesh::createArrow(glm::vec3 inDir, float R1, float h1, flo
     return std::make_unique<Mesh>(table2);
 }
 
-std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heigth, uint32_t numSubdivisions)
+std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float height, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
     int segments = glm::sqrt(numSubdivisions);
     float stepW = width / segments;
-    float stepH = heigth / segments;
+    float stepH = height / segments;
     float halfWidth = width / 2;
-    float halfHeight = heigth / 2;
-    float cx = 0.0f, cy = 0.0f, cz = 0.0f;
+    float halfHeight = height / 2;
+    float cz = 0.0f;
 
-    std::vector<std::vector<heds::VertexHandle>> vertices;
-    heds::HalfEdgeTable<Vertex> table;
+    std::vector<std::vector<HalfEdgeVertexHandle>> vertices;
+    HalfEdgeTable<Vertex> table;
 
     for (float i = -halfWidth; i <= halfWidth; i += stepW)
     {
@@ -612,12 +612,11 @@ std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heig
         }
     }
 
-    for (int row = 0, row_next = 1; row_next < vertices.size(); ++row, ++row_next)
+    for (int row = 0; row < vertices.size() - 1; ++row)
     {
-        for (int col = 0, col_next = 1; col_next < vertices[row_next].size(); ++col, ++col_next)
+        for (int col = 0; col < vertices[row].size() - 1; ++col)
         {
-            table.addFace(vertices[row][col], vertices[row][col_next], vertices[row_next][col]);
-            table.addFace(vertices[row_next][col], vertices[row][col_next], vertices[row_next][col_next]);
+            table.addFace(vertices[row][col], vertices[row][col + 1], vertices[row + 1][col + 1], vertices[row + 1][col]);
         }
     }
 
@@ -626,10 +625,12 @@ std::unique_ptr<Mesh> Mesh::createPlane(glm::vec3 inDir, float width, float heig
         const glm::mat4 mat = glm::rotate(glm::acos(glm::dot(dir, inDir)), glm::cross(dir, inDir));
 
         for (auto& vertex : table.getVertices())
+        {
             vertex.data.position = mat * glm::vec4(vertex.data.position, 1.0f);
+        }
     }
 
     table.connectTwins();
 
-    return std::make_unique<Mesh>(table);;
+    return std::make_unique<Mesh>(table);
 }

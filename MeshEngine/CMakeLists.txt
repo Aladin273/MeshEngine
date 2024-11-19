@@ -10,15 +10,8 @@ set(MESH_ENGINE_HEADERS
     Misc/Logger.h
     Misc/DynamicLibrary.h
     Misc/Settings.h
-
-    HalfEdge/HalfEdge.h
-
-    Manipulators/Manipulator.h
-    Manipulators/RotationManipulator.h
-    Manipulators/ScaleManipulator.h
-    Manipulators/TranslationManipulator.h
-    Manipulators/Triad.h
     
+    Math/HalfEdge.h
     Math/Intersections.h
     Math/BoundingBox.h
     Math/Ray.h
@@ -30,14 +23,18 @@ set(MESH_ENGINE_HEADERS
     Base/Material.h
     Base/Mesh.h
 
-    Model/Model.h
-    Model/Scene.h
-    Model/Node.h
-    Model/MeshNode.h
+    Scene/Scene.h
 
-    Parsers/AssimpParser.h
-    Parsers/ColladaParser.h
-    Parsers/STLParser.h
+    Node/Node.h
+    Node/MeshNode.h
+    Node/LightNode.h
+    Node/DirLightNode.h
+    Node/PointLightNode.h
+    Node/SpotLightNode.h
+
+    Parser/AssimpParser.h
+    Parser/ColladaParser.h
+    Parser/STLParser.h
 
     RenderSystem/GuiSystem.h
     RenderSystem/RenderSystem.h
@@ -60,14 +57,7 @@ set(MESH_ENGINE_SOURCES
     Misc/DynamicLibrary.cpp
     Misc/Settings.cpp
 
-    HalfEdge/HalfEdge.cpp
-
-    Manipulators/Manipulator.cpp
-    Manipulators/RotationManipulator.cpp
-    Manipulators/ScaleManipulator.cpp
-    Manipulators/TranslationManipulator.cpp
-    Manipulators/Triad.cpp
-
+    Math/HalfEdge.cpp
     Math/Intersections.cpp
     Math/BoundingBox.cpp
     Math/Ray.cpp
@@ -79,14 +69,18 @@ set(MESH_ENGINE_SOURCES
     Base/Material.cpp
     Base/Mesh.cpp
 
-    Model/Model.cpp
-    Model/Scene.cpp
-    Model/Node.cpp
-    Model/MeshNode.cpp
+    Scene/Scene.cpp
     
-    Parsers/AssimpParser.cpp
-    Parsers/ColladaParser.cpp
-    Parsers/STLParser.cpp
+    Node/Node.cpp
+    Node/MeshNode.cpp
+    Node/LightNode.cpp
+    Node/DirLightNode.cpp
+    Node/PointLightNode.cpp
+    Node/SpotLightNode.cpp
+
+    Parser/AssimpParser.cpp
+    Parser/ColladaParser.cpp
+    Parser/STLParser.cpp
 
     RenderSystem/OpenGL/GLGuiSystem.cpp
     RenderSystem/OpenGL/GLRenderSystem.cpp

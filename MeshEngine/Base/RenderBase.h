@@ -23,11 +23,11 @@ public:
     const std::vector<uint32_t>& getRenderLines() const;
     const std::vector<uint32_t>& getRenderHoles() const;
     const std::vector<uint32_t>& getRenderBoundaries() const;
-    
     const std::vector<uint32_t>& getRenderSubData() const;
 
 protected:
     std::vector<Vertex> m_renderVertices;
+
     std::vector<uint32_t> m_renderTriangles;
     std::vector<uint32_t> m_renderLines;
     std::vector<uint32_t> m_renderHoles;
