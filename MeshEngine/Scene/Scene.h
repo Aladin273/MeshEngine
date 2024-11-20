@@ -51,11 +51,13 @@ public:
     virtual void bind() override
     {
         bindProperty(castShadows);
+        bindProperty(renderBbox);
         bindPropertyEx(Property::Color, "backgroundColor", backgroundColor);
 
         super::bind();
     }
 
+    bool renderBbox = false;
     bool castShadows = false;
     glm::vec4 backgroundColor{ 0.f };
 

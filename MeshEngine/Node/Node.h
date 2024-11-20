@@ -82,8 +82,21 @@ protected:
     void setTranformDirty(bool dirty, bool recursive = true);
 
 protected:
-    BoundingBox m_bbox;
     Shader* m_shader = nullptr;
+
+private:
+    void startBbox();
+    void endBbox();
+
+    void updateBbox(float deltaTime);
+    void renderBbox(RenderSystem* renderSystem);
+
+private:
+    Shader* m_shaderBbox = nullptr;
+    uint32_t m_renderBboxId = 0;
+
+private:
+    BoundingBox m_bbox;
 
     bool m_transformDirty = true;
     glm::mat4 m_absolute{ 1.0f };

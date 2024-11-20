@@ -13,4 +13,14 @@ struct BoundingBox
     
     void merge(const glm::vec3& point);
     void merge(const BoundingBox& bbox);
+
+    bool operator==(const BoundingBox& bbox)
+    {
+        return min == bbox.min && max == bbox.max;
+    }
+
+    bool operator!=(const BoundingBox& bbox)
+    {
+        return min != bbox.min || max != bbox.max;
+    }
 };

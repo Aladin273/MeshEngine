@@ -10,6 +10,7 @@ static bool s_recursiveRender = true;
 Node::Node()
 {
     m_name = "Node";
+    m_shaderBbox = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl");
 }
 
 Node::~Node()
@@ -107,6 +108,8 @@ void Node::applyAbsoluteTransform(const glm::mat4& trf)
 
 void Node::start()
 {
+    startBbox();
+
     if (s_recursiveStart)
     {
         for (auto& child : m_children)
@@ -116,6 +119,8 @@ void Node::start()
 
 void Node::end()
 {
+    endBbox();
+
     if (s_recursiveEnd)
     {
         for (auto& child : m_children)
@@ -125,6 +130,8 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
+    updateBbox(deltaTime);
+
     if (s_recursiveUpdate)
     {
         for (auto& child : m_children)
@@ -134,6 +141,8 @@ void Node::update(float deltaTime)
 
 void Node::render(RenderSystem* renderSystem)
 {
+    renderBbox(renderSystem);
+
     if (s_recursiveRender)
     {
         for (auto& child : m_children)
@@ -214,5 +223,71 @@ void Node::setTranformDirty(bool dirty, bool recursive /*= true*/)
         {
             child->setTranformDirty(dirty);
         }
+    }
+}
+
+void Node::startBbox()
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        m_bbox = getBoundingBox();
+
+        std::vector<Vertex> vertices
+        {
+            { { m_bbox.min.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
+        };
+
+        std::vector<uint32_t> indices
+        {
+            0, 1, 1, 3, 3, 2,
+            2, 0, 4, 5, 5, 7,
+            7, 6, 6, 4, 0, 4,
+            1, 5, 2, 6, 3, 7,
+        };
+
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+        m_renderBboxId = renderSystem->bufferData(vertices, indices);
+    }
+}
+
+void Node::endBbox()
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+        renderSystem->unbufferData(m_renderBboxId);
+    }
+}
+
+void Node::updateBbox(float deltaTime)
+{
+    if (m_bbox != getBoundingBox())
+    {
+        endBbox();
+        startBbox();
+    }
+}
+
+void Node::renderBbox(RenderSystem* renderSystem)
+{
+    if (getScene() && getScene()->renderBbox)
+    {
+        m_shaderBbox->bind();
+        m_shaderBbox->setMat4("model", getAbsoluteTransform());
+
+        renderSystem->bindData(m_renderBboxId);
+
+        renderSystem->setLineSize(2.0f);
+        renderSystem->renderLines();
+
+        m_shaderBbox->unbind();
+        renderSystem->unbindData();
     }
 }
