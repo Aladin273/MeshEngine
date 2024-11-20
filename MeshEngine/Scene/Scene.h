@@ -75,7 +75,7 @@ public:
     bool renderBoundaries = false;
     
     bool castShadows = false;
-    glm::vec4 backgroundColor{ 0.f };
+    glm::vec4 backgroundColor{ 0.1875f };
 
 public:
     uint32_t matricesUniformId;
