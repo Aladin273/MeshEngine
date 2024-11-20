@@ -140,7 +140,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadow)
     // Combine
     vec3 ambient = light.ambient * material.ambient * texture(material.diffuseMap, TexCoords).rgb;
     vec3 diffuse = light.diffuse * diff * material.diffuse * texture(material.diffuseMap, TexCoords).rgb;
-    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rgb;
+    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rrr;
     vec3 emission = material.emission * texture(material.emissionMap, TexCoords).rgb;
     
     return (ambient + (1.0 - shadow) * (diffuse + specular) + emission);
@@ -164,7 +164,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos)
     // Combine
     vec3 ambient = light.ambient * material.ambient * texture(material.diffuseMap, TexCoords).rgb;
     vec3 diffuse = light.diffuse * diff * material.diffuse * texture(material.diffuseMap, TexCoords).rgb;
-    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rgb;
+    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rrr;
     vec3 emission = material.emission * texture(material.emissionMap, TexCoords).rgb;
     
     ambient *= attenuation;
@@ -197,7 +197,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPos)
     // Combine
     vec3 ambient = light.ambient * material.ambient * texture(material.diffuseMap, TexCoords).rgb;
     vec3 diffuse = light.diffuse * diff * material.diffuse * texture(material.diffuseMap, TexCoords).rgb;
-    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rgb;
+    vec3 specular = light.specular * spec * material.specular * texture(material.specularMap, TexCoords).rrr;
     vec3 emission = material.emission * texture(material.emissionMap, TexCoords).rgb;
     
     ambient *= attenuation * intensity;
