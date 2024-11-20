@@ -56,8 +56,7 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
                 meshNode->getMesh()->update();
                 meshNode->applyRelativeTransform(glm::translate(center));
 
-                meshNode->end();
-                meshNode->start();
+                meshNode->reset();
             }
         }
 

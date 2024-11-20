@@ -94,7 +94,7 @@ void MeshNode::render(RenderSystem* renderSystem)
     m_shader->bind();
     m_shader->setMat4("model", getAbsoluteTransform());
 
-    if (renderTriangles)
+    if (getScene()->renderTriangles)
     {
         m_shader->setVec3("material.ambient", getMesh()->getMaterial().ambient);
         m_shader->setVec3("material.diffuse", glm::vec3(getMesh()->getMaterial().diffuse));
@@ -114,7 +114,7 @@ void MeshNode::render(RenderSystem* renderSystem)
         renderSystem->renderTriangles();
     }
 
-    if (renderLines)
+    if (getScene()->renderLines)
     {
         m_shader->setVec3("material.ambient", glm::vec3(0.f));
         m_shader->setVec3("material.diffuse", glm::vec3(0.f));
@@ -128,7 +128,7 @@ void MeshNode::render(RenderSystem* renderSystem)
         renderSystem->renderLines();
     }
 
-    if (renderHoles)
+    if (getScene()->renderHoles)
     {
         m_shader->setVec3("material.ambient", glm::vec3(0.f));
         m_shader->setVec3("material.diffuse", glm::vec3(0.f));
@@ -142,7 +142,7 @@ void MeshNode::render(RenderSystem* renderSystem)
         renderSystem->renderLines();
     }
 
-    if (renderBoundaries)
+    if (getScene()->renderBoundaries)
     {
         m_shader->setVec3("material.ambient", glm::vec3(0.f));
         m_shader->setVec3("material.diffuse", glm::vec3(0.f));

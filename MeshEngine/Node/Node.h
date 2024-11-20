@@ -25,6 +25,15 @@ public:
     virtual ~Node();
 
 public:
+    virtual void bind() override
+    {
+        bindProperty(m_updatable);
+        bindProperty(m_visible);
+
+        super::bind();
+    }
+
+public:
     Node* getParent() const;
     Node* getRoot() const;
     Scene* getScene() const;
@@ -56,6 +65,8 @@ public:
     
     virtual void renderEx(RenderSystem* renderSystem, Shader* shader);
 
+    virtual void reset();
+
 public:
     void attachNode(std::unique_ptr<Node> node);
     void detachNode();
@@ -82,8 +93,25 @@ protected:
     void setTranformDirty(bool dirty, bool recursive = true);
 
 protected:
-    BoundingBox m_bbox;
+    bool m_updatable = true;
+    bool m_visible = true;
+
+protected:
     Shader* m_shader = nullptr;
+
+protected:
+    void startBbox();
+    void endBbox();
+
+    void updateBbox(float deltaTime);
+    void renderBbox(RenderSystem* renderSystem);
+
+private:
+    Shader* m_shaderBase = nullptr;
+    uint32_t m_renderBaseId = 0;
+
+private:
+    BoundingBox m_bbox;
 
     bool m_transformDirty = true;
     glm::mat4 m_absolute{ 1.0f };

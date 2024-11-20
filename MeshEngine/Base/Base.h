@@ -12,6 +12,8 @@
 #define bindProperty(object) bindPropertyInternal(#object, &object)
 #define bindPropertyEx(type, name, object) bindPropertyInternal(type, name, &object)
 
+#define bindSeparator() bindSeparatorInternal()
+
 class Property
 {
 public:
@@ -30,6 +32,7 @@ public:
         Matrix4,
         Quat,
         Color,
+        Separator,
         Base,
     };
 
@@ -91,6 +94,15 @@ protected:
         prop.name = formatString(name);
         prop.object = (void*)object;
         prop.type = type;
+        m_properties.push_back(prop);
+    }
+
+    void bindSeparatorInternal()
+    {
+        Property prop;
+        prop.name = "";
+        prop.object = nullptr;
+        prop.type = Property::Separator;
         m_properties.push_back(prop);
     }
 

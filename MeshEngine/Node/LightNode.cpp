@@ -5,8 +5,9 @@
 LightNode::LightNode()
 {
     m_name = "LightNode";
+    m_visible = MeshEngine::g_editor;
     m_renderMesh = std::make_unique<Mesh>(HalfEdgeTable<Vertex>());
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshUnlitVertex.glsl", MeshEngine::Settings::shadersPath + "meshUnlitFragment.glsl");
+    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
 }
 
 LightNode::~LightNode()
@@ -56,16 +57,14 @@ void LightNode::update(float deltaTime)
 void LightNode::render(RenderSystem* renderSystem)
 {
     m_shader->bind();
-    m_shader->setMat4("model", getAbsoluteTransform());
 
-    m_shader->setVec3("material.ambient", glm::vec3(0.f));
-    m_shader->setVec3("material.diffuse", glm::vec3(0.f));
-    m_shader->setVec3("material.specular", glm::vec3(0.f));
-    m_shader->setVec3("material.emission", m_renderColor);
-    m_shader->setFloat("material.shininess", 0);
+    m_shader->setMat4("model", getAbsoluteTransform());
+    m_shader->setVec4("color", glm::vec4(m_renderColor, 1.f));
 
     renderSystem->bindData(m_renderId);
+
     renderSystem->renderTriangles();
+
     renderSystem->unbindData();
 
     m_shader->unbind();

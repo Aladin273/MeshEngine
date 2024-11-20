@@ -124,6 +124,12 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
                     break;
                 };
 
+                case Property::Separator:
+                {
+                    ImGui::Separator();
+                    break;
+                };
+
                 case Property::Base:
                 {
                     processProperties((Base*)property.object, property.name);

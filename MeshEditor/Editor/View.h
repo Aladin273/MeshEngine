@@ -103,8 +103,8 @@ private:
     std::unique_ptr<Window> m_window;
     std::unique_ptr<GuiSystem> m_guiSystem;
 
-    Shader* m_shaderOutline = nullptr;
     RenderSystem* m_renderSystem = nullptr;
+    Shader* m_shaderSelected = nullptr;
     
     std::unique_ptr<ConsoleLayer> m_consoleLayer;
     std::unique_ptr<DockpaneLayer> m_dockpaneLayer;

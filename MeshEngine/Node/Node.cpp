@@ -10,6 +10,7 @@ static bool s_recursiveRender = true;
 Node::Node()
 {
     m_name = "Node";
+    m_shaderBase = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
 }
 
 Node::~Node()
@@ -107,6 +108,8 @@ void Node::applyAbsoluteTransform(const glm::mat4& trf)
 
 void Node::start()
 {
+    startBbox();
+
     if (s_recursiveStart)
     {
         for (auto& child : m_children)
@@ -116,6 +119,8 @@ void Node::start()
 
 void Node::end()
 {
+    endBbox();
+
     if (s_recursiveEnd)
     {
         for (auto& child : m_children)
@@ -125,37 +130,56 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    if (s_recursiveUpdate)
+    if (m_updatable)
     {
-        for (auto& child : m_children)
-            child->update(deltaTime);
+        updateBbox(deltaTime);
+
+        if (s_recursiveUpdate)
+        {
+            for (auto& child : m_children)
+                child->update(deltaTime);
+        }
     }
 }
 
 void Node::render(RenderSystem* renderSystem)
 {
-    if (s_recursiveRender)
+    if (m_visible)
     {
-        for (auto& child : m_children)
-            child->render(renderSystem);
+        renderBbox(renderSystem);
+
+        if (s_recursiveRender)
+        {
+            for (auto& child : m_children)
+                child->render(renderSystem);
+        }
     }
 }
 
 void Node::renderEx(RenderSystem* renderSystem, Shader* shader)
 {
-    s_recursiveRender = false;
-
-    Shader* temp = m_shader;
-    m_shader = shader;
-    render(renderSystem);
-    m_shader = temp;
-
-    s_recursiveRender = true;
-
-    for (auto& child : m_children)
+    if (m_visible)
     {
-        child->renderEx(renderSystem, shader);
+        s_recursiveRender = false;
+
+        Shader* temp = m_shader;
+        m_shader = shader;
+        render(renderSystem);
+        m_shader = temp;
+
+        s_recursiveRender = true;
+
+        for (auto& child : m_children)
+        {
+            child->renderEx(renderSystem, shader);
+        }
     }
+}
+
+void Node::reset()
+{
+    end();
+    start();
 }
 
 void Node::attachNode(std::unique_ptr<Node> node)
@@ -214,5 +238,73 @@ void Node::setTranformDirty(bool dirty, bool recursive /*= true*/)
         {
             child->setTranformDirty(dirty);
         }
+    }
+}
+
+void Node::startBbox()
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        m_bbox = getBoundingBox();
+
+        std::vector<Vertex> vertices
+        {
+            { { m_bbox.min.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.min.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.max.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
+        };
+
+        std::vector<uint32_t> indices
+        {
+            0, 1, 1, 3, 3, 2,
+            2, 0, 4, 5, 5, 7,
+            7, 6, 6, 4, 0, 4,
+            1, 5, 2, 6, 3, 7,
+        };
+
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+        m_renderBaseId = renderSystem->bufferData(vertices, indices);
+    }
+}
+
+void Node::endBbox()
+{
+    if (getScene() && getScene()->getRenderSystem())
+    {
+        RenderSystem* renderSystem = getScene()->getRenderSystem();
+        renderSystem->unbufferData(m_renderBaseId);
+    }
+}
+
+void Node::updateBbox(float deltaTime)
+{
+    if (m_bbox != getBoundingBox())
+    {
+        endBbox();
+        startBbox();
+    }
+}
+
+void Node::renderBbox(RenderSystem* renderSystem)
+{
+    if (getScene() && getScene()->renderBbox)
+    {
+        m_shaderBase->bind();
+        
+        m_shaderBase->setMat4("model", getAbsoluteTransform());
+        m_shaderBase->setVec4("color", 1.f, 1.f, 0.f, 1.f);
+
+        renderSystem->bindData(m_renderBaseId);
+
+        renderSystem->setLineSize(2.0f);
+        renderSystem->renderLines();
+
+        m_shaderBase->unbind();
+        renderSystem->unbindData();
     }
 }

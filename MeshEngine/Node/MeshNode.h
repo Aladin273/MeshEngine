@@ -13,20 +13,10 @@ public:
 public:
     virtual void bind() override
     {
-        bindProperty(renderTriangles);
-        bindProperty(renderLines);
-        bindProperty(renderHoles);
-        bindProperty(renderBoundaries);
-
         bindPropertyEx(Property::Base, "Mesh", *m_mesh.get());
         
         super::bind();
     }
-
-    bool renderTriangles = true;
-    bool renderLines = false;
-    bool renderHoles = false;
-    bool renderBoundaries = false;
 
 public:
     virtual const BoundingBox& getBoundingBox() const override;
