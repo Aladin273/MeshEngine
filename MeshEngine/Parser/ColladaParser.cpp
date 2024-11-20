@@ -134,29 +134,27 @@ std::unique_ptr<Node> ColladaParser::loadModel(const std::string& filename)
 
     pNode = doc.RootElement()->FirstChildElement("library_visual_scenes")->FirstChildElement("visual_scene")->FirstChildElement("node");
     
-    std::unique_ptr<Node> root;
+    std::unique_ptr<Node> model = std::make_unique<Node>();
 
     if (pNode != nullptr && pNode->NextSiblingElement("node") == nullptr)
     {
-        root = loadNode(root.get(), pNode, geometries);
+        model = loadNode(model.get(), pNode, geometries);
     }
     else
     {
-        root = std::make_unique<Node>();
-
         while (pNode != nullptr)
         {
-            std::unique_ptr<Node> node = loadNode(root.get(), pNode, geometries);
+            std::unique_ptr<Node> node = loadNode(model.get(), pNode, geometries);
 
             if (node != nullptr)
-                root->attachNode(std::move(node));
+                model->attachNode(std::move(node));
 
             pNode = pNode->NextSiblingElement("node");
         }
     }
 
-    root->setName(filename);
-    return root;
+    model->setName(filename);
+    return model;
 }
 
 std::unique_ptr<Node> ColladaParser::loadNode(Node* parent, XMLElement* pNode, const GeometryMap& geometries)

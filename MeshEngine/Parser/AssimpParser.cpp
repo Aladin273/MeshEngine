@@ -20,7 +20,20 @@ std::unique_ptr<Node> AssimpParser::loadModel(const std::string& filename)
     m_filename = filename;
     m_directory = filename.substr(0, filename.find_last_of('\\'));
     
-    std::unique_ptr<Node> model = loadNode(nullptr, scene->mRootNode, scene);
+    std::unique_ptr<Node> model = std::make_unique<Node>();
+
+    if (!scene->mRootNode->mNumMeshes)
+    {
+        model = loadNode(nullptr, scene->mRootNode, scene);
+    }
+    else
+    {
+        for (size_t i = 0; i < scene->mRootNode->mNumChildren; ++i)
+        {
+            model->attachNode(loadNode(model.get(), scene->mRootNode->mChildren[i], scene));
+        }
+    }
+    
     model->setName(filename);
 
     return model;

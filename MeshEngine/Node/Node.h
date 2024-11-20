@@ -118,7 +118,6 @@ private:
     glm::mat4 m_relative{ 1.0f };
 
     Scene* m_scene = nullptr;
-    Node* m_root = nullptr;
     Node* m_parent = nullptr;
     std::vector<std::unique_ptr<Node>> m_children;
 };
