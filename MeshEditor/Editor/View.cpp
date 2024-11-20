@@ -12,7 +12,7 @@ View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width,
     m_renderSystem = renderSystem;
     m_renderSystem->init();
 
-    m_shaderOutline = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl");
+    m_shaderSelected = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "selectedVertex.glsl", MeshEngine::Settings::shadersPath + "selectedFragment.glsl");
 
     m_dockpaneLayer = std::make_unique<DockpaneLayer>(this);
     m_consoleLayer = std::make_unique<ConsoleLayer>(this);
@@ -124,7 +124,7 @@ void View::render()
     //////////////////////////////////////////////////
     if (getSelected())
     {
-        getSelected()->renderEx(m_renderSystem, m_shaderOutline);
+        getSelected()->renderEx(m_renderSystem, m_shaderSelected);
     }
 
     // Plane render

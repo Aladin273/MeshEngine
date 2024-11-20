@@ -9,23 +9,9 @@
 
 OriginNode::OriginNode(View* view)
 {
-    std::unique_ptr<Mesh> arrowX = Mesh::createArrow(MeshEngine::Settings::axisX, 0.06f, 0.1f, 0.02f, 0.8f, 32);
-    std::unique_ptr<Mesh> arrowY = Mesh::createArrow(MeshEngine::Settings::axisY, 0.06f, 0.1f, 0.02f, 0.8f, 32);
-    std::unique_ptr<Mesh> arrowZ = Mesh::createArrow(MeshEngine::Settings::axisZ, 0.06f, 0.1f, 0.02f, 0.8f, 32);
-
-    arrowX->setMaterial(MeshEngine::Settings::materialRed);
-    arrowY->setMaterial(MeshEngine::Settings::materialGreen);
-    arrowZ->setMaterial(MeshEngine::Settings::materialBlue);
-
-    attachNode(std::make_unique<ArrowNode>(view));
-    attachNode(std::make_unique<ArrowNode>(view));
-    attachNode(std::make_unique<ArrowNode>(view));
-
-    dynamic_cast<ArrowNode*>(getChildren()[0].get())->attachMesh(std::move(arrowX));
-    dynamic_cast<ArrowNode*>(getChildren()[1].get())->attachMesh(std::move(arrowY));
-    dynamic_cast<ArrowNode*>(getChildren()[2].get())->attachMesh(std::move(arrowZ));
-
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshUnlitVertex.glsl", MeshEngine::Settings::shadersPath + "meshUnlitFragment.glsl");
+    attachNode(std::make_unique<ArrowNode>(view, MeshEngine::Settings::axisX, MeshEngine::Settings::colorRed));
+    attachNode(std::make_unique<ArrowNode>(view, MeshEngine::Settings::axisY, MeshEngine::Settings::colorGreen));
+    attachNode(std::make_unique<ArrowNode>(view, MeshEngine::Settings::axisZ, MeshEngine::Settings::colorBlue));
     
     m_view = view;
 }

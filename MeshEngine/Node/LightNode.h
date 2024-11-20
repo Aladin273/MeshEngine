@@ -21,6 +21,6 @@ public:
 
 protected:
     uint32_t m_renderId = 0;
-    glm::vec3 m_renderColor;
+    glm::vec3 m_renderColor{ 1.f };
     std::unique_ptr<Mesh> m_renderMesh;
 };

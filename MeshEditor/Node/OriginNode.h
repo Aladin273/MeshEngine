@@ -1,10 +1,10 @@
 #pragma once
 
-#include "MeshEngine/Node/MeshNode.h"
+#include "MeshEngine/Node/Node.h"
 
 class View;
 
-class OriginNode : public MeshNode
+class OriginNode : public Node
 {
 public:
     OriginNode(View* view);

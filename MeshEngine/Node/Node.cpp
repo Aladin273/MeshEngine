@@ -10,7 +10,7 @@ static bool s_recursiveRender = true;
 Node::Node()
 {
     m_name = "Node";
-    m_shaderBbox = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "outlineVertex.glsl", MeshEngine::Settings::shadersPath + "outlineFragment.glsl");
+    m_shaderBase = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
 }
 
 Node::~Node()
@@ -130,41 +130,56 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    updateBbox(deltaTime);
-
-    if (s_recursiveUpdate)
+    if (m_updatable)
     {
-        for (auto& child : m_children)
-            child->update(deltaTime);
+        updateBbox(deltaTime);
+
+        if (s_recursiveUpdate)
+        {
+            for (auto& child : m_children)
+                child->update(deltaTime);
+        }
     }
 }
 
 void Node::render(RenderSystem* renderSystem)
 {
-    renderBbox(renderSystem);
-
-    if (s_recursiveRender)
+    if (m_visible)
     {
-        for (auto& child : m_children)
-            child->render(renderSystem);
+        renderBbox(renderSystem);
+
+        if (s_recursiveRender)
+        {
+            for (auto& child : m_children)
+                child->render(renderSystem);
+        }
     }
 }
 
 void Node::renderEx(RenderSystem* renderSystem, Shader* shader)
 {
-    s_recursiveRender = false;
-
-    Shader* temp = m_shader;
-    m_shader = shader;
-    render(renderSystem);
-    m_shader = temp;
-
-    s_recursiveRender = true;
-
-    for (auto& child : m_children)
+    if (m_visible)
     {
-        child->renderEx(renderSystem, shader);
+        s_recursiveRender = false;
+
+        Shader* temp = m_shader;
+        m_shader = shader;
+        render(renderSystem);
+        m_shader = temp;
+
+        s_recursiveRender = true;
+
+        for (auto& child : m_children)
+        {
+            child->renderEx(renderSystem, shader);
+        }
     }
+}
+
+void Node::reset()
+{
+    end();
+    start();
 }
 
 void Node::attachNode(std::unique_ptr<Node> node)
@@ -253,7 +268,7 @@ void Node::startBbox()
         };
 
         RenderSystem* renderSystem = getScene()->getRenderSystem();
-        m_renderBboxId = renderSystem->bufferData(vertices, indices);
+        m_renderBaseId = renderSystem->bufferData(vertices, indices);
     }
 }
 
@@ -262,7 +277,7 @@ void Node::endBbox()
     if (getScene() && getScene()->getRenderSystem())
     {
         RenderSystem* renderSystem = getScene()->getRenderSystem();
-        renderSystem->unbufferData(m_renderBboxId);
+        renderSystem->unbufferData(m_renderBaseId);
     }
 }
 
@@ -279,15 +294,17 @@ void Node::renderBbox(RenderSystem* renderSystem)
 {
     if (getScene() && getScene()->renderBbox)
     {
-        m_shaderBbox->bind();
-        m_shaderBbox->setMat4("model", getAbsoluteTransform());
+        m_shaderBase->bind();
+        
+        m_shaderBase->setMat4("model", getAbsoluteTransform());
+        m_shaderBase->setVec4("color", 1.f, 1.f, 0.f, 1.f);
 
-        renderSystem->bindData(m_renderBboxId);
+        renderSystem->bindData(m_renderBaseId);
 
         renderSystem->setLineSize(2.0f);
         renderSystem->renderLines();
 
-        m_shaderBbox->unbind();
+        m_shaderBase->unbind();
         renderSystem->unbindData();
     }
 }

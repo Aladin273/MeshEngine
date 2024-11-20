@@ -2,6 +2,7 @@ Urgently Goals
 ----------------------------------------------------------------
 - Implement bounding box render for Node
 - Add restart function - end+start
+- Add predicate for renderEx
 - Check raycast precision
 - Add transforming to properties layer
 - Inherit Light from Base with fix buffer padding

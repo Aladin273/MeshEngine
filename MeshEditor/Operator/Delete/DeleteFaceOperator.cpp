@@ -31,8 +31,7 @@ void DeleteFaceOperator::onMouseInput(View& view, ButtonCode button, Action acti
             if (mesh)
                 mesh->deleteFace(contact.face);
 
-            node->end();   // Clear RenderData
-            node->start(); // Buffer RenderData
+            node->reset();
         }
     }
 }

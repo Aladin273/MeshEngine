@@ -214,7 +214,12 @@ void Scene::update(float deltaTime)
     matricesUniform.projection = m_viewport->calcProjectionMatrix();
 
     for (auto& node : m_nodes)
-        node->update(deltaTime);
+    {
+        if (node->m_updatable)
+        {
+            node->update(deltaTime);
+        }
+    }
 
     requestDelete();
 }
@@ -249,7 +254,10 @@ void Scene::renderDepth(uint32_t targetId)
 
         for (auto& node : m_nodes)
         {
-            node->renderEx(m_renderSystem, m_shaderDepth);
+            if (node->m_visible)
+            {
+                node->renderEx(m_renderSystem, m_shaderDepth);
+            }
         }
 
         glCullFace(GL_BACK);
@@ -270,7 +278,10 @@ void Scene::renderScene(uint32_t targetId)
 
     for (auto& node : m_nodes)
     {
-        node->render(m_renderSystem);
+        if (node->m_visible)
+        {
+            node->render(m_renderSystem);
+        }
     }
 
     m_renderSystem->unbindFrame();

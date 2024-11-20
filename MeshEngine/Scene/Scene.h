@@ -50,14 +50,30 @@ public:
 public:
     virtual void bind() override
     {
-        bindProperty(castShadows);
         bindProperty(renderBbox);
+
+        bindSeparator();
+
+        bindProperty(renderTriangles);
+        bindProperty(renderLines);
+        bindProperty(renderHoles);
+        bindProperty(renderBoundaries);
+
+        bindSeparator();
+
+        bindProperty(castShadows);
         bindPropertyEx(Property::Color, "backgroundColor", backgroundColor);
 
         super::bind();
     }
 
     bool renderBbox = false;
+
+    bool renderTriangles = true;
+    bool renderLines = false;
+    bool renderHoles = false;
+    bool renderBoundaries = false;
+    
     bool castShadows = false;
     glm::vec4 backgroundColor{ 0.f };
 

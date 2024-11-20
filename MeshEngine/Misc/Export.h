@@ -21,6 +21,9 @@
 
 namespace MeshEngine
 {
+    static constexpr bool g_editor = true;
+    static constexpr bool g_game = false;
+
     #ifdef OGL_RENDER_SYSTEM_API_DLL
 
         extern "C" __declspec(dllimport) GuiSystem* createGuiSystem(Window* window);
