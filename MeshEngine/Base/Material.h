@@ -15,7 +15,7 @@ struct Material : public Base
     virtual void bind() override
     {
         bindPropertyEx(Property::Color, "ambient", ambient);
-        bindPropertyEx(Property::Color, "diffuse", diffuse);
+        bindPropertyEx(Property::ColorEx, "diffuse", diffuse);
         bindPropertyEx(Property::Color, "specular", specular);
         bindPropertyEx(Property::Color, "emission", emission);
         bindProperty(shininess);

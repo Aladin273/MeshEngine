@@ -10,7 +10,7 @@
 PlaneNode::PlaneNode(View* view, glm::vec3 worldUp, float width, float height, uint32_t numSubs)
 {
     m_mesh = Mesh::createPlane(worldUp, width, height, numSubs);
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
+    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
 
     m_view = view;
 }

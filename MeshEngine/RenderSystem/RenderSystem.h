@@ -39,7 +39,8 @@ public:
 
     virtual void bufferSubUniform(uint32_t uniformId, uint32_t offset, uint32_t size, const void* data) = 0;
 
-    virtual uint32_t bufferTexture(const std::string& texturePath) = 0;
+    virtual uint32_t bufferTexture(const std::string& texturePath, uint32_t& width, uint32_t& height, bool flip = false) = 0;
+    virtual uint32_t bufferTexture(const std::string& texturePath, bool flip = false) = 0;
     virtual void unbufferTexture(uint32_t textureId) = 0;
 
     virtual void bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) = 0;

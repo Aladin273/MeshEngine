@@ -53,7 +53,7 @@ void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action
                 for (auto& vertex : table.getVertices())
                     vertex.data.position -= center;
 
-                meshNode->getMesh()->update();
+                meshNode->getMesh()->updateData();
                 meshNode->applyRelativeTransform(glm::translate(center));
 
                 meshNode->reset();

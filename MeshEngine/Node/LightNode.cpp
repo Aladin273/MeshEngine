@@ -5,9 +5,8 @@
 LightNode::LightNode()
 {
     m_name = "LightNode";
-    m_visible = MeshEngine::g_editor;
     m_renderMesh = std::make_unique<Mesh>(HalfEdgeTable<Vertex>());
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
+    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
 }
 
 LightNode::~LightNode()

@@ -32,7 +32,8 @@ public:
 
     virtual void bufferSubUniform(uint32_t uniformId, uint32_t offset, uint32_t size, const void* data) override;
 
-    virtual uint32_t bufferTexture(const std::string& texturePath) override;
+    virtual uint32_t bufferTexture(const std::string& texturePath, bool flip = false) override;
+    virtual uint32_t bufferTexture(const std::string& texturePath, uint32_t& width, uint32_t& height, bool flip = false) override;
     virtual void unbufferTexture(uint32_t textureId) override;
 
     virtual void bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height) override;
@@ -72,8 +73,8 @@ private:
     // Store VAO, VBO, EBO
     std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_dataMap;
 
-    // Store Path and Texture
-    std::unordered_map<std::string, uint32_t> m_textureMap;
+    // Store Path, Texture, Count
+    std::unordered_map<std::string, std::pair<unsigned int, unsigned int>> m_textureMap;
 
     // Store Frame, Render, Texture
     std::unordered_map<uint32_t, std::tuple<unsigned int, unsigned int, unsigned int>> m_frameMap;

@@ -169,7 +169,13 @@ void GLRenderSystem::bufferSubUniform(uint32_t uniformId, uint32_t offset, uint3
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
+uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath, bool flip)
+{
+    uint32_t width, height;
+    return bufferTexture(texturePath, width, height);
+}
+
+uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath, uint32_t& width, uint32_t& height, bool flip)
 {
     uint32_t textureId = 1;
 
@@ -179,11 +185,16 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
     auto it = m_textureMap.find(texturePath);
 
     if (it != m_textureMap.end())
-        return m_textureMap[texturePath];
+    {
+        m_textureMap[texturePath].second += 1;
+        return m_textureMap[texturePath].first;
+    }
 
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(texturePath.c_str(), &width, &height, &nrComponents, 0);
-    
+    stbi_set_flip_vertically_on_load(flip);
+
+    int nrWidth = 0, nrHeight = 0, nrComponents = 0;
+    unsigned char* data = stbi_load(texturePath.c_str(), &nrWidth, &nrHeight, &nrComponents, 0);
+
     if (data)
     {
         glGenTextures(1, &textureId);
@@ -197,20 +208,23 @@ uint32_t GLRenderSystem::bufferTexture(const std::string& texturePath)
             format = GL_RGBA;
 
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, nrWidth, nrHeight, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         glBindTexture(GL_TEXTURE_2D, 0);
 
         stbi_image_free(data);
 
-        m_textureMap[texturePath] = textureId;
+        m_textureMap[texturePath] = { textureId, 1 };
     }
+
+    width = nrWidth;
+    height = nrHeight;
 
     return textureId;
 }
@@ -220,12 +234,18 @@ void GLRenderSystem::unbufferTexture(uint32_t textureId)
     if (textureId == 1)
         return;
 
-    auto it = std::find_if(m_textureMap.begin(), m_textureMap.end(), [textureId](const auto& pair) { return pair.second == textureId; });
+    auto it = std::find_if(m_textureMap.begin(), m_textureMap.end(), [textureId](const auto& pair) { return pair.second.first == textureId; });
 
     if (it != m_textureMap.end())
-        m_textureMap.erase(it);
+    {
+        it->second.second -= 1;
 
-    glDeleteTextures(1, &textureId);
+        if (it->second.second == 0)
+        {
+            m_textureMap.erase(it);
+            glDeleteTextures(1, &textureId);
+        }
+    }
 }
 
 void GLRenderSystem::bufferFrame(uint32_t& frameId, uint32_t& renderId, uint32_t& textureId, uint32_t width, uint32_t height)

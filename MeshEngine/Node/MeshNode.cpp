@@ -6,7 +6,7 @@ MeshNode::MeshNode()
 {
     m_name = "MeshNode";
     m_mesh = std::make_unique<Mesh>(HalfEdgeTable<Vertex>());
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "meshLitVertex.glsl", MeshEngine::Settings::shadersPath + "meshLitFragment.glsl");
+    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseLitVertex.glsl", MeshEngine::Settings::shadersPath + "baseLitFragment.glsl");
 }
 
 MeshNode::~MeshNode()
@@ -96,19 +96,19 @@ void MeshNode::render(RenderSystem* renderSystem)
 
     if (getScene()->renderTriangles)
     {
-        m_shader->setVec3("material.ambient", getMesh()->getMaterial().ambient);
-        m_shader->setVec3("material.diffuse", glm::vec3(getMesh()->getMaterial().diffuse));
-        m_shader->setVec3("material.specular", getMesh()->getMaterial().specular);
-        m_shader->setVec3("material.emission", getMesh()->getMaterial().emission);
-        m_shader->setFloat("material.shininess", getMesh()->getMaterial().shininess);
+        m_shader->setVec3("material.ambient", m_mesh->getMaterial().ambient);
+        m_shader->setVec4("material.diffuse", m_mesh->getMaterial().diffuse);
+        m_shader->setVec3("material.specular", m_mesh->getMaterial().specular);
+        m_shader->setVec3("material.emission", m_mesh->getMaterial().emission);
+        m_shader->setFloat("material.shininess", m_mesh->getMaterial().shininess);
 
         m_shader->setInt("material.diffuseMap", 0);
         m_shader->setInt("material.specularMap", 1);
         m_shader->setInt("material.emissionMap", 2);
 
-        renderSystem->bindTexture(0, getMesh()->getMaterial().diffuseMap.id);
-        renderSystem->bindTexture(1, getMesh()->getMaterial().specularMap.id);
-        renderSystem->bindTexture(2, getMesh()->getMaterial().emissionMap.id);
+        renderSystem->bindTexture(0, m_mesh->getMaterial().diffuseMap.id);
+        renderSystem->bindTexture(1, m_mesh->getMaterial().specularMap.id);
+        renderSystem->bindTexture(2, m_mesh->getMaterial().emissionMap.id);
 
         renderSystem->bindData(m_renderTrianglesId);
         renderSystem->renderTriangles();
@@ -116,10 +116,10 @@ void MeshNode::render(RenderSystem* renderSystem)
 
     if (getScene()->renderLines)
     {
-        m_shader->setVec3("material.ambient", glm::vec3(0.f));
-        m_shader->setVec3("material.diffuse", glm::vec3(0.f));
-        m_shader->setVec3("material.specular", glm::vec3(0.f));
-        m_shader->setVec3("material.emission", glm::vec3(0.f));
+        m_shader->setVec3("material.ambient", glm::vec3(0.f, 0.f, 0.f));
+        m_shader->setVec4("material.diffuse", glm::vec4(0.f, 0.f, 0.f, 1.f));
+        m_shader->setVec3("material.specular", glm::vec3(0.f, 0.f, 0.f));
+        m_shader->setVec3("material.emission", glm::vec3(0.f, 0.f, 0.f));
         m_shader->setFloat("material.shininess", 0);
 
         renderSystem->bindData(m_renderLinesId);
@@ -130,9 +130,9 @@ void MeshNode::render(RenderSystem* renderSystem)
 
     if (getScene()->renderHoles)
     {
-        m_shader->setVec3("material.ambient", glm::vec3(0.f));
-        m_shader->setVec3("material.diffuse", glm::vec3(0.f));
-        m_shader->setVec3("material.specular", glm::vec3(0.f));
+        m_shader->setVec3("material.ambient", glm::vec3(0.f, 0.f, 0.f));
+        m_shader->setVec4("material.diffuse", glm::vec4(0.f, 0.f, 0.f, 1.f));
+        m_shader->setVec3("material.specular", glm::vec3(0.f, 0.f, 0.f));
         m_shader->setVec3("material.emission", glm::vec3(0.75f, 0.25f, 0.25f));
         m_shader->setFloat("material.shininess", 0);
 
@@ -144,9 +144,9 @@ void MeshNode::render(RenderSystem* renderSystem)
 
     if (getScene()->renderBoundaries)
     {
-        m_shader->setVec3("material.ambient", glm::vec3(0.f));
-        m_shader->setVec3("material.diffuse", glm::vec3(0.f));
-        m_shader->setVec3("material.specular", glm::vec3(0.f));
+        m_shader->setVec3("material.ambient", glm::vec3(0.f, 0.f, 0.f));
+        m_shader->setVec4("material.diffuse", glm::vec4(0.f, 0.f, 0.f, 1.f));
+        m_shader->setVec3("material.specular", glm::vec3(0.f, 0.f, 0.f));
         m_shader->setVec3("material.emission", glm::vec3(0.75f, 0.25f, 0.25f));
         m_shader->setFloat("material.shininess", 0);
 

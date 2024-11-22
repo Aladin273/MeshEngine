@@ -21,10 +21,8 @@ uniform mat4 model;
 void main()
 {
     ViewPos = vec3(inverse(view)[3]);
-
     FragPos = vec3(model * vec4(aPos, 1.0));
     FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0); 
-
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoords = aTexCoords;
 
