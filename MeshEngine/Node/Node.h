@@ -27,11 +27,14 @@ public:
 public:
     virtual void bind() override
     {
-        bindProperty(m_updatable);
-        bindProperty(m_visible);
+        bindProperty(updatable);
+        bindProperty(visible);
 
         super::bind();
     }
+
+    bool updatable = true;
+    bool visible = true;
 
 public:
     Node* getParent() const;
@@ -91,10 +94,6 @@ protected:
 
     bool getTranformDirty() const;
     void setTranformDirty(bool dirty, bool recursive = true);
-
-protected:
-    bool m_updatable = true;
-    bool m_visible = true;
 
 protected:
     Shader* m_shader = nullptr;

@@ -215,7 +215,7 @@ void Scene::update(float deltaTime)
 
     for (auto& node : m_nodes)
     {
-        if (node->m_updatable)
+        if (node->updatable)
         {
             node->update(deltaTime);
         }
@@ -254,7 +254,7 @@ void Scene::renderDepth(uint32_t targetId)
 
         for (auto& node : m_nodes)
         {
-            if (node->m_visible)
+            if (node->visible)
             {
                 node->renderEx(m_renderSystem, m_shaderDepth);
             }
@@ -278,7 +278,7 @@ void Scene::renderScene(uint32_t targetId)
 
     for (auto& node : m_nodes)
     {
-        if (node->m_visible)
+        if (node->visible)
         {
             node->render(m_renderSystem);
         }

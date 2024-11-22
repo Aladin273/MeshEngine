@@ -25,7 +25,7 @@ public:
     };
 
 public:
-    void update();
+    virtual void updateData() override;
 
 public:
     void applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf);

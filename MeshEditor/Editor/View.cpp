@@ -120,18 +120,20 @@ void View::render()
     m_renderSystem->bindFrame(m_viewportLayer->frameId);
     m_renderSystem->setViewport(MeshEngine::Settings::x, MeshEngine::Settings::y, m_viewport.getWidth(), m_viewport.getHeight());
 
-    // Selected Render
-    //////////////////////////////////////////////////
-    if (getSelected())
-    {
-        getSelected()->renderEx(m_renderSystem, m_shaderSelected);
-    }
-
     // Plane render
     //////////////////////////////////////////////////
     if (showPlane)
     {
         m_plane->render(m_renderSystem);
+    }
+
+    m_renderSystem->clearDepth();
+
+    // Selected Render
+    //////////////////////////////////////////////////
+    if (getSelected())
+    {
+        getSelected()->renderEx(m_renderSystem, m_shaderSelected);
     }
 
     m_renderSystem->clearDepth();

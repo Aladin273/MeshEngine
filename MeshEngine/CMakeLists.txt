@@ -22,11 +22,13 @@ set(MESH_ENGINE_HEADERS
     Base/Texture.h
     Base/Material.h
     Base/Mesh.h
+    Base/Sprite.h
 
     Scene/Scene.h
 
     Node/Node.h
     Node/MeshNode.h
+    Node/SpriteNode.h
     Node/LightNode.h
     Node/DirLightNode.h
     Node/PointLightNode.h
@@ -68,11 +70,13 @@ set(MESH_ENGINE_SOURCES
     Base/Texture.cpp
     Base/Material.cpp
     Base/Mesh.cpp
+    Base/Sprite.cpp
 
     Scene/Scene.cpp
     
     Node/Node.cpp
     Node/MeshNode.cpp
+    Node/SpriteNode.cpp
     Node/LightNode.cpp
     Node/DirLightNode.cpp
     Node/PointLightNode.cpp

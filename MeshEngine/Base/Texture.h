@@ -14,6 +14,8 @@ struct Texture : public Base
     virtual void bind() override
     {
         bindProperty(id);
+        bindProperty(width);
+        bindProperty(height);
         bindProperty(type);
         bindProperty(path);
 
@@ -21,6 +23,8 @@ struct Texture : public Base
     };
 
     uint32_t id = 1;
+    uint32_t width = 0;
+    uint32_t height = 0;
     std::string type = "None";
     std::string path = "None";
 };

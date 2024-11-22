@@ -10,6 +10,9 @@ public:
     virtual ~RenderBase();
 
 public:
+    virtual void updateData() = 0;
+
+public:
     bool getRenderDataDirty() const;
     bool getRenderSubDataDirty() const;
 

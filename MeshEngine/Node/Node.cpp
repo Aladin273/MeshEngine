@@ -10,7 +10,7 @@ static bool s_recursiveRender = true;
 Node::Node()
 {
     m_name = "Node";
-    m_shaderBase = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseVertex.glsl", MeshEngine::Settings::shadersPath + "baseFragment.glsl");
+    m_shaderBase = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
 }
 
 Node::~Node()
@@ -130,7 +130,7 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    if (m_updatable)
+    if (updatable)
     {
         updateBbox(deltaTime);
 
@@ -144,7 +144,7 @@ void Node::update(float deltaTime)
 
 void Node::render(RenderSystem* renderSystem)
 {
-    if (m_visible)
+    if (visible)
     {
         renderBbox(renderSystem);
 
@@ -158,7 +158,7 @@ void Node::render(RenderSystem* renderSystem)
 
 void Node::renderEx(RenderSystem* renderSystem, Shader* shader)
 {
-    if (m_visible)
+    if (visible)
     {
         s_recursiveRender = false;
 

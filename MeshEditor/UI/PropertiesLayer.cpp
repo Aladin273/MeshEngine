@@ -44,13 +44,13 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
 
                 case Property::Float:
                 {
-                    ImGui::DragFloat(property.name.c_str(), (float*)property.object);
+                    ImGui::DragFloat(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
 
                 case Property::Double:
                 {
-                    ImGui::DragFloat(property.name.c_str(), (float*)property.object);
+                    ImGui::DragFloat(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
 
@@ -70,55 +70,61 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
 
                 case Property::Vector2:
                 {
-                    ImGui::DragFloat2(property.name.c_str(), (float*)property.object, 0.05f);
+                    ImGui::DragFloat2(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
                 case Property::Vector3:
                 {
-                    ImGui::DragFloat3(property.name.c_str(), (float*)property.object, 0.05f);
+                    ImGui::DragFloat3(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
 
                 case Property::Vector4:
                 {
-                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.05f);
+                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
 
                 case Property::Matrix2:
                 {
                     ImGui::Text(property.name.c_str());
-                    ImGui::DragFloat2("", &((float*)property.object)[0], 0.05f);
-                    ImGui::DragFloat2("", &((float*)property.object)[2], 0.05f);
+                    ImGui::DragFloat2("", &((float*)property.object)[0], 0.01f);
+                    ImGui::DragFloat2("", &((float*)property.object)[2], 0.01f);
                     break;
                 };
 
                 case Property::Matrix3:
                 {
                     ImGui::Text(property.name.c_str());
-                    ImGui::DragFloat3("", &((float*)property.object)[0], 0.05f);
-                    ImGui::DragFloat3("", &((float*)property.object)[3], 0.05f);
-                    ImGui::DragFloat3("", &((float*)property.object)[6], 0.05f);
+                    ImGui::DragFloat3("", &((float*)property.object)[0], 0.01f);
+                    ImGui::DragFloat3("", &((float*)property.object)[3], 0.01f);
+                    ImGui::DragFloat3("", &((float*)property.object)[6], 0.01f);
                     break;
                 };
 
                 case Property::Matrix4:
                 {
                     ImGui::Text(property.name.c_str());
-                    ImGui::DragFloat4("", &((float*)property.object)[0], 0.05f);
-                    ImGui::DragFloat4("", &((float*)property.object)[4], 0.05f);
-                    ImGui::DragFloat4("", &((float*)property.object)[8], 0.05f);
-                    ImGui::DragFloat4("", &((float*)property.object)[12], 0.05f);
+                    ImGui::DragFloat4("", &((float*)property.object)[0], 0.01f);
+                    ImGui::DragFloat4("", &((float*)property.object)[4], 0.01f);
+                    ImGui::DragFloat4("", &((float*)property.object)[8], 0.01f);
+                    ImGui::DragFloat4("", &((float*)property.object)[12], 0.01f);
                     break;
                 };
 
                 case Property::Quat:
                 {
-                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.05f);
+                    ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.01f);
                     break;
                 };
 
                 case Property::Color:
+                {
+                    ImGui::ColorEdit3(property.name.c_str(), (float*)property.object);
+                    break;
+                };
+
+                case Property::ColorEx:
                 {
                     ImGui::ColorEdit4(property.name.c_str(), (float*)property.object);
                     break;

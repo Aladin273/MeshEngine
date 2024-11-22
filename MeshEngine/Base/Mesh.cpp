@@ -7,17 +7,17 @@ Mesh::Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable)
     : m_table(halfEdgeTable)
 {
     m_name = "Mesh";
-    update();
+    updateData();
 }
 
 Mesh::Mesh(const HalfEdgeTable<Vertex>& halfEdgeTable, const Material& material)
     : m_table(halfEdgeTable), m_material(material)
 {
     m_name = "Mesh";
-    update();
+    updateData();
 }
 
-void Mesh::update()
+void Mesh::updateData()
 {
     m_renderDataDirty = true;
     m_renderSubDataDirty = true;
@@ -349,7 +349,7 @@ void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
 void Mesh::deleteFace(HalfEdgeFaceHandle fh)
 {
     m_table.deleteFace(fh);
-    update();
+    updateData();
 }
 
 HalfEdgeTable<Vertex>& Mesh::getHalfEdgeTable()
