@@ -10,6 +10,16 @@
 #include <glad/gl.h>
 #include <glfw/glfw3.h>
 
+__declspec(dllimport) AssetSystem* createAssetSystem()
+{
+    return new AssetSystem();
+}
+
+__declspec(dllimport) InputSystem* createInputSystem()
+{
+    return new InputSystem();
+}
+
 __declspec(dllimport) RenderSystem* createRenderSystem()
 {
     return new GLRenderSystem();
@@ -100,6 +110,16 @@ void MeshEngine::swapDisplayBuffers(Window* window)
 bool MeshEngine::windowShouldClose(Window* window)
 {
     return glfwWindowShouldClose(reinterpret_cast<GLFWwindow*>(window->getHandle()));
+}
+
+AssetSystem* MeshEngine::createAssetSystem()
+{
+    return new AssetSystem();
+}
+
+InputSystem* MeshEngine::createInputSystem()
+{
+    return new InputSystem();
 }
 
 #endif

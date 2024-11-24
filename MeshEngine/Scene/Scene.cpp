@@ -12,10 +12,12 @@ Scene::~Scene()
 
 }
 
-void Scene::init(RenderSystem* renderSystem)
+void Scene::init(RenderSystem* renderSystem, AssetSystem* assetSystem, InputSystem* inputSystem)
 {
+    m_assetSystem = assetSystem;
+    m_inputSystem = inputSystem;
     m_renderSystem = renderSystem;
-    
+
     matricesUniformId = m_renderSystem->bufferUniform(0, sizeof(matricesUniform), &matricesUniform);
     lightsUniformId = m_renderSystem->bufferUniform(1, sizeof(lightsUniform), &lightsUniform);
 
@@ -23,9 +25,14 @@ void Scene::init(RenderSystem* renderSystem)
     m_shaderDepth = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "depthVertex.glsl", MeshEngine::Settings::shadersPath + "depthFragment.glsl");
 }
 
-void Scene::setRenderSystem(RenderSystem* rs)
+AssetSystem* Scene::getAssetSystem() const
 {
-    m_renderSystem = rs;
+    return m_assetSystem;
+}
+
+InputSystem* Scene::getInputSystem() const
+{
+    return m_inputSystem;
 }
 
 RenderSystem* Scene::getRenderSystem() const

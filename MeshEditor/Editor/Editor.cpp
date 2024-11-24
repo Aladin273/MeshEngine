@@ -145,24 +145,6 @@ View* Editor::createView(const std::string& title, uint32_t width, uint32_t heig
     return m_views.back().get();
 }
 
-std::unique_ptr<Node> Editor::loadModel(const std::string& filename)
-{
-    if (filename.find(".stl") != MeshEngine::Settings::invalid)
-        return m_stl.loadModel(filename);
-    else if (filename.find(".dae") != MeshEngine::Settings::invalid)
-        return m_collada.loadModel(filename);
-    else
-        return m_assimp.loadModel(filename);
-}
-
-void Editor::saveModel(Node& model, const std::string& filename)
-{
-    if (filename.find(".stl") != MeshEngine::Settings::invalid)
-        m_stl.saveModel(model, filename);
-    else
-        m_collada.saveModel(model, filename);
-}
-
 uint32_t Editor::start()
 {
     MeshEngine::Timer m_timer;
