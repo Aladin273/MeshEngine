@@ -16,10 +16,7 @@ SpriteNode::~SpriteNode()
 
 const BoundingBox& SpriteNode::getBoundingBox() const
 {
-    BoundingBox bbox = m_sprite->getBoundingBox();
-    bbox.tranform(glm::scale(glm::vec3(m_sprite->getPixelSize())));
-    
-    return bbox;
+    return m_sprite->getBoundingBox();
 }
 
 void SpriteNode::start()
@@ -31,16 +28,12 @@ void SpriteNode::start()
             RenderSystem* renderSystem = getScene()->getRenderSystem();
 
             Material material = m_sprite->getMaterial();
-            
             material.diffuseMap.id = renderSystem->bufferTexture(material.diffuseMap.path, material.diffuseMap.width, material.diffuseMap.height, true);
             material.specularMap.id = renderSystem->bufferTexture(material.specularMap.path, material.specularMap.width, material.specularMap.height, true);
             material.emissionMap.id = renderSystem->bufferTexture(material.emissionMap.path, material.emissionMap.width, material.emissionMap.height, true);
-            
             m_sprite->setMaterial(material);
-            m_sprite->updateData();
 
             m_renderTrianglesId = renderSystem->bufferData(m_sprite->getRenderVertices(), m_sprite->getRenderTriangles());
-            m_renderLinesId = renderSystem->bufferData(m_sprite->getRenderVertices(), m_sprite->getRenderLines());
 
             m_sprite->setRenderDataDirty(false);
         }
@@ -56,7 +49,6 @@ void SpriteNode::end()
         RenderSystem* renderSystem = getScene()->getRenderSystem();
 
         renderSystem->unbufferData(m_renderTrianglesId);
-        renderSystem->unbufferData(m_renderLinesId);
 
         renderSystem->unbufferTexture(m_sprite->getMaterial().diffuseMap.id);
         renderSystem->unbufferTexture(m_sprite->getMaterial().specularMap.id);
@@ -79,7 +71,6 @@ void SpriteNode::update(float deltaTime)
             for (auto& index : m_sprite->getRenderSubData())
             {
                 renderSystem->bufferSubData(m_renderTrianglesId, index, m_sprite->getRenderVertices()[index]);
-                renderSystem->bufferSubData(m_renderLinesId, index, m_sprite->getRenderVertices()[index]);
             }
 
             m_sprite->setRenderSubDataDirty(false);
@@ -92,7 +83,7 @@ void SpriteNode::update(float deltaTime)
 void SpriteNode::render(RenderSystem* renderSystem)
 {
     m_shader->bind();
-    m_shader->setMat4("model", getAbsoluteTransform() * glm::scale(glm::vec3(m_sprite->getPixelSize())));
+    m_shader->setMat4("model", getAbsoluteTransform());
 
     if (getScene()->renderTriangles)
     {
@@ -112,20 +103,6 @@ void SpriteNode::render(RenderSystem* renderSystem)
 
         renderSystem->bindData(m_renderTrianglesId);
         renderSystem->renderTriangles();
-    }
-
-    if (getScene()->renderLines)
-    {
-        m_shader->setVec3("material.ambient", glm::vec3(0.f, 0.f, 0.f));
-        m_shader->setVec4("material.diffuse", glm::vec4(0.f, 0.f, 0.f, 1.f));
-        m_shader->setVec3("material.specular", glm::vec3(0.f, 0.f, 0.f));
-        m_shader->setVec3("material.emission", glm::vec3(0.f, 0.f, 0.f));
-        m_shader->setFloat("material.shininess", 0);
-
-        renderSystem->bindData(m_renderLinesId);
-
-        renderSystem->setLineSize(1.0f);
-        renderSystem->renderLines();
     }
 
     renderSystem->unbindTexture();

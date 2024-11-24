@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <string>
 #include <cctype>
+#include <variant>
+#include <functional>
 
 #include <glm/glm.hpp>
 
@@ -52,14 +54,45 @@ public:
     virtual void bind();
     virtual void unbind();
 
+    virtual void propertyChanged(const Property& property);
+    const std::vector<Property>& getProperties() const;
+
+public:
     uint32_t getId() const;
 
     void setName(const std::string& name);
     const std::string& getName() const;
-    
-    const std::vector<Property>& getProperties() const;
 
 protected:
+    template <typename T>
+    void bindPropertyInternal(std::string name, T* object)
+    {
+        Property property;
+        property.name = Base::formatString(name);
+        property.object = (void*)object;
+        property.type = Base::typeOf<T>();
+        m_properties.push_back(property);
+    }
+
+    template <typename T>
+    void bindPropertyInternal(Property::Type type, std::string name, T* object)
+    {
+        Property property;
+        property.name = Base::formatString(name);
+        property.object = (void*)object;
+        property.type = type;
+        m_properties.push_back(property);
+    }
+
+    void bindSeparatorInternal()
+    {
+        Property property;
+        property.name = "";
+        property.object = nullptr;
+        property.type = Property::Separator;
+        m_properties.push_back(property);
+    }
+
     template <typename T>
     Property::Type typeOf()
     {
@@ -78,36 +111,6 @@ protected:
         else return Property::Type::Base;
     }
 
-    template <typename T>
-    void bindPropertyInternal(std::string name, T* object)
-    {
-        Property prop;
-        prop.name = formatString(name);
-        prop.object = (void*)object;
-        prop.type = Base::typeOf<T>();
-        m_properties.push_back(prop);
-    }
-
-    template <typename T>
-    void bindPropertyInternal(Property::Type type, std::string name, T* object)
-    {
-        Property prop;
-        prop.name = formatString(name);
-        prop.object = (void*)object;
-        prop.type = type;
-        m_properties.push_back(prop);
-    }
-
-    void bindSeparatorInternal()
-    {
-        Property prop;
-        prop.name = "";
-        prop.object = nullptr;
-        prop.type = Property::Separator;
-        m_properties.push_back(prop);
-    }
-
-protected:
     std::string formatString(const std::string& camelCase);
 
 protected:

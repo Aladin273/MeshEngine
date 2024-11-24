@@ -10,9 +10,6 @@ public:
     virtual ~RenderBase();
 
 public:
-    virtual void updateData() = 0;
-
-public:
     bool getRenderDataDirty() const;
     bool getRenderSubDataDirty() const;
 
@@ -27,6 +24,10 @@ public:
     const std::vector<uint32_t>& getRenderHoles() const;
     const std::vector<uint32_t>& getRenderBoundaries() const;
     const std::vector<uint32_t>& getRenderSubData() const;
+
+public:
+    virtual void updateData();
+    virtual void updateSubData();
 
 protected:
     std::vector<Vertex> m_renderVertices;

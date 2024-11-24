@@ -13,7 +13,7 @@ public:
 public:
     virtual void bind() override
     {
-        bindPropertyEx(Property::Base, "Mesh", *m_mesh.get());
+        bindPropertyEx(Property::Base, "m_mesh", *m_mesh.get());
         
         super::bind();
     }
