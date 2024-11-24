@@ -96,7 +96,7 @@ public:
         super::bind();
     }
 
-    bool showOrigin = false;
+    bool showOrigin = true;
     bool showPlane = true;
 
 private:
