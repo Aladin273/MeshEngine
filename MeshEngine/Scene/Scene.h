@@ -45,7 +45,7 @@ public:
     virtual ~Scene();
 
 public:
-    void init(RenderSystem* renderSystem);
+    void init(RenderSystem* renderSystem, AssetSystem* assetSystem, InputSystem* inputSystem);
 
 public:
     virtual void bind() override
@@ -85,9 +85,11 @@ public:
     LightsUniform lightsUniform;
 
 public:
-    void setRenderSystem(RenderSystem* rs);
+    AssetSystem* getAssetSystem() const;
+    InputSystem* getInputSystem() const;
     RenderSystem* getRenderSystem() const;
 
+public:
     void setViewport(Viewport& viewport);
     Viewport& getViewport() const;
 
@@ -126,6 +128,8 @@ protected:
     void requestDelete();
 
 protected:
+    AssetSystem* m_assetSystem = nullptr;
+    InputSystem* m_inputSystem = nullptr;
     RenderSystem* m_renderSystem = nullptr;
     Viewport* m_viewport = nullptr;
 

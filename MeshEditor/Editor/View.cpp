@@ -5,9 +5,15 @@ View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width,
     m_name = "View";
 
     m_window.reset(MeshEngine::createWindow(title, width, height, icon));
+    
     m_guiSystem.reset(MeshEngine::createGuiSystem(m_window.get()));
-
     m_guiSystem->init();
+
+    m_assetSystem.reset(MeshEngine::createAssetSystem());
+    m_assetSystem->init();
+
+    m_inputSystem.reset(MeshEngine::createInputSystem());
+    m_inputSystem->init();
 
     m_renderSystem = renderSystem;
     m_renderSystem->init();
@@ -172,7 +178,7 @@ void View::setScene(Scene* scene)
     if (scene)
     {
         m_scene = scene;
-        m_scene->init(m_renderSystem);
+        m_scene->init(m_renderSystem, m_assetSystem.get(), m_inputSystem.get());
         m_scene->setViewport(m_viewport);
 
         zoomToFit();
@@ -189,12 +195,17 @@ void View::setSelected(Node* selected)
     m_selected = selected;
 }
 
-RenderSystem& View::getRenderSystem()
+AssetSystem& View::getAssetSystem()
 {
-    return *m_renderSystem;
+    return *m_assetSystem;
 }
 
-const RenderSystem& View::getRenderSystem() const
+InputSystem& View::getInputSystem()
+{
+    return *m_inputSystem;
+}
+
+RenderSystem& View::getRenderSystem()
 {
     return *m_renderSystem;
 }
@@ -204,27 +215,12 @@ GuiSystem& View::getGuiSystem()
     return *m_guiSystem.get();
 }
 
-const GuiSystem& View::getGuiSystem() const
-{
-    return *m_guiSystem.get();
-}
-
 Window& View::getWindow()
 {
     return *m_window;
 }
 
-const Window& View::getWindow() const
-{
-    return *m_window;
-}
-
 Viewport& View::getViewport()
-{
-    return m_viewport;
-}
-
-const Viewport& View::getViewport() const
 {
     return m_viewport;
 }

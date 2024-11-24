@@ -7,6 +7,9 @@
 #include "MeshEngine/RenderSystem/Shader.h"
 #include "MeshEngine/RenderSystem/Window.h"
 
+#include "MeshEngine/RootSystem/AssetSystem.h"
+#include "MeshEngine/RootSystem/InputSystem.h"
+
 #ifndef OGL_RENDER_SYSTEM_EXPORT_DLL
 #define OGL_RENDER_SYSTEM_EXPORT_STATIC
 #endif
@@ -26,6 +29,9 @@ namespace MeshEngine
 
     #ifdef OGL_RENDER_SYSTEM_API_DLL
 
+        extern "C" __declspec(dllimport) AssetSystem* createAssetSystem();
+        extern "C" __declspec(dllimport) InputSystem* createInputSystem();
+
         extern "C" __declspec(dllimport) GuiSystem* createGuiSystem(Window* window);
         extern "C" __declspec(dllimport) RenderSystem* createRenderSystem();
         extern "C" __declspec(dllimport) Shader* createShader(const std::string& vertexPath, const std::string& fragmentPath, const std::string& geometryPath = "");
@@ -39,6 +45,9 @@ namespace MeshEngine
     #endif
     
     #ifdef OGL_RENDER_SYSTEM_API_STATIC
+
+        AssetSystem* createAssetSystem();
+        InputSystem* createInputSystem();
 
         GuiSystem* createGuiSystem(Window* window);
         RenderSystem* createRenderSystem();

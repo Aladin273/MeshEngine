@@ -9,6 +9,9 @@
 #include "MeshEngine/RenderSystem/GuiSystem.h"
 #include "MeshEngine/RenderSystem/RenderSystem.h"
 
+#include "MeshEngine/RootSystem/AssetSystem.h"
+#include "MeshEngine/RootSystem/InputSystem.h"
+
 #include "MeshEngine/Viewport/Viewport.h"
 #include "MeshEngine/Math/Contact.h"
 
@@ -52,18 +55,14 @@ public:
     void setSelected(Node* selected);
 
 public:
+    AssetSystem& getAssetSystem();
+    InputSystem& getInputSystem();
     RenderSystem& getRenderSystem();
-    const RenderSystem& getRenderSystem() const;
-
     GuiSystem& getGuiSystem();
-    const GuiSystem& getGuiSystem() const;
 
 public:
     Window& getWindow();
-    const Window& getWindow() const;
-
     Viewport& getViewport();
-    const Viewport& getViewport() const;
 
 public:
     ViewportLayer& getViewportLayer();
@@ -102,6 +101,9 @@ public:
 private:
     std::unique_ptr<Window> m_window;
     std::unique_ptr<GuiSystem> m_guiSystem;
+    
+    std::unique_ptr<AssetSystem> m_assetSystem;
+    std::unique_ptr<InputSystem> m_inputSystem;
 
     RenderSystem* m_renderSystem = nullptr;
     Shader* m_shaderSelected = nullptr;

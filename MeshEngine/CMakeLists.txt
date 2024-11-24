@@ -38,6 +38,9 @@ set(MESH_ENGINE_HEADERS
     Parser/ColladaParser.h
     Parser/STLParser.h
 
+    RootSystem/AssetSystem.h
+    RootSystem/InputSystem.h
+
     RenderSystem/GuiSystem.h
     RenderSystem/RenderSystem.h
     RenderSystem/Window.h
@@ -85,6 +88,9 @@ set(MESH_ENGINE_SOURCES
     Parser/AssimpParser.cpp
     Parser/ColladaParser.cpp
     Parser/STLParser.cpp
+
+    RootSystem/AssetSystem.cpp
+    RootSystem/InputSystem.cpp
 
     RenderSystem/OpenGL/GLGuiSystem.cpp
     RenderSystem/OpenGL/GLRenderSystem.cpp

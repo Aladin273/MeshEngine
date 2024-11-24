@@ -33,7 +33,7 @@ void TreeLayer::render()
 
             if (!filePath.empty())
             {
-                m_view->getScene()->attachNode(Editor::instance()->loadModel(filePath));
+                m_view->getScene()->attachNode(m_view->getAssetSystem().loadModel(filePath));
                 m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }
@@ -52,14 +52,7 @@ void TreeLayer::render()
 
             if (!filePath.empty())
             {
-                Material material;
-                material.diffuseMap.path = filePath;
-
-                std::unique_ptr<SpriteNode> spriteNode = std::make_unique<SpriteNode>();
-                spriteNode->attachSprite(std::make_unique<Sprite>(material));
-                spriteNode->setName(filePath);
-
-                m_view->getScene()->attachNode(std::move(spriteNode));
+                m_view->getScene()->attachNode(m_view->getAssetSystem().loadImage(filePath));
                 m_view->getViewport().getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
                 m_view->zoomToFit();
             }
