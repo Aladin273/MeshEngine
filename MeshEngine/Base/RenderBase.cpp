@@ -59,3 +59,13 @@ const std::vector<uint32_t>& RenderBase::getRenderSubData() const
 {
     return m_renderSubData;
 }
+
+void RenderBase::updateData()
+{
+
+}
+
+void RenderBase::updateSubData()
+{
+
+}

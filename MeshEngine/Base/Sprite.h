@@ -21,8 +21,11 @@ public:
         super::bind();
     };
 
+    virtual void propertyChanged(const Property& property) override;
+
 public:
     virtual void updateData() override;
+    virtual void updateSubData() override;
 
 public:
     const BoundingBox& getBoundingBox() const;

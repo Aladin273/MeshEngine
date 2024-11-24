@@ -27,16 +27,16 @@ void MeshNode::start()
         {
             RenderSystem* renderSystem = getScene()->getRenderSystem();
 
-            m_renderTrianglesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderTriangles());
-            m_renderLinesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderLines());
-            m_renderHolesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderHoles());
-            m_renderBoundariesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderBoundaries());
-
             Material material = m_mesh->getMaterial();
             material.diffuseMap.id = renderSystem->bufferTexture(material.diffuseMap.path);
             material.specularMap.id = renderSystem->bufferTexture(material.specularMap.path);
             material.emissionMap.id = renderSystem->bufferTexture(material.emissionMap.path);
             m_mesh->setMaterial(material);
+
+            m_renderTrianglesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderTriangles());
+            m_renderLinesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderLines());
+            m_renderHolesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderHoles());
+            m_renderBoundariesId = renderSystem->bufferData(m_mesh->getRenderVertices(), m_mesh->getRenderBoundaries());
 
             m_mesh->setRenderDataDirty(false);
         }
@@ -51,14 +51,14 @@ void MeshNode::end()
     {
         RenderSystem* renderSystem = getScene()->getRenderSystem();
 
+        renderSystem->unbufferTexture(m_mesh->getMaterial().diffuseMap.id);
+        renderSystem->unbufferTexture(m_mesh->getMaterial().specularMap.id);
+        renderSystem->unbufferTexture(m_mesh->getMaterial().emissionMap.id);
+
         renderSystem->unbufferData(m_renderTrianglesId);
         renderSystem->unbufferData(m_renderLinesId);
         renderSystem->unbufferData(m_renderHolesId);
         renderSystem->unbufferData(m_renderBoundariesId);
-
-        renderSystem->unbufferTexture(m_mesh->getMaterial().diffuseMap.id);
-        renderSystem->unbufferTexture(m_mesh->getMaterial().specularMap.id);
-        renderSystem->unbufferTexture(m_mesh->getMaterial().emissionMap.id);
 
         m_mesh->setRenderDataDirty(true);
     }

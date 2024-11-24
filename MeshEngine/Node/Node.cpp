@@ -285,8 +285,7 @@ void Node::updateBbox(float deltaTime)
 {
     if (m_bbox != getBoundingBox())
     {
-        endBbox();
-        startBbox();
+        resetBbox();
     }
 }
 
@@ -307,4 +306,10 @@ void Node::renderBbox(RenderSystem* renderSystem)
         m_shaderBase->unbind();
         renderSystem->unbindData();
     }
+}
+
+void Node::resetBbox()
+{
+    endBbox();
+    startBbox();
 }

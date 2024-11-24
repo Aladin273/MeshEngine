@@ -13,10 +13,15 @@ Sprite::Sprite(const Material& material) :
     updateData();
 }
 
+void Sprite::propertyChanged(const Property& property)
+{
+    updateSubData();
+}
+
 void Sprite::updateData()
 {
-    float scaledWidth = m_material.diffuseMap.width;
-    float scaledHeight = m_material.diffuseMap.height;
+    float scaledWidth = m_material.diffuseMap.width * m_pixelSize;
+    float scaledHeight = m_material.diffuseMap.height * m_pixelSize;
 
     m_renderVertices =
     {
@@ -26,27 +31,41 @@ void Sprite::updateData()
         { { -scaledWidth, -scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 0.f, 0.f } },
     };
 
-    m_renderTriangles =
-    {
-        0, 1, 2,
-        2, 3, 0,
-    };
-
-    m_renderLines =
-    {
-        0, 1,
-        1, 2,
-        2, 3,
-        3, 0,
-    };
+    m_renderTriangles = { 0, 1, 2, 2, 3, 0, };
 
     m_bbox.min.x = -scaledWidth;
     m_bbox.min.y = -scaledHeight;
-    
     m_bbox.max.x = scaledWidth;
     m_bbox.max.y = scaledHeight;
 
     m_renderDataDirty = true;
+
+    super::updateData();
+}
+
+void Sprite::updateSubData()
+{
+    float scaledWidth = m_material.diffuseMap.width * m_pixelSize;
+    float scaledHeight = m_material.diffuseMap.height * m_pixelSize;
+
+    m_renderVertices =
+    {
+        { { -scaledWidth,  scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 0.f, 1.f } },
+        { {  scaledWidth,  scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 1.f, 1.f } },
+        { {  scaledWidth, -scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 1.f, 0.f } },
+        { { -scaledWidth, -scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 0.f, 0.f } },
+    };
+
+    m_renderSubData = { 0, 1, 2, 3 };
+
+    m_bbox.min.x = -scaledWidth;
+    m_bbox.min.y = -scaledHeight;
+    m_bbox.max.x = scaledWidth;
+    m_bbox.max.y = scaledHeight;
+
+    m_renderSubDataDirty = true;
+
+    super::updateSubData();
 }
 
 const BoundingBox& Sprite::getBoundingBox() const
@@ -62,6 +81,7 @@ const Material& Sprite::getMaterial() const
 void Sprite::setMaterial(const Material& material)
 {
     m_material = material;
+    updateData();
 }
 
 float Sprite::getPixelSize() const
@@ -72,4 +92,5 @@ float Sprite::getPixelSize() const
 void Sprite::setPixelSize(float pixelSize)
 {
     m_pixelSize = pixelSize;
+    updateSubData();
 }

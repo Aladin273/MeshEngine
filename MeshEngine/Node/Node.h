@@ -104,6 +104,8 @@ protected:
 
     void updateBbox(float deltaTime);
     void renderBbox(RenderSystem* renderSystem);
+    
+    void resetBbox();
 
 private:
     Shader* m_shaderBase = nullptr;

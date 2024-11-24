@@ -13,7 +13,7 @@ public:
 public:
     virtual void bind() override
     {
-        bindPropertyEx(Property::Base, "Sprite", *m_sprite.get());
+        bindPropertyEx(Property::Base, "m_sprite", *m_sprite.get());
         
         super::bind();
     }
@@ -34,7 +34,6 @@ public:
 
 protected:
     uint32_t m_renderTrianglesId = 0;
-    uint32_t m_renderLinesId = 0;
 
 protected:
     std::unique_ptr<Sprite> m_sprite;

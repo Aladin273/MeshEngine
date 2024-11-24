@@ -27,7 +27,6 @@ void Mesh::updateData()
     m_renderLines.clear();
     m_renderHoles.clear();
     m_renderBoundaries.clear();
-    
     m_renderSubData.clear();
 
     if (m_table.getVertices().empty()) return;
@@ -130,6 +129,13 @@ void Mesh::updateData()
 
     for (size_t i = 0; i < normalsMap.size(); ++i)
         m_renderVertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
+
+    super::updateData();
+}
+
+void Mesh::updateSubData()
+{
+    super::updateSubData();
 }
 
 void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
