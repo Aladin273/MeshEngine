@@ -113,7 +113,7 @@ void ViewportLayer::guizmo()
         ImGuizmo::SetOrthographic(m_view->getViewport().getOrthogonal());
         ImGuizmo::SetDrawlist();
 
-        ImGuizmo::SetRect(m_position.x, m_position.y, m_width, m_height);
+        ImGuizmo::SetRect(m_min.x, m_min.y, m_width, m_height);
 
         ImGuizmo::OPERATION operation;
         ImGuizmo::MODE mode;
