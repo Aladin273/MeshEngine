@@ -2,26 +2,13 @@
 
 #include "OperatorDispatcher.h"
 
-void OperatorDispatcher::forceOperator(View& view, KeyCode key)
-{
-    if (m_dominants.find(key) != m_dominants.end())
-    {
-        m_stack.push(key);
-    }
-    else if (m_keys.find(key) != m_keys.end())
-    {
-        m_op = m_keys[key].get();
-        m_op->onEnter(view);
-    }
-}
-
 void OperatorDispatcher::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)
 {
     if (m_keys.find(enterKey) != m_keys.end())
         throw std::logic_error("An operator is a bind with a key that another operator already uses");
     if (m_dominants.find(enterKey) != m_dominants.end())
         throw std::logic_error("An operator is a bind with a key that another operator already uses");
-    ;
+
     m_dominants.emplace(enterKey, std::make_pair(exitKey, std::move(op)));
 }
 
@@ -39,6 +26,39 @@ void OperatorDispatcher::addOperator(KeyCode key, std::unique_ptr<Operator> op)
         throw std::logic_error("An operator is a bind with a key that another operator already uses");
 
     m_keys.emplace(key, std::move(op));
+}
+
+void OperatorDispatcher::activateOperator(View& view, KeyCode key)
+{
+    if (m_dominants.find(key) != m_dominants.end())
+    {
+        m_stack.push(key);
+        m_dominants[key].second.get()->onEnter(view);
+    }
+    else if (m_keys.find(key) != m_keys.end())
+    {
+        m_op = m_keys[key].get();
+        m_op->onEnter(view);
+    }
+}
+
+void OperatorDispatcher::disableOperator(View& view)
+{
+    if (m_stack.size())
+    {
+        auto keycode = m_dominants.find(m_stack.top());
+
+        if (keycode != m_dominants.end())
+        {
+            keycode->second.second.get()->onExit(view);
+            m_stack.pop();
+        }
+    }
+    else if (m_op)
+    {
+        m_op->onExit(view);
+        m_op = nullptr;
+    }
 }
 
 void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)

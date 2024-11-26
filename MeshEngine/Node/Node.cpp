@@ -25,9 +25,9 @@ Node* Node::getParent() const
 
 Node* Node::getRoot() const
 {
-    Node* root = m_parent;
+    Node* root = const_cast<Node*>(this);
 
-    while (root && root->getParent())
+    while (root->getParent())
     {
         root = root->getParent();
     }

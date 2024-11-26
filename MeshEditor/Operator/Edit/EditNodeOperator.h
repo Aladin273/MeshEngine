@@ -13,6 +13,9 @@ public:
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:
-    Contact m_contact;
+    void onSelectedChanged(View& view, const Contact& selected);
+
+private:
+    bool m_active = false;
 };
 

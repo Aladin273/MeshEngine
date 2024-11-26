@@ -65,10 +65,8 @@ void TreeLayer::render()
 
     if (ImGui::Button("Remove", { ImGui::GetContentRegionAvail().x / 1, 20 }))
     {
-        m_view->getScene()->detachNode(m_view->getSelected());
-
-        m_view->setSelected(nullptr);
-        m_selectedNode = nullptr;
+        m_view->getScene()->detachNode(m_view->getSelected().node);
+        m_view->setSelected(Contact{});
     }
 
     if (ImGui::Button("DirLight", { ImGui::GetContentRegionAvail().x / 3, 20 }))
@@ -118,13 +116,13 @@ void TreeLayer::render()
 
 void TreeLayer::renderNode(Node* node)
 {
-    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (node == m_view->getSelected() ? ImGuiTreeNodeFlags_Selected : 0);
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | (node == m_view->getSelected().node ? ImGuiTreeNodeFlags_Selected : 0);
 
-    auto open = ImGui::TreeNodeEx(node, nodeFlags, "%s", node->getName().c_str());
+    auto open = ImGui::TreeNodeEx(node, flags, "%s", node->getName().c_str());
 
     if (ImGui::IsItemClicked())
     {
-        m_view->setSelected(node);
+        m_view->setSelected(Contact{ {}, node, {}, {} });
     }
 
     if (open)
@@ -157,7 +155,6 @@ std::string TreeLayer::renderDialog()
     ofn.lpstrFile[0] = '\0';
     ofn.nMaxFile = sizeof(filename);
     ofn.lpstrInitialDir = initialDir.c_str();
-    //ofn.lpstrFilter = "STL Files (*.stl)\0*.stl\0DAE Files (*.dae)\0*.dae\0All Files (*.*)\0*.*\0";
     ofn.lpstrFilter = "";
     ofn.nFilterIndex = 1;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;

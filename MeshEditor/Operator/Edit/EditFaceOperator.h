@@ -14,11 +14,9 @@ public:
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:
-    ButtonCode m_buttonArrow = ButtonCode::Button_Left;
-    ButtonCode m_buttonTriad = ButtonCode::Button_Right;
+    void onSelectedChanged(View& view, const Contact& selected);
 
+private:
+    bool m_active = false;
     glm::vec3 m_center { 0.0f};
-    glm::vec3 m_normal { 0.0f};
-
-    Contact m_contact;
 };

@@ -2,13 +2,17 @@
 
 void EditVertexOperator::onEnter(View& view)
 {
+    view.onSelectedChanged.addUnique(this, &EditVertexOperator::onSelectedChanged);
 
+    m_active = true;
 }
 
 void EditVertexOperator::onExit(View& view)
 {
-    m_contact = Contact{};
-    view.getViewportLayer().setVisible(false);
+    view.setSelected(Contact{});
+    view.getViewportLayer().setGizmoVisible(false);
+
+    m_active = false;
 }
 
 void EditVertexOperator::onMouseMove(View& view, double x, double y)
@@ -20,27 +24,51 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
 {   
     if (button == ButtonCode::Button_Left && action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
     {
-        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::NM);
+        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 
         if (contacts.empty())
         {
-            m_contact = Contact{};
-            view.getViewportLayer().setVisible(false);
+            view.setSelected(Contact{});
+            view.getViewportLayer().setGizmoVisible(false);
         }
         else
         {
-            m_contact = contacts.front();
+            Contact contact = contacts.front();
 
-            MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+            if (mods == Modifier::Shift)
+            {
+                contact = Contact{ {}, contact.node->getRoot(), {}, {} };
+            }
+
+            view.setSelected(contact);
+        }
+    }
+}
+
+void EditVertexOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
+{
+    if (key == KeyCode::Space && action == Action::Press)
+    {
+        view.getViewportLayer().setGizmoMode((GizmoMode)(((uint8_t)view.getViewportLayer().getGizmoMode() + 1) % (uint8_t)GizmoMode::MAX));
+    }
+}
+
+void EditVertexOperator::onSelectedChanged(View& view, const Contact& selected)
+{
+    if (m_active)
+    {
+        if (selected.node)
+        {
+            MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
             if (!node) return;
 
             const auto& table = node->getMesh()->getHalfEdgeTable();
-            HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
+            HalfEdgeHandle start_heh = table.deref(selected.face).heh;
             HalfEdgeHandle next_heh = start_heh;
             std::vector<glm::vec3> normals;
 
-            glm::mat4 trf = m_contact.node->getAbsoluteTransform();
-            glm::vec3 point = glm::inverse(trf) * glm::vec4(m_contact.point, 1.0f);
+            glm::mat4 trf = selected.node->getAbsoluteTransform();
+            glm::vec3 point = glm::inverse(trf) * glm::vec4(selected.point, 1.0f);
 
             float min = glm::length(table.getEndPoint(start_heh).position - point);
             m_vh = table.deref(start_heh).dst;
@@ -60,24 +88,22 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
 
             glm::vec3 center = trf * glm::vec4(table.getPoint(m_vh).position, 1.0f);
 
-            view.getViewportLayer().setVisible(true);
-            view.getViewportLayer().setGizmoMode(GizmoMode::World);
+            view.getViewportLayer().setGizmoVisible(true);
+
+            view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
             view.getViewportLayer().setGizmoTransform(glm::translate(center));
+            
             view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
                 {
-                    MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+                    MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
                     if (!node) return;
 
                     node->getMesh()->applyTransformation(m_vh, delta);
                 });
         }
-    }
-}
-
-void EditVertexOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
-{
-    if (key == KeyCode::Space && action == Action::Press)
-    {
-        view.getViewportLayer().setViewportMode((ViewportMode)(((uint8_t)view.getViewportLayer().getViewportMode() + 1) % (uint8_t)ViewportMode::MAX));
+        else
+        {
+            view.getViewportLayer().setGizmoVisible(false);
+        }
     }
 }

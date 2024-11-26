@@ -23,6 +23,7 @@
 
 #include "MeshEngine/Base/Base.h"
 #include "MeshEngine/Misc/Settings.h"
+#include "MeshEngine/Misc/Delegate.h"
 
 #include "MeshEditor/Operator/OperatorDispatcher.h"
 
@@ -51,8 +52,11 @@ public:
     Scene* getScene() const;
     void setScene(Scene* scene);
     
-    Node* getSelected() const;
-    void setSelected(Node* selected);
+    const Contact& getSelected() const;
+    void setSelected(const Contact& selected);
+
+public:
+    MeshEngine::Delegate<View&, const Contact&> onSelectedChanged;
 
 public:
     AssetSystem& getAssetSystem();
@@ -65,8 +69,12 @@ public:
     Viewport& getViewport();
 
 public:
+    ConsoleLayer& getConsoleLayer();
+    DockpaneLayer& getDockpaneLayer();
+    PropertiesLayer& getPropertiesLayer();
+    TreeLayer& getTreeLayer();
     ViewportLayer& getViewportLayer();
-    const ViewportLayer& getViewportLayer() const;
+    SettingsLayer& getSettingsLayer();
 
 public:
     void addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op);
@@ -78,11 +86,10 @@ public:
     {
         m_operatorDispatcher.addLambda(key, lambda);
     }
-
-    void forceOperator(KeyCode key)
-    {
-        m_operatorDispatcher.forceOperator(*this, key);
-    }
+    
+    void activateOperator(KeyCode key);
+    
+    void disableOperator();
 
 public:
     void zoomToFit();
@@ -120,8 +127,8 @@ private:
     std::unique_ptr<ViewportLayer> m_viewportLayer;
     std::unique_ptr<SettingsLayer> m_settingsLayer;
 
+    Contact m_selected;
     Scene* m_scene = nullptr;
-    Node* m_selected = nullptr;
 
     std::unique_ptr<PlaneNode> m_plane;
     std::unique_ptr<OriginNode> m_origin;

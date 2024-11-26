@@ -34,8 +34,10 @@ public:
 
         m_quicks.emplace(key, std::make_unique<QuickOperator>(lambda));
     }
+
+    void activateOperator(View& view, KeyCode key);
     
-    void forceOperator(View& view, KeyCode key);
+    void disableOperator(View& view);
 
 private:
     void processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y);

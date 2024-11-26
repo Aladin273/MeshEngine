@@ -105,7 +105,7 @@ View* Editor::createView(const std::string& title, uint32_t width, uint32_t heig
         {
             if (action == Action::Press)
             {
-                view.zoomToFit(view.getSelected());
+                view.zoomToFit(view.getSelected().node);
             }
         });
 
@@ -135,12 +135,20 @@ View* Editor::createView(const std::string& title, uint32_t width, uint32_t heig
     {
         if (action == Action::Press)
         {
-            view.getScene()->detachNode(view.getSelected());
-            view.setSelected(nullptr);
+            view.getScene()->detachNode(view.getSelected().node);
+            view.setSelected(Contact{});
         }
     });
 
-    m_views.back()->forceOperator(KeyCode::T);
+    m_views.back()->addLambda(KeyCode::Escape, [](View& view, Action action, Modifier mods)
+        {
+            if (action == Action::Press)
+            {
+                view.setSelected(Contact{});
+            }
+        });
+
+    m_views.back()->activateOperator(KeyCode::T);
 
     return m_views.back().get();
 }

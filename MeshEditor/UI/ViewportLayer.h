@@ -4,7 +4,7 @@
 
 #include <functional>
 
-enum class ViewportMode : uint8_t
+enum class GizmoMode : uint8_t
 {
     Select = 0,
     Translate,
@@ -16,7 +16,7 @@ enum class ViewportMode : uint8_t
     Bounds,    // TODO
 };
 
-enum class GizmoMode : uint8_t
+enum class GizmoSpace : uint8_t
 {
     World = 0,
     Local
@@ -38,50 +38,54 @@ public:
 public:
     virtual void render() override;
 
+public:
     bool wantCaptureMouse() const;
     bool wantCaptureKeyboard() const;
     bool wantCaptureGizmo() const;
 
     void remapToRelative(double& x, double& y);
 
-    bool getVisible() const;
-    void setVisible(bool visible);
+    void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
-    ViewportMode getViewportMode() const;
+public:
+    bool getGizmoVisible() const;
+    void setGizmoVisible(bool visible);
+
     GizmoMode getGizmoMode() const;
+    GizmoSpace getGizmoSpace() const;
 
-    void setViewportMode(ViewportMode mode);
     void setGizmoMode(GizmoMode mode);
+    void setGizmoSpace(GizmoSpace space);
     
     void setGizmoTransform(const glm::mat4& transform);
     void setGizmoCallback(const GizmoCallback& callback);
-
-    void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
 private:
     void guizmo();
     void overlay();
 
-    uint32_t m_width;
-    uint32_t m_height;
-
+private:
     glm::vec2 m_mouse;
     glm::vec2 m_position;
 
     glm::vec2 m_min;
     glm::vec2 m_max;
 
+    uint32_t m_width;
+    uint32_t m_height;
+
     bool m_wantCaptureMouse = false;
     bool m_wantCaptureKeyboard = false;
     bool m_wantCaptureGizmo = false;
 
-    bool m_visible = false;
+    FramebufferSizeCallback m_sizeCallback;
 
-    ViewportMode m_viewportMode = ViewportMode::Translate;
-    GizmoMode m_gizmoMode = GizmoMode::World;
-
+private:
+    bool m_gizmoVisible = false;
     glm::mat4 m_gizmoTransform{1.0f};
 
+    GizmoMode m_gizmoMode = GizmoMode::Translate;
+    GizmoSpace m_gizmoSpace = GizmoSpace::World;
+
     GizmoCallback m_gizmoCallback;
-    FramebufferSizeCallback m_sizeCallback;
 };

@@ -137,9 +137,9 @@ void View::render()
 
     // Selected Render
     //////////////////////////////////////////////////
-    if (getSelected())
+    if (getSelected().node)
     {
-        getSelected()->renderEx(m_renderSystem, m_shaderSelected);
+        getSelected().node->renderEx(m_renderSystem, m_shaderSelected);
     }
 
     m_renderSystem->clearDepth();
@@ -185,14 +185,15 @@ void View::setScene(Scene* scene)
     }
 }
 
-Node* View::getSelected() const
+const Contact& View::getSelected() const
 {
     return m_selected;
 }
 
-void View::setSelected(Node* selected)
+void View::setSelected(const Contact& selected)
 {
     m_selected = selected;
+    onSelectedChanged.broadcast(*this, m_selected);
 }
 
 AssetSystem& View::getAssetSystem()
@@ -225,14 +226,34 @@ Viewport& View::getViewport()
     return m_viewport;
 }
 
+ConsoleLayer& View::getConsoleLayer()
+{
+    return *m_consoleLayer;
+}
+
+DockpaneLayer& View::getDockpaneLayer()
+{
+    return *m_dockpaneLayer;
+}
+
+PropertiesLayer& View::getPropertiesLayer()
+{
+    return *m_propertiesLayer;
+}
+
+TreeLayer& View::getTreeLayer()
+{
+    return *m_treeLayer;
+}
+
 ViewportLayer& View::getViewportLayer()
 {
     return *m_viewportLayer;
 }
 
-const ViewportLayer& View::getViewportLayer() const
+SettingsLayer& View::getSettingsLayer()
 {
-    return *m_viewportLayer;
+    return *m_settingsLayer;
 }
 
 void View::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)
@@ -248,6 +269,16 @@ void View::addOperator(ButtonCode button, std::unique_ptr<Operator> op)
 void View::addOperator(KeyCode key, std::unique_ptr<Operator> op)
 {
     m_operatorDispatcher.addOperator(key, std::move(op));
+}
+
+void View::activateOperator(KeyCode key)
+{
+    m_operatorDispatcher.activateOperator(*this, key);
+}
+
+void View::disableOperator()
+{
+    m_operatorDispatcher.disableOperator(*this);
 }
 
 void View::zoomToFit()

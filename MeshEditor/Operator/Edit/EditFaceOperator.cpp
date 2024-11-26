@@ -3,13 +3,17 @@
 
 void EditFaceOperator::onEnter(View& view)
 {
+    view.onSelectedChanged.addUnique(this, &EditFaceOperator::onSelectedChanged);
 
+    m_active = true;
 }
 
 void EditFaceOperator::onExit(View& view)
 {
-    m_contact = Contact{};
-    view.getViewportLayer().setVisible(false);
+    view.setSelected(Contact{});
+    view.getViewportLayer().setGizmoVisible(false);
+
+    m_active = false;
 }
 
 void EditFaceOperator::onMouseMove(View& view, double x, double y)
@@ -25,18 +29,42 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
 
         if (contacts.empty())
         {
-            m_contact = Contact{};
-            view.getViewportLayer().setVisible(false);
+            view.setSelected(Contact{});
+            view.getViewportLayer().setGizmoVisible(false);
         }
         else
         {
-            m_contact = contacts.front();
+            Contact contact = contacts.front();
 
-            MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+            if (mods == Modifier::Shift)
+            {
+                contact = Contact{ {}, contact.node->getRoot(), {}, {} };
+            }
+
+            view.setSelected(contact);
+        }
+    }
+}
+
+void EditFaceOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
+{
+    if (key == KeyCode::Space && action == Action::Press)
+    {
+        view.getViewportLayer().setGizmoMode((GizmoMode)(((uint8_t)view.getViewportLayer().getGizmoMode() + 1) % (uint8_t)GizmoMode::MAX));
+    }
+}
+
+void EditFaceOperator::onSelectedChanged(View& view, const Contact& selected)
+{
+    if (m_active)
+    {
+        if (selected.node)
+        {
+            MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
             if (!node) return;
 
             const auto& table = node->getMesh()->getHalfEdgeTable();
-            HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;
+            HalfEdgeHandle heh0 = table.deref(selected.face).heh;
             HalfEdgeHandle heh1 = table.next(heh0);
             HalfEdgeHandle heh2 = table.next(heh1);
             HalfEdgeHandle heh3 = table.next(heh2);
@@ -50,24 +78,22 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
 
             glm::vec3 center = heh3 == heh0 ? (a + b + c) / 3.0f : (a + b + c + d) / 4.0f;
 
-            view.getViewportLayer().setVisible(true);
-            view.getViewportLayer().setGizmoMode(GizmoMode::World);
-            view.getViewportLayer().setGizmoTransform(glm::translate(m_center));
+            view.getViewportLayer().setGizmoVisible(true);
+
+            view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
+            view.getViewportLayer().setGizmoTransform(glm::translate(center));
+
             view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
                 {
-                    MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
+                    MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
                     if (!node) return;
 
-                    node->getMesh()->applyTransformation(m_contact.face, delta);
+                    node->getMesh()->applyTransformation(selected.face, delta);
                 });
         }
-    }
-}
-
-void EditFaceOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
-{
-    if (key == KeyCode::Space && action == Action::Press)
-    {
-        view.getViewportLayer().setViewportMode((ViewportMode)(((uint8_t)view.getViewportLayer().getViewportMode() + 1) % (uint8_t)ViewportMode::MAX));
+        else
+        {
+            view.getViewportLayer().setGizmoVisible(false);
+        }
     }
 }

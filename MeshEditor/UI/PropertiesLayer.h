@@ -13,5 +13,5 @@ public:
     virtual void render() override;
 
 protected:
-    void processProperties(Base* base, const std::string& name);
+    void renderProperties(Base* base, const std::string& name);
 };

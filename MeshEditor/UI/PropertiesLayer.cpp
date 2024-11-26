@@ -12,21 +12,21 @@ void PropertiesLayer::render()
 {
     ImGui::Begin("Properties");
 
-    if (m_view->getSelected())
+    if (m_view->getSelected().node)
     {
-        processProperties(m_view->getSelected(), m_view->getSelected()->getName());
+        renderProperties(m_view->getSelected().node, m_view->getSelected().node->getName());
     }
 
     ImGui::End();
 }
 
-void PropertiesLayer::processProperties(Base* base, const std::string& name)
+void PropertiesLayer::renderProperties(Base* base, const std::string& name)
 {
     if (base)
     {
         base->bind();
 
-        if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::TreeNodeEx(base, ImGuiTreeNodeFlags_DefaultOpen, "%s", name.c_str()))
         {
             ImGui::Separator();
 
@@ -173,7 +173,7 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
 
                 case Property::Base:
                 {
-                    processProperties((Base*)property.object, property.name);
+                    renderProperties((Base*)property.object, property.name);
                     break;
                 }
                 };

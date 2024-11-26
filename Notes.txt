@@ -1,9 +1,10 @@
 Urgently Goals
 ----------------------------------------------------------------
-- Check raycast precision
+- Delegates, Tree, Viewport, Properties
 - Fix manipulator for vertices and faces
-- Remove manipulator from selected and deleted node
-- Fix assimp parser root
+- Buttons for operator and gizmo mode
+- Fix parser root node
+- Check raycast precision
 
 - Add transforming to properties layer
 - Inherit Light from Base with fix buffer padding

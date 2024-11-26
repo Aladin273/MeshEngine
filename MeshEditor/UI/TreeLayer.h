@@ -14,6 +14,4 @@ public:
 private:
     void renderNode(Node* node);
     std::string renderDialog();
-
-    Node* m_selectedNode = nullptr;
 };
