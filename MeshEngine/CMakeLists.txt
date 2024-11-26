@@ -8,6 +8,7 @@ set(MESH_ENGINE_HEADERS
     Misc/Export.h    
     Misc/Timer.h
     Misc/Logger.h
+    Misc/Delegate.h
     Misc/DynamicLibrary.h
     Misc/Settings.h
     
@@ -59,6 +60,7 @@ set(MESH_ENGINE_SOURCES
     Misc/Export.cpp
     Misc/Timer.cpp
     Misc/Logger.cpp
+    Misc/Delegate.cpp
     Misc/DynamicLibrary.cpp
     Misc/Settings.cpp
 
