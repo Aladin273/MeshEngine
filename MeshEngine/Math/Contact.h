@@ -6,7 +6,7 @@
 struct Contact
 {
     HalfEdgeFaceHandle face;
-    Node* node;
+    Node* node = nullptr;
     float distance;
     glm::vec3 point;
 };

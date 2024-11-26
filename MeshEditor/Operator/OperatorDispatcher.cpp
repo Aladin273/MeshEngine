@@ -2,6 +2,19 @@
 
 #include "OperatorDispatcher.h"
 
+void OperatorDispatcher::forceOperator(View& view, KeyCode key)
+{
+    if (m_dominants.find(key) != m_dominants.end())
+    {
+        m_stack.push(key);
+    }
+    else if (m_keys.find(key) != m_keys.end())
+    {
+        m_op = m_keys[key].get();
+        m_op->onEnter(view);
+    }
+}
+
 void OperatorDispatcher::addOperator(KeyCode enterKey, KeyCode exitKey, std::unique_ptr<Operator> op)
 {
     if (m_keys.find(enterKey) != m_keys.end())
@@ -30,81 +43,107 @@ void OperatorDispatcher::addOperator(KeyCode key, std::unique_ptr<Operator> op)
 
 void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    if (!m_stack.empty())
+    if (m_stack.size())
     {
-        auto dominant = m_dominants.find(m_stack.top());
+        auto keycode = m_dominants.find(m_stack.top());
 
-        if (dominant != m_dominants.end())
+        if (keycode != m_dominants.end())
         {
-            op = dominant->second.second.get();
-            op->onMouseInput(view, button, action, mods, x, y);
+            keycode->second.second.get()->onMouseInput(view, button, action, mods, x, y);
         }
     }
-
-    for (auto& buttoncode : m_buttons)
+    else if (m_op)
     {
-        if (buttoncode.first == button)
-            buttoncode.second->onMouseInput(view, button, action, mods, x, y);
+        m_op->onMouseInput(view, button, action, mods, x, y);
+    }
+
+    for (auto& op : m_buttons)
+    {
+        if (button == op.first)
+            op.second->onMouseInput(view, button, action, mods, x, y);
     }
 }
 
 void OperatorDispatcher::processKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
 {
-    if (!m_stack.empty())
+    if (m_stack.size())
     {
-        auto dominant = m_dominants.find(m_stack.top());
+        auto keycode = m_dominants.find(m_stack.top());
 
-        if (dominant != m_dominants.end())
+        if (keycode != m_dominants.end())
         {
-            op = dominant->second.second.get();
-            op->onKeyboardInput(view, key, action, mods);
-
-            if (key == dominant->second.first)
+            if (key == keycode->second.first)
             {
-                op->onExit(view);
-                while (!m_stack.empty()) m_stack.pop();
+                keycode->second.second.get()->onExit(view);
+                m_stack.pop();
+            }
+            else
+            {
+                keycode->second.second.get()->onKeyboardInput(view, key, action, mods);
             }
         }
     }
-    
-    auto keycode = m_keys.find(key);
-
-    if (keycode != m_keys.end())
-    {
-        op = keycode->second.get();
-        op->onKeyboardInput(view, key, action, mods);
-    }
     else
     {
-        auto dominant = m_dominants.find(key);
+        auto keycode = m_keys.find(key);
 
-        if (dominant != m_dominants.end())
+        if (keycode != m_keys.end())
         {
-            m_stack.push(key);
+            Operator* op = keycode->second.get();
 
-            op = dominant->second.second.get();
-            op->onEnter(view);
-            op->onKeyboardInput(view, key, action, mods);
+            if (m_op && m_op != op)
+                m_op->onExit(view);
+
+            m_op = op;
+            m_op->onEnter(view);
+        }
+        else
+        {
+            auto keycode = m_quicks.find(key);
+
+            if (keycode != m_quicks.end())
+            {
+                keycode->second.get()->onKeyboardInput(view, key, action, mods);
+            }
+            else
+            {
+                if (m_stack.size()) 
+                {
+                    auto keycode = m_dominants.find(key);
+
+                    if (keycode != m_dominants.end())
+                    {
+                        m_stack.push(key);
+                        keycode->second.second.get()->onEnter(view);
+                    }
+
+                }
+                else if (m_op)
+                {
+                    m_op->onKeyboardInput(view, key, action, mods);
+                }
+            }
         }
     }
 }
 
 void OperatorDispatcher::processMouseMove(View& view, double x, double y)
 {
-    if (!m_stack.empty())
+    if (m_stack.size())
     {
-        auto dominant = m_dominants.find(m_stack.top());
+        auto keycode = m_dominants.find(m_stack.top());
 
-        if (dominant != m_dominants.end())
+        if (keycode != m_dominants.end())
         {
-            op = dominant->second.second.get();
-            op->onMouseMove(view, x, y);
+            keycode->second.second.get()->onMouseMove(view, x, y);
         }
+    }
+    else
+    {
+        for (auto& op : m_keys)
+            op.second->onMouseMove(view, x, y);
     }
 
     for (auto& op : m_buttons)
-        op.second->onMouseMove(view, x, y);
-
-    for (auto& op : m_keys)
         op.second->onMouseMove(view, x, y);
 }

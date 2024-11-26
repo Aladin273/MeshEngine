@@ -21,5 +21,4 @@ private:
     glm::vec3 m_normal { 0.0f};
 
     Contact m_contact;
-    View* m_view;
 };

@@ -17,7 +17,7 @@ public:
     void addOperator(KeyCode key, std::unique_ptr<Operator> op);
 
     template<class Lambda>
-    void addOperator(KeyCode key, Lambda lambda)
+    void addLambda(KeyCode key, Lambda lambda)
     {
         class QuickOperator : public Operator
         {
@@ -32,8 +32,10 @@ public:
             }
         };
 
-        m_keys.emplace(key, new QuickOperator(lambda));
+        m_quicks.emplace(key, std::make_unique<QuickOperator>(lambda));
     }
+    
+    void forceOperator(View& view, KeyCode key);
 
 private:
     void processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y);
@@ -42,8 +44,9 @@ private:
 
     std::vector<std::pair<ButtonCode, std::unique_ptr<Operator>>> m_buttons;
     std::map<KeyCode, std::unique_ptr<Operator>> m_keys;
+    std::map<KeyCode, std::unique_ptr<Operator>> m_quicks;
     std::map<KeyCode, std::pair<KeyCode, std::unique_ptr<Operator>>> m_dominants;
 
+    Operator* m_op = nullptr;
     std::stack<KeyCode> m_stack;
-    Operator* op = nullptr;
 };

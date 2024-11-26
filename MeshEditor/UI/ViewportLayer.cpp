@@ -69,6 +69,16 @@ void ViewportLayer::remapToRelative(double& x, double& y)
     y = m_height - (m_mouse.y - m_min.y);
 }
 
+bool ViewportLayer::getVisible() const
+{
+    return m_visible;
+}
+
+void ViewportLayer::setVisible(bool visible)
+{
+    m_visible = visible;
+}
+
 ViewportMode ViewportLayer::getViewportMode() const
 {
     return m_viewportMode;
@@ -106,7 +116,7 @@ void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& ca
 
 void ViewportLayer::guizmo()
 {
-    if (m_viewportMode != ViewportMode::Select)
+    if (m_visible && m_viewportMode != ViewportMode::Select)
     {
         ImGuizmo::Enable(true);
 

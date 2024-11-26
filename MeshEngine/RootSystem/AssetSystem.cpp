@@ -17,22 +17,45 @@ void AssetSystem::init()
 
 std::unique_ptr<Node> AssetSystem::loadModel(const std::string& filename)
 {
+    std::unique_ptr<Node> model;
+
     if (filename.find(".stl") != MeshEngine::Settings::invalid)
-        return m_stl->loadModel(filename);
+        model = m_stl->loadModel(filename);
     else if (filename.find(".dae") != MeshEngine::Settings::invalid)
-        return m_collada->loadModel(filename);
+        model = m_collada->loadModel(filename);
     else
-        return m_assimp->loadModel(filename);
+        model = m_assimp->loadModel(filename);
+
+    // Re-center
+    model->processRecursive([](Node& node) -> bool
+        {
+            if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
+            {
+                glm::vec3 center = glm::vec4((meshNode->getBoundingBox().min + meshNode->getBoundingBox().max) / 2.0f, 1.0f);
+
+                if (glm::any(glm::notEqual(glm::vec3(0.0f), center, 1e-8)))
+                {
+                    auto& table = meshNode->getMesh()->getHalfEdgeTable();
+
+                    for (auto& vertex : table.getVertices())
+                        vertex.data.position -= center;
+
+                    meshNode->getMesh()->updateData();
+                    meshNode->applyRelativeTransform(glm::translate(center));
+
+                    meshNode->reset();
+                }
+            }
+
+            return true;
+        });
+
+    return model;
 }
 
 void AssetSystem::saveModel(Node& model, const std::string& filename)
 {
-    if (filename.find(".stl") != MeshEngine::Settings::invalid)
-        m_stl->saveModel(model, filename);
-    else if (filename.find(".dae") != MeshEngine::Settings::invalid)
-        m_collada->saveModel(model, filename);
-    //else
-    //    m_assimp->saveMode(model, filename);
+    // TODO ???
 }
 
 std::unique_ptr<Node> AssetSystem::loadImage(const std::string& filename)

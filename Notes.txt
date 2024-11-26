@@ -1,10 +1,9 @@
 Urgently Goals
 ----------------------------------------------------------------
 - Check raycast precision
-- Fix different manipulator transform
 - Fix manipulator for vertices and faces
 - Remove manipulator from selected and deleted node
-- Add re-center node to parser and profile
+- Fix assimp parser root
 
 - Add transforming to properties layer
 - Inherit Light from Base with fix buffer padding

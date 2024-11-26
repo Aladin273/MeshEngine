@@ -27,7 +27,7 @@ Node* Node::getRoot() const
 {
     Node* root = m_parent;
 
-    while (root)
+    while (root && root->getParent())
     {
         root = root->getParent();
     }

@@ -10,8 +10,10 @@ enum class ViewportMode : uint8_t
     Translate,
     Rotate,
     Scale,
-    Universal,
-    Bounds,
+    MAX,
+
+    Universal, // TODO
+    Bounds,    // TODO
 };
 
 enum class GizmoMode : uint8_t
@@ -42,6 +44,9 @@ public:
 
     void remapToRelative(double& x, double& y);
 
+    bool getVisible() const;
+    void setVisible(bool visible);
+
     ViewportMode getViewportMode() const;
     GizmoMode getGizmoMode() const;
 
@@ -70,7 +75,9 @@ private:
     bool m_wantCaptureKeyboard = false;
     bool m_wantCaptureGizmo = false;
 
-    ViewportMode m_viewportMode = ViewportMode::Select;
+    bool m_visible = false;
+
+    ViewportMode m_viewportMode = ViewportMode::Translate;
     GizmoMode m_gizmoMode = GizmoMode::World;
 
     glm::mat4 m_gizmoTransform{1.0f};

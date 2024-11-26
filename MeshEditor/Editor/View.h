@@ -74,9 +74,14 @@ public:
     void addOperator(KeyCode key, std::unique_ptr<Operator> op);
 
     template<class Lambda>
-    void addOperator(KeyCode key, Lambda lambda)
+    void addLambda(KeyCode key, Lambda lambda)
     {
-        m_operatorDispatcher.addOperator(key, lambda);
+        m_operatorDispatcher.addLambda(key, lambda);
+    }
+
+    void forceOperator(KeyCode key)
+    {
+        m_operatorDispatcher.forceOperator(*this, key);
     }
 
 public:
