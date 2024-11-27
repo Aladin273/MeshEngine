@@ -11,15 +11,13 @@ enum class GizmoMode : uint8_t
     Rotate,
     Scale,
     MAX,
-
-    Universal, // TODO
-    Bounds,    // TODO
 };
 
 enum class GizmoSpace : uint8_t
 {
     World = 0,
-    Local
+    Local,
+    MAX,
 };
 
 class ViewportLayer : public BaseLayer
@@ -28,7 +26,7 @@ public:
     ViewportLayer(View* view);
 
 public:
-    using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&)>;
+    using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&, const glm::vec3&, const glm::vec3&, const glm::vec3&)>;
     using FramebufferSizeCallback = std::function<void(double, double)>;
 
     uint32_t frameId = 0;
@@ -60,6 +58,9 @@ public:
     void setGizmoTransform(const glm::mat4& transform);
     void setGizmoCallback(const GizmoCallback& callback);
 
+    void switchGizmoMode();
+    void switchGizmoSpace();
+
 private:
     void guizmo();
     void overlay();
@@ -82,7 +83,13 @@ private:
 
 private:
     bool m_gizmoVisible = false;
-    glm::mat4 m_gizmoTransform{1.0f};
+    
+    glm::mat4 m_gizmoTransform{ 1.0f};
+    glm::mat4 m_gizmoDelta{ 1.0f};
+
+    glm::vec3 m_gizmoTranslation{ 1.0f };
+    glm::vec3 m_gizmoRotation{ 1.0f };
+    glm::vec3 m_gizmoScale{ 1.0f };
 
     GizmoMode m_gizmoMode = GizmoMode::Translate;
     GizmoSpace m_gizmoSpace = GizmoSpace::World;

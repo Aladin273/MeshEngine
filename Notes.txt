@@ -1,12 +1,15 @@
 Urgently Goals
 ----------------------------------------------------------------
-- Delegates, Tree, Viewport, Properties
 - Fix manipulator for vertices and faces
-- Buttons for operator and gizmo mode
-- Fix parser root node
 - Check raycast precision
 
-- Add transforming to properties layer
+- Add transforming to properties layer, Decompose, Matrix
+
+- Delegates, Tree, Viewport, Properties
+- OnScreen, Checkbox, Flat, Smooth, Changed
+- Buttons for operator and gizmo mode
+
+- Fix parser root node
 - Inherit Light from Base with fix buffer padding
 
 - Add predicate for renderEx

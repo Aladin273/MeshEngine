@@ -3,7 +3,10 @@
 void EditNodeOperator::onEnter(View& view)
 {
     view.onSelectedChanged.addUnique(this, &EditNodeOperator::onSelectedChanged);
- 
+    
+    view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
+    view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
+    
     m_active = true;
 }
 
@@ -49,7 +52,7 @@ void EditNodeOperator::onKeyboardInput(View& view, KeyCode key, Action action, M
 {
     if (key == KeyCode::Space && action == Action::Press)
     {
-        view.getViewportLayer().setGizmoMode((GizmoMode)(((uint8_t)view.getViewportLayer().getGizmoMode() + 1) % (uint8_t)GizmoMode::MAX));
+        view.getViewportLayer().switchGizmoMode();
     }
 }
 
@@ -60,11 +63,8 @@ void EditNodeOperator::onSelectedChanged(View& view, const Contact& selected)
         if (selected.node)
         {
             view.getViewportLayer().setGizmoVisible(true);
-            
-            view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
             view.getViewportLayer().setGizmoTransform(selected.node->getAbsoluteTransform());
-            
-            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
+            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta, const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
                 {
                     Node* node = selected.node;
                     if (!node) return;

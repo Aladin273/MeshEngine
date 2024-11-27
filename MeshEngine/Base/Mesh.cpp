@@ -44,17 +44,8 @@ void Mesh::updateData()
 
     for (const auto& vertex : vertices)
     {
-        const auto& data = vertex.data;
-
-        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
-
-        m_renderVertices.push_back(data);
+        m_bbox.merge(vertex.data.position);
+        m_renderVertices.push_back(vertex.data);
     }
 
     std::vector<std::pair<glm::vec3, float>> normalsMap{ 0 };
@@ -162,21 +153,12 @@ void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
     {
         HalfEdgeVertexHandle vh = m_table.destVertex(next_heh);
 
-        Vertex data = m_table.getPoint(vh);
-        data.position = glm::translate(-center) * glm::vec4(data.position, 1.0f);
-        data.position = trf * glm::vec4(data.position, 1.0f);
-        data.position = glm::translate(center) * glm::vec4(data.position, 1.0f);
+        Vertex data = m_table.getPoint(vh);;
+        data.position = glm::vec3(trf * glm::vec4(data.position - center, 1.f)) + center;
 
         m_table.setPoint(vh, data);
 
-        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
-
+        m_bbox.merge(data.position);
         m_renderVertices[vh].position = data.position;
 
         next_heh = m_table.next(next_heh);
@@ -264,27 +246,15 @@ void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
 {
     m_renderSubDataDirty = true;
     m_renderSubData.clear();
-    
-    Vertex center = m_table.getPoint(vh);
 
     Vertex data = m_table.getPoint(vh);
-    data.position = glm::translate(-center.position) * glm::vec4(data.position, 1.0f);
     data.position = trf * glm::vec4(data.position, 1.0f);
-    data.position = glm::translate(center.position) * glm::vec4(data.position, 1.0f);
 
     m_table.setPoint(vh, data);
 
-    m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-    m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-    m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-    m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-    m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-    m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
-
+    m_bbox.merge(data.position);
     m_renderVertices[vh].position = data.position;
     
-    // Calculate normals
     std::set<HalfEdgeFaceHandle> affectedFaces;
     std::set<HalfEdgeVertexHandle> affectedVertices;
 

@@ -159,37 +159,6 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
         }
     }
 
-    // Filter value
-    //for (size_t index = 0; index < contacts.size();)
-    //{
-    //    if (filterValues == FilterValue::NM)
-    //    {
-    //        if (dynamic_cast<Node*>(contacts[index].node) == nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //    else if (filterValues == FilterValue::Manipulator)
-    //    {
-    //        if (dynamic_cast<Manipulator*>(contacts[index].node) == nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (dynamic_cast<Manipulator*>(contacts[index].node) != nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //
-    //    ++index;
-    //}
-
     // Sort by distance to Camera
     std::sort(contacts.begin(), contacts.end(), [&](Contact& a, Contact& b)
         {

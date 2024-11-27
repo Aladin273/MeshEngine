@@ -109,6 +109,16 @@ void ViewportLayer::setGizmoCallback(const GizmoCallback& callback)
     m_gizmoCallback = callback;
 }
 
+void ViewportLayer::switchGizmoMode()
+{
+    m_gizmoMode = (GizmoMode)(((uint8_t)m_gizmoMode + 1) % (uint8_t)GizmoMode::MAX);
+}
+
+void ViewportLayer::switchGizmoSpace()
+{
+    m_gizmoSpace = (GizmoSpace)(((uint8_t)m_gizmoSpace + 1) % (uint8_t)GizmoSpace::MAX);
+}
+
 void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
 {
     m_sizeCallback = callback;
@@ -134,22 +144,22 @@ void ViewportLayer::guizmo()
             operation = ImGuizmo::ROTATE;
         else if (m_gizmoMode == GizmoMode::Scale)
             operation = ImGuizmo::SCALE;
-        else if (m_gizmoMode == GizmoMode::Universal)
-            operation = ImGuizmo::UNIVERSAL;
-        else if (m_gizmoMode == GizmoMode::Bounds)
-            operation = ImGuizmo::BOUNDS;
 
         if (m_gizmoSpace == GizmoSpace::World)
             mode = ImGuizmo::WORLD;
         else if (m_gizmoSpace == GizmoSpace::Local)
             mode = ImGuizmo::LOCAL;
 
-        glm::mat4 delta{ 1.0f };
+        m_gizmoDelta = glm::mat4(1.0f);
+        m_gizmoTranslation = glm::vec3(1.0f);
+        m_gizmoRotation = glm::vec3(1.0f);
+        m_gizmoScale = glm::vec3(1.0f);
 
         if (ImGuizmo::Manipulate(glm::value_ptr(m_view->getViewport().getCamera().calcViewMatrix()), glm::value_ptr(m_view->getViewport().calcProjectionMatrix()),
-            operation, mode, glm::value_ptr(m_gizmoTransform), glm::value_ptr(delta)))
-        {
-            m_gizmoCallback(m_gizmoTransform, delta);
+            operation, mode, glm::value_ptr(m_gizmoTransform), glm::value_ptr(m_gizmoDelta)))
+        {   
+            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(m_gizmoDelta), glm::value_ptr(m_gizmoTranslation), glm::value_ptr(m_gizmoRotation), glm::value_ptr(m_gizmoScale));
+            m_gizmoCallback(m_gizmoTransform, m_gizmoDelta, m_gizmoTranslation, m_gizmoRotation, m_gizmoScale);
         }
 
         m_wantCaptureGizmo = ImGuizmo::IsOver() || ImGuizmo::IsUsing() || ImGuizmo::IsUsingAny();

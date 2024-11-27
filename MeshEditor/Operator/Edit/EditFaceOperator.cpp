@@ -5,6 +5,9 @@ void EditFaceOperator::onEnter(View& view)
 {
     view.onSelectedChanged.addUnique(this, &EditFaceOperator::onSelectedChanged);
 
+    view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
+    view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
+
     m_active = true;
 }
 
@@ -36,35 +39,11 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
         {
             Contact contact = contacts.front();
 
-            if (mods == Modifier::Shift)
-            {
-                contact = Contact{ {}, contact.node->getRoot(), {}, {} };
-            }
-
-            view.setSelected(contact);
-        }
-    }
-}
-
-void EditFaceOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
-{
-    if (key == KeyCode::Space && action == Action::Press)
-    {
-        view.getViewportLayer().setGizmoMode((GizmoMode)(((uint8_t)view.getViewportLayer().getGizmoMode() + 1) % (uint8_t)GizmoMode::MAX));
-    }
-}
-
-void EditFaceOperator::onSelectedChanged(View& view, const Contact& selected)
-{
-    if (m_active)
-    {
-        if (selected.node)
-        {
-            MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
+            MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
             if (!node) return;
 
             const auto& table = node->getMesh()->getHalfEdgeTable();
-            HalfEdgeHandle heh0 = table.deref(selected.face).heh;
+            HalfEdgeHandle heh0 = table.deref(contact.face).heh;
             HalfEdgeHandle heh1 = table.next(heh0);
             HalfEdgeHandle heh2 = table.next(heh1);
             HalfEdgeHandle heh3 = table.next(heh2);
@@ -79,21 +58,33 @@ void EditFaceOperator::onSelectedChanged(View& view, const Contact& selected)
             glm::vec3 center = heh3 == heh0 ? (a + b + c) / 3.0f : (a + b + c + d) / 4.0f;
 
             view.getViewportLayer().setGizmoVisible(true);
-
-            view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
             view.getViewportLayer().setGizmoTransform(glm::translate(center));
-
-            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
+            view.getViewportLayer().setGizmoCallback([contact, &view](const glm::mat4& transform, const glm::mat4& delta, const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
                 {
-                    MeshNode* node = dynamic_cast<MeshNode*>(selected.node);
+                    MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
                     if (!node) return;
 
-                    node->getMesh()->applyTransformation(selected.face, delta);
+                    glm::mat4 inverse = glm::inverse(node->getAbsoluteTransform());
+
+                    glm::mat4 localTranslation = glm::translate(glm::vec3(inverse * glm::vec4(translation, 1.f)));
+                    glm::mat4 localRotation = glm::mat4_cast(glm::quat_cast(inverse) * glm::quat(glm::radians(rotation)));
+                    glm::mat4 localScale = glm::scale(glm::vec3(inverse * glm::vec4(scale, 0.f)));
+
+                    node->getMesh()->applyTransformation(contact.face, localTranslation);
                 });
         }
-        else
-        {
-            view.getViewportLayer().setGizmoVisible(false);
-        }
+    }
+}
+
+void EditFaceOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
+{
+
+}
+
+void EditFaceOperator::onSelectedChanged(View& view, const Contact& selected)
+{
+    if (m_active && selected.node)
+    {
+        view.setSelected(Contact{});
     }
 }

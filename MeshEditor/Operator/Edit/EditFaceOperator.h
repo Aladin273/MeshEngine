@@ -18,5 +18,4 @@ private:
 
 private:
     bool m_active = false;
-    glm::vec3 m_center { 0.0f};
 };

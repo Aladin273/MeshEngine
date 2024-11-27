@@ -18,5 +18,4 @@ private:
 
 private:
     bool m_active = false;
-    HalfEdgeVertexHandle m_vh;
 };

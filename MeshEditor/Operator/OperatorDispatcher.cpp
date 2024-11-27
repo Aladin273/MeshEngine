@@ -127,16 +127,15 @@ void OperatorDispatcher::processKeyboardInput(View& view, KeyCode key, Action ac
             }
             else
             {
-                if (m_stack.size()) 
+                auto keycode = m_dominants.find(key);
+
+                if (keycode != m_dominants.end())
                 {
-                    auto keycode = m_dominants.find(key);
+                    m_stack.push(key);
+                    keycode->second.second.get()->onEnter(view);
 
-                    if (keycode != m_dominants.end())
-                    {
-                        m_stack.push(key);
-                        keycode->second.second.get()->onEnter(view);
-                    }
-
+                    if (m_op)
+                        m_op->onExit(view);
                 }
                 else if (m_op)
                 {
