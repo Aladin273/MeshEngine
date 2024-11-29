@@ -192,6 +192,12 @@ const Contact& View::getSelected() const
 
 void View::setSelected(const Contact& selected)
 {
+    if (m_selected.node)
+        m_selected.node->unbind();
+
+    if (selected.node)
+        selected.node->bind();
+
     m_selected = selected;
     onSelectedChanged.broadcast(*this, m_selected);
 }

@@ -3,8 +3,10 @@
 #include "MeshEngine/RenderSystem/GuiSystem.h"
 
 #include <string>
-#include <imgui.h>
 #include <glm/glm.hpp>
+
+#include <imgui.h>
+#include <ImGuizmo.h>
 
 class View;
 

@@ -27,11 +27,15 @@ public:
 public:
     virtual void bind() override
     {
+        bindPropertyEx(Property::MatrixEx, "Transform", m_relative);
+
         bindProperty(updatable);
         bindProperty(visible);
 
         super::bind();
     }
+
+    virtual void propertyChanged(const Property& property) override;
 
     bool updatable = true;
     bool visible = true;
@@ -93,7 +97,7 @@ protected:
     void setScene(Scene* scene);
 
     bool getTranformDirty() const;
-    void setTranformDirty(bool dirty, bool recursive = true);
+    void setTranformDirty(bool dirty);
 
 protected:
     Shader* m_shader = nullptr;

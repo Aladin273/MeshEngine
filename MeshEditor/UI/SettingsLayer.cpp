@@ -13,8 +13,14 @@ void SettingsLayer::render()
 {
     ImGui::Begin("Settings");
     
-    renderProperties(m_view, "View");
-    renderProperties(m_view->getScene(), "Scene");
+    m_view->bind();
+    m_view->getScene()->bind();
+
+    renderProperties(m_view, "View", 0);
+    renderProperties(m_view->getScene(), "Scene", 0);
+
+    m_view->unbind();
+    m_view->getScene()->unbind();
 
     ImGui::End();
 }

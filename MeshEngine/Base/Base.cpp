@@ -15,11 +15,31 @@ Base::~Base()
 
 void Base::bind()
 {
-
+    for (auto& property : m_properties)
+    {
+        if (property.type == Property::Base)
+        {
+            if (Base* base = (Base*)property.object)
+            {
+                base->bind();
+            }
+        }
+    }
 }
 
 void Base::unbind()
 {
+    for (auto& property : m_properties)
+    {
+        if (property.type == Property::Base)
+        {
+            if (Base* base = (Base*)property.object)
+            {
+                base->unbind();
+            }
+        }
+    }
+
     m_properties.clear();
 }
 

@@ -3,8 +3,6 @@
 #include "ViewportLayer.h"
 #include "MeshEditor/Editor/View.h"
 
-#include <ImGuizmo.h>
-
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 

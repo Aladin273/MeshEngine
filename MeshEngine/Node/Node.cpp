@@ -18,6 +18,11 @@ Node::~Node()
 
 }
 
+void Node::propertyChanged(const Property& property)
+{
+    setTranformDirty(true);
+}
+
 Node* Node::getParent() const
 {
     return m_parent;
@@ -88,7 +93,7 @@ const glm::mat4& Node::getAbsoluteTransform()
             m_absolute = m_parent->getAbsoluteTransform() * m_absolute;
         }
 
-        setTranformDirty(false, false);
+        setTranformDirty(false);
     }
 
     return m_absolute;
@@ -228,11 +233,11 @@ bool Node::getTranformDirty() const
     return m_transformDirty;
 }
 
-void Node::setTranformDirty(bool dirty, bool recursive /*= true*/)
+void Node::setTranformDirty(bool dirty)
 {
     m_transformDirty = dirty;
 
-    if (recursive)
+    if (dirty)
     {
         for (auto& child : m_children)
         {
