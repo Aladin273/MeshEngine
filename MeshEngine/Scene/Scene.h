@@ -62,7 +62,7 @@ public:
         bindSeparator();
 
         bindProperty(castShadows);
-        bindPropertyEx(Property::Color, "backgroundColor", backgroundColor);
+        bindPropertyEx(Property::Color3, "backgroundColor", backgroundColor);
 
         super::bind();
     }

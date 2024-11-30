@@ -34,8 +34,8 @@ public:
         Matrix4,
         MatrixEx,
         Quat,
-        Color,
-        ColorEx,
+        Color3,
+        Color4,
         Separator,
         Base,
     };

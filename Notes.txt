@@ -1,7 +1,7 @@
 Urgently Goals
 ----------------------------------------------------------------
 - Fix manipulator for vertices and faces
-- Check raycast precision
+- Check raycast precision, recalculate bbox
 
 - Add transforming to properties layer, Decompose, Matrix
 

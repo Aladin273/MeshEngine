@@ -174,7 +174,7 @@ void PropertiesLayer::renderProperties(Base* base, const std::string& name, uint
                     break;
                 };
 
-                case Property::Color:
+                case Property::Color3:
                 {
                     if (ImGui::ColorEdit3(property.name.c_str(), (float*)property.object))
                         base->propertyChanged(property);
@@ -182,7 +182,7 @@ void PropertiesLayer::renderProperties(Base* base, const std::string& name, uint
                     break;
                 };
 
-                case Property::ColorEx:
+                case Property::Color4:
                 {
                     if (ImGui::ColorEdit4(property.name.c_str(), (float*)property.object))
                         base->propertyChanged(property);

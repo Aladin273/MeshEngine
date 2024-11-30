@@ -14,9 +14,9 @@ public:
 public:
     virtual void bind() override
     {
-        bindPropertyEx(Property::Color, "ambient", m_light.ambient);
-        bindPropertyEx(Property::Color, "diffuse", m_light.diffuse);
-        bindPropertyEx(Property::Color, "specular", m_light.specular);
+        bindPropertyEx(Property::Color3, "ambient", m_light.ambient);
+        bindPropertyEx(Property::Color3, "diffuse", m_light.diffuse);
+        bindPropertyEx(Property::Color3, "specular", m_light.specular);
 
         super::bind();
     }
