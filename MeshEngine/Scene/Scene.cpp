@@ -76,7 +76,7 @@ void Scene::attachNode(std::unique_ptr<Node> node)
     {
         node->setParent(nullptr);
         node->setScene(this);
-        node->setTranformDirty(true);
+        node->setDirty(true);
         if (m_running) node->start();
 
         m_nodes.push_back(std::move(node));
@@ -113,7 +113,7 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
             BoundingBox bbox = node.getBoundingBox();
             bbox.tranform(node.getAbsoluteTransform());
 
-            if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max))
+            if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
                 candidates.push_back(&node);
 
             return true;
@@ -154,41 +154,10 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
         }
         else
         {
-            glm::vec3 point = glm::vec4(1.f) * mat;
+            glm::vec3 point = mat * glm::vec4(0.f, 0.f, 0.f, 1.f);
             contacts.push_back({ invalid, node, glm::distance(ray.orig, point), point });
         }
     }
-
-    // Filter value
-    //for (size_t index = 0; index < contacts.size();)
-    //{
-    //    if (filterValues == FilterValue::NM)
-    //    {
-    //        if (dynamic_cast<Node*>(contacts[index].node) == nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //    else if (filterValues == FilterValue::Manipulator)
-    //    {
-    //        if (dynamic_cast<Manipulator*>(contacts[index].node) == nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (dynamic_cast<Manipulator*>(contacts[index].node) != nullptr)
-    //        {
-    //            contacts.erase(contacts.begin() + index);
-    //            continue;
-    //        }
-    //    }
-    //
-    //    ++index;
-    //}
 
     // Sort by distance to Camera
     std::sort(contacts.begin(), contacts.end(), [&](Contact& a, Contact& b)

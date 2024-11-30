@@ -27,11 +27,15 @@ public:
 public:
     virtual void bind() override
     {
+        bindPropertyEx(Property::MatrixEx, "Transform", m_relative);
+
         bindProperty(updatable);
         bindProperty(visible);
 
         super::bind();
     }
+
+    virtual void propertyChanged(const Property& property) override;
 
     bool updatable = true;
     bool visible = true;
@@ -92,8 +96,8 @@ protected:
     void setParent(Node* parent);
     void setScene(Scene* scene);
 
-    bool getTranformDirty() const;
-    void setTranformDirty(bool dirty, bool recursive = true);
+    bool getDirty() const;
+    void setDirty(bool dirty);
 
 protected:
     Shader* m_shader = nullptr;
@@ -114,7 +118,7 @@ private:
 private:
     BoundingBox m_bbox;
 
-    bool m_transformDirty = true;
+    bool m_dirty = true;
     glm::mat4 m_absolute{ 1.0f };
     glm::mat4 m_relative{ 1.0f };
 

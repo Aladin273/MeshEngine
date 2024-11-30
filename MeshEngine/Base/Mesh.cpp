@@ -40,21 +40,9 @@ void Mesh::updateData()
     m_renderHoles.reserve(faces.size() * 8);
     m_renderBoundaries.reserve(faces.size() * 6);
 
-    m_bbox.min = m_bbox.max = vertices.front().data.position;
-
     for (const auto& vertex : vertices)
     {
-        const auto& data = vertex.data;
-
-        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
-
-        m_renderVertices.push_back(data);
+        m_renderVertices.push_back(vertex.data);
     }
 
     std::vector<std::pair<glm::vec3, float>> normalsMap{ 0 };
@@ -130,12 +118,27 @@ void Mesh::updateData()
     for (size_t i = 0; i < normalsMap.size(); ++i)
         m_renderVertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
 
+    updateBbox();
     super::updateData();
 }
 
 void Mesh::updateSubData()
 {
+    updateBbox();
     super::updateSubData();
+}
+
+void Mesh::updateBbox()
+{
+    if (m_table.getVertices().size())
+    {
+        m_bbox.min = m_bbox.max = m_table.getVertices().front().data.position;
+
+        for (const auto& vertex : m_table.getVertices())
+        {
+            m_bbox.merge(vertex.data.position);
+        }
+    }
 }
 
 void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
@@ -162,20 +165,10 @@ void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
     {
         HalfEdgeVertexHandle vh = m_table.destVertex(next_heh);
 
-        Vertex data = m_table.getPoint(vh);
-        data.position = glm::translate(-center) * glm::vec4(data.position, 1.0f);
-        data.position = trf * glm::vec4(data.position, 1.0f);
-        data.position = glm::translate(center) * glm::vec4(data.position, 1.0f);
+        Vertex data = m_table.getPoint(vh);;
+        data.position = glm::vec3(trf * glm::vec4(data.position - center, 1.f)) + center;
 
         m_table.setPoint(vh, data);
-
-        m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-        m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-        m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-        m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-        m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-        m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
 
         m_renderVertices[vh].position = data.position;
 
@@ -258,33 +251,22 @@ void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
             m_renderSubData.push_back(vh);
         }
     }
+
+    updateBbox();
 }
 
 void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
 {
     m_renderSubDataDirty = true;
     m_renderSubData.clear();
-    
-    Vertex center = m_table.getPoint(vh);
 
     Vertex data = m_table.getPoint(vh);
-    data.position = glm::translate(-center.position) * glm::vec4(data.position, 1.0f);
     data.position = trf * glm::vec4(data.position, 1.0f);
-    data.position = glm::translate(center.position) * glm::vec4(data.position, 1.0f);
 
     m_table.setPoint(vh, data);
 
-    m_bbox.min.x = std::min(m_bbox.min.x, data.position.x);
-    m_bbox.min.y = std::min(m_bbox.min.y, data.position.y);
-    m_bbox.min.z = std::min(m_bbox.min.z, data.position.z);
-
-    m_bbox.max.x = std::max(m_bbox.max.x, data.position.x);
-    m_bbox.max.y = std::max(m_bbox.max.y, data.position.y);
-    m_bbox.max.z = std::max(m_bbox.max.z, data.position.z);
-
     m_renderVertices[vh].position = data.position;
     
-    // Calculate normals
     std::set<HalfEdgeFaceHandle> affectedFaces;
     std::set<HalfEdgeVertexHandle> affectedVertices;
 
@@ -350,6 +332,8 @@ void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
             m_renderSubData.push_back(vh);
         }
     }
+
+    updateBbox();
 }
 
 void Mesh::deleteFace(HalfEdgeFaceHandle fh)

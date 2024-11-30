@@ -12,10 +12,10 @@ public:
     void onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y) override;
     void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
-private:	
-    ButtonCode m_button = ButtonCode::Button_Left;
+private:
+    void onSelectedChanged(View& view, const Contact& selected);
 
-    Contact m_contact;
-    View* m_view;
+private:
+    bool m_active = false;
 };
 

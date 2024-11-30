@@ -12,21 +12,19 @@ void PropertiesLayer::render()
 {
     ImGui::Begin("Properties");
 
-    if (m_view->getSelected())
+    if (m_view->getSelected().node)
     {
-        processProperties(m_view->getSelected(), m_view->getSelected()->getName());
+        renderProperties(m_view->getSelected().node, m_view->getSelected().node->getName(), 0);
     }
 
     ImGui::End();
 }
 
-void PropertiesLayer::processProperties(Base* base, const std::string& name)
+void PropertiesLayer::renderProperties(Base* base, const std::string& name, uint32_t level)
 {
     if (base)
     {
-        base->bind();
-
-        if (ImGui::TreeNodeEx(name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::TreeNodeEx(base, level < m_levelOpened ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None, "%s", name.c_str()))
         {
             ImGui::Separator();
 
@@ -141,6 +139,33 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
                     break;
                 };
 
+                case Property::MatrixEx:
+                {
+                    ImGui::Text(property.name.c_str());
+
+                    glm::vec3 translation, rotation, scale;
+                    ImGuizmo::DecomposeMatrixToComponents((float*)property.object, glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale));
+
+                    bool propertyChaged = false;
+
+                    ImGui::Spacing();
+                    propertyChaged |= ImGui::DragFloat3("Translation", glm::value_ptr(translation), 1.f);
+                    ImGui::Spacing();
+                    propertyChaged |= ImGui::DragFloat3("Rotation", glm::value_ptr(rotation), 1.f);
+                    ImGui::Spacing();
+                    propertyChaged |= ImGui::DragFloat3("Scale", glm::value_ptr(scale), 1.f);
+                    
+                    if (propertyChaged)
+                    {
+                        ImGuizmo::RecomposeMatrixFromComponents(glm::value_ptr(translation), glm::value_ptr(rotation), glm::value_ptr(scale), (float*)property.object);
+                        base->propertyChanged(property);
+                        
+                        m_view->setSelected(m_view->getSelected()); // Temp
+                    }
+
+                    break;
+                };
+
                 case Property::Quat:
                 {
                     if (ImGui::DragFloat4(property.name.c_str(), (float*)property.object, 0.01f))
@@ -149,7 +174,7 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
                     break;
                 };
 
-                case Property::Color:
+                case Property::Color3:
                 {
                     if (ImGui::ColorEdit3(property.name.c_str(), (float*)property.object))
                         base->propertyChanged(property);
@@ -157,7 +182,7 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
                     break;
                 };
 
-                case Property::ColorEx:
+                case Property::Color4:
                 {
                     if (ImGui::ColorEdit4(property.name.c_str(), (float*)property.object))
                         base->propertyChanged(property);
@@ -173,7 +198,7 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
 
                 case Property::Base:
                 {
-                    processProperties((Base*)property.object, property.name);
+                    renderProperties((Base*)property.object, property.name, level + 1);
                     break;
                 }
                 };
@@ -181,7 +206,5 @@ void PropertiesLayer::processProperties(Base* base, const std::string& name)
 
             ImGui::TreePop();
         }
-    
-        base->unbind();
     }
 }

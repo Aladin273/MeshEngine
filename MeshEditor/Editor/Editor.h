@@ -10,7 +10,6 @@
 #include "MeshEngine/Misc/Timer.h"
 #include "MeshEngine/Misc/Settings.h"
 
-#include "Operator/View/Select.h"
 #include "Operator/View/Pan.h"
 #include "Operator/View/Arcball.h"
 

@@ -4,20 +4,20 @@
 
 #include <functional>
 
-enum class ViewportMode : uint8_t
+enum class GizmoMode : uint8_t
 {
     Select = 0,
     Translate,
     Rotate,
     Scale,
-    Universal,
-    Bounds,
+    MAX,
 };
 
-enum class GizmoMode : uint8_t
+enum class GizmoSpace : uint8_t
 {
     World = 0,
-    Local
+    Local,
+    MAX,
 };
 
 class ViewportLayer : public BaseLayer
@@ -36,45 +36,59 @@ public:
 public:
     virtual void render() override;
 
+public:
     bool wantCaptureMouse() const;
     bool wantCaptureKeyboard() const;
     bool wantCaptureGizmo() const;
 
     void remapToRelative(double& x, double& y);
 
-    ViewportMode getViewportMode() const;
-    GizmoMode getGizmoMode() const;
+    void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
 
-    void setViewportMode(ViewportMode mode);
+public:
+    bool getGizmoVisible() const;
+    void setGizmoVisible(bool visible);
+
+    GizmoMode getGizmoMode() const;
+    GizmoSpace getGizmoSpace() const;
+
     void setGizmoMode(GizmoMode mode);
+    void setGizmoSpace(GizmoSpace space);
     
     void setGizmoTransform(const glm::mat4& transform);
     void setGizmoCallback(const GizmoCallback& callback);
 
-    void setFramebufferSizeCallback(const FramebufferSizeCallback& callback);
+    void switchGizmoMode();
+    void switchGizmoSpace();
 
 private:
     void guizmo();
     void overlay();
 
-    uint32_t m_width;
-    uint32_t m_height;
-
+private:
     glm::vec2 m_mouse;
     glm::vec2 m_position;
 
     glm::vec2 m_min;
     glm::vec2 m_max;
 
+    uint32_t m_width;
+    uint32_t m_height;
+
     bool m_wantCaptureMouse = false;
     bool m_wantCaptureKeyboard = false;
     bool m_wantCaptureGizmo = false;
 
-    ViewportMode m_viewportMode = ViewportMode::Select;
-    GizmoMode m_gizmoMode = GizmoMode::World;
+    FramebufferSizeCallback m_sizeCallback;
 
-    glm::mat4 m_gizmoTransform{1.0f};
+private:
+    bool m_gizmoVisible = false;
+    
+    glm::mat4 m_gizmoTransform{ 1.0f};
+    glm::mat4 m_gizmoDelta{ 1.0f};
+
+    GizmoMode m_gizmoMode = GizmoMode::Translate;
+    GizmoSpace m_gizmoSpace = GizmoSpace::World;
 
     GizmoCallback m_gizmoCallback;
-    FramebufferSizeCallback m_sizeCallback;
 };

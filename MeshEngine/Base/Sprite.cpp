@@ -35,8 +35,11 @@ void Sprite::updateData()
 
     m_bbox.min.x = -scaledWidth;
     m_bbox.min.y = -scaledHeight;
+    m_bbox.min.z = -0.5f;
+    
     m_bbox.max.x = scaledWidth;
     m_bbox.max.y = scaledHeight;
+    m_bbox.max.z = 0.5f;
 
     m_renderDataDirty = true;
 
@@ -60,8 +63,11 @@ void Sprite::updateSubData()
 
     m_bbox.min.x = -scaledWidth;
     m_bbox.min.y = -scaledHeight;
+    m_bbox.min.z = -0.5f;
+
     m_bbox.max.x = scaledWidth;
     m_bbox.max.y = scaledHeight;
+    m_bbox.max.z = 0.5f;
 
     m_renderSubDataDirty = true;
 

@@ -3,8 +3,6 @@
 #include "ViewportLayer.h"
 #include "MeshEditor/Editor/View.h"
 
-#include <ImGuizmo.h>
-
 ViewportLayer::ViewportLayer(View* view) : BaseLayer(view)
 {
 
@@ -69,9 +67,19 @@ void ViewportLayer::remapToRelative(double& x, double& y)
     y = m_height - (m_mouse.y - m_min.y);
 }
 
-ViewportMode ViewportLayer::getViewportMode() const
+bool ViewportLayer::getGizmoVisible() const
 {
-    return m_viewportMode;
+    return m_gizmoVisible;
+}
+
+void ViewportLayer::setGizmoVisible(bool visible)
+{
+    m_gizmoVisible = visible;
+}
+
+GizmoSpace ViewportLayer::getGizmoSpace() const
+{
+    return m_gizmoSpace;
 }
 
 GizmoMode ViewportLayer::getGizmoMode() const
@@ -79,9 +87,9 @@ GizmoMode ViewportLayer::getGizmoMode() const
     return m_gizmoMode;
 }
 
-void ViewportLayer::setViewportMode(ViewportMode mode)
+void ViewportLayer::setGizmoSpace(GizmoSpace space)
 {
-    m_viewportMode = mode;
+    m_gizmoSpace = space;
 }
 
 void ViewportLayer::setGizmoMode(GizmoMode mode)
@@ -99,6 +107,16 @@ void ViewportLayer::setGizmoCallback(const GizmoCallback& callback)
     m_gizmoCallback = callback;
 }
 
+void ViewportLayer::switchGizmoMode()
+{
+    m_gizmoMode = (GizmoMode)(((uint8_t)m_gizmoMode + 1) % (uint8_t)GizmoMode::MAX);
+}
+
+void ViewportLayer::switchGizmoSpace()
+{
+    m_gizmoSpace = (GizmoSpace)(((uint8_t)m_gizmoSpace + 1) % (uint8_t)GizmoSpace::MAX);
+}
+
 void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& callback)
 {
     m_sizeCallback = callback;
@@ -106,7 +124,7 @@ void ViewportLayer::setFramebufferSizeCallback(const FramebufferSizeCallback& ca
 
 void ViewportLayer::guizmo()
 {
-    if (m_viewportMode != ViewportMode::Select)
+    if (m_gizmoVisible && m_gizmoMode != GizmoMode::Select)
     {
         ImGuizmo::Enable(true);
 
@@ -118,26 +136,25 @@ void ViewportLayer::guizmo()
         ImGuizmo::OPERATION operation;
         ImGuizmo::MODE mode;
 
-        if (m_viewportMode == ViewportMode::Translate)
+        if (m_gizmoMode == GizmoMode::Translate)
             operation = ImGuizmo::TRANSLATE;
-        else if (m_viewportMode == ViewportMode::Rotate)
+        else if (m_gizmoMode == GizmoMode::Rotate)
             operation = ImGuizmo::ROTATE;
-        else if (m_viewportMode == ViewportMode::Scale)
+        else if (m_gizmoMode == GizmoMode::Scale)
             operation = ImGuizmo::SCALE;
-        else if (m_viewportMode == ViewportMode::Universal)
-            operation = ImGuizmo::UNIVERSAL;
-        else if (m_viewportMode == ViewportMode::Bounds)
-            operation = ImGuizmo::BOUNDS;
 
-        if (m_gizmoMode == GizmoMode::World)
+        if (m_gizmoSpace == GizmoSpace::World)
             mode = ImGuizmo::WORLD;
-        else if (m_gizmoMode == GizmoMode::Local)
+        else if (m_gizmoSpace == GizmoSpace::Local)
             mode = ImGuizmo::LOCAL;
 
-        glm::mat4 delta{ 1.0f };
+        m_gizmoDelta = glm::mat4(1.0f);
 
-        if (ImGuizmo::Manipulate(&(m_view->getViewport().getCamera().calcViewMatrix()[0][0]), &(m_view->getViewport().calcProjectionMatrix()[0][0]), operation, mode, &(m_gizmoTransform)[0][0], &(delta)[0][0]))
-            m_gizmoCallback(m_gizmoTransform, delta);
+        if (ImGuizmo::Manipulate(glm::value_ptr(m_view->getViewport().getCamera().calcViewMatrix()), glm::value_ptr(m_view->getViewport().calcProjectionMatrix()),
+            operation, mode, glm::value_ptr(m_gizmoTransform), glm::value_ptr(m_gizmoDelta)))
+        {   
+            m_gizmoCallback(m_gizmoTransform, m_gizmoDelta);
+        }
 
         m_wantCaptureGizmo = ImGuizmo::IsOver() || ImGuizmo::IsUsing() || ImGuizmo::IsUsingAny();
     }

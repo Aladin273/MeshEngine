@@ -14,10 +14,10 @@ struct Material : public Base
 
     virtual void bind() override
     {
-        bindPropertyEx(Property::Color, "ambient", ambient);
-        bindPropertyEx(Property::ColorEx, "diffuse", diffuse);
-        bindPropertyEx(Property::Color, "specular", specular);
-        bindPropertyEx(Property::Color, "emission", emission);
+        bindPropertyEx(Property::Color3, "ambient", ambient);
+        bindPropertyEx(Property::Color4, "diffuse", diffuse);
+        bindPropertyEx(Property::Color3, "specular", specular);
+        bindPropertyEx(Property::Color3, "emission", emission);
         bindProperty(shininess);
 
         bindProperty(diffuseMap);

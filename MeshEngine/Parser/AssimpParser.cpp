@@ -22,7 +22,7 @@ std::unique_ptr<Node> AssimpParser::loadModel(const std::string& filename)
     
     std::unique_ptr<Node> model = std::make_unique<Node>();
 
-    if (!scene->mRootNode->mNumMeshes)
+    if (scene->mRootNode->mNumMeshes)
     {
         model = loadNode(nullptr, scene->mRootNode, scene);
     }
@@ -30,11 +30,12 @@ std::unique_ptr<Node> AssimpParser::loadModel(const std::string& filename)
     {
         for (size_t i = 0; i < scene->mRootNode->mNumChildren; ++i)
         {
-            model->attachNode(loadNode(model.get(), scene->mRootNode->mChildren[i], scene));
+            loadNode(model.get(), scene->mRootNode->mChildren[i], scene);
         }
     }
     
     model->setName(filename);
+    model->setRelativeTransform(convertMatrix(scene->mRootNode->mTransformation));
 
     return model;
 }

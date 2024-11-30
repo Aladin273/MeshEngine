@@ -2,12 +2,20 @@
 
 void EditNodeOperator::onEnter(View& view)
 {
-
+    view.onSelectedChanged.addUnique(this, &EditNodeOperator::onSelectedChanged);
+    
+    view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
+    view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
+    
+    m_active = true;
 }
 
 void EditNodeOperator::onExit(View& view)
 {
-    m_view->getViewportLayer().setViewportMode(ViewportMode::Select);
+    view.setSelected(Contact{});
+    view.getViewportLayer().setGizmoVisible(false);
+    
+    m_active = false;
 }
 
 void EditNodeOperator::onMouseMove(View& view, double x, double y)
@@ -17,60 +25,26 @@ void EditNodeOperator::onMouseMove(View& view, double x, double y)
 
 void EditNodeOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
-    if (button == m_button && action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
+    if (button == ButtonCode::Button_Left && action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
     {
         std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 
         if (contacts.empty())
         {
-            m_view->getViewportLayer().setViewportMode(ViewportMode::Select);
-            return;
+            view.setSelected(Contact{});
+            view.getViewportLayer().setGizmoVisible(false);
         }
-        
-        Contact& contact = contacts.front();
-
-        if (mods == Modifier::Shift)
+        else
         {
-            while (contact.node->getParent())
-                contact.node = contact.node->getParent();
-        }
+            Contact contact = contacts.front();
 
-        m_view = &view;
-        m_contact = contact;
-
-        Node* node = m_contact.node;
-        if (!node) return;
-
-        if (MeshNode* meshNode = dynamic_cast<MeshNode*>(node))
-        {
-            // Re-calculate center
-            glm::vec3 center = glm::vec4((meshNode->getBoundingBox().min + meshNode->getBoundingBox().max) / 2.0f, 1.0f);
-
-            if (glm::any(glm::notEqual(glm::vec3(0.0f), center, 1e-8)))
+            if (mods == Modifier::Shift)
             {
-                auto& table = meshNode->getMesh()->getHalfEdgeTable();
-
-                for (auto& vertex : table.getVertices())
-                    vertex.data.position -= center;
-
-                meshNode->getMesh()->updateData();
-                meshNode->applyRelativeTransform(glm::translate(center));
-
-                meshNode->reset();
+                contact = Contact{ {}, contact.node->getRoot(), {}, {} };
             }
+
+            view.setSelected(contact);
         }
-
-        m_view->getViewportLayer().setViewportMode(ViewportMode::Translate);
-        m_view->getViewportLayer().setGizmoMode(GizmoMode::World);
-        m_view->getViewportLayer().setGizmoTransform(node->getAbsoluteTransform());
-        m_view->getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
-            {
-                Node* node = m_contact.node;
-                if (!node) return;
-
-                glm::mat4 parentInverse = node->getParent() ? glm::inverse(node->getParent()->getAbsoluteTransform()) : glm::mat4(1.0f);
-                node->setRelativeTransform(parentInverse * transform);
-            });
     }
 }
 
@@ -78,11 +52,30 @@ void EditNodeOperator::onKeyboardInput(View& view, KeyCode key, Action action, M
 {
     if (key == KeyCode::Space && action == Action::Press)
     {
-        if (m_view->getViewportLayer().getViewportMode() == ViewportMode::Translate)
-            m_view->getViewportLayer().setViewportMode(ViewportMode::Rotate);
-        else if (m_view->getViewportLayer().getViewportMode() == ViewportMode::Rotate)
-            m_view->getViewportLayer().setViewportMode(ViewportMode::Scale);
-        else if (m_view->getViewportLayer().getViewportMode() == ViewportMode::Scale)
-            m_view->getViewportLayer().setViewportMode(ViewportMode::Translate);
+        view.getViewportLayer().switchGizmoMode();
+    }
+}
+
+void EditNodeOperator::onSelectedChanged(View& view, const Contact& selected)
+{
+    if (m_active)
+    {
+        if (selected.node)
+        {
+            view.getViewportLayer().setGizmoVisible(true);
+            view.getViewportLayer().setGizmoTransform(selected.node->getAbsoluteTransform());
+            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
+                {
+                    Node* node = selected.node;
+                    if (!node) return;
+
+                    glm::mat4 parentInverse = node->getParent() ? glm::inverse(node->getParent()->getAbsoluteTransform()) : glm::mat4(1.0f);
+                    node->setRelativeTransform(parentInverse * transform);
+                });
+        }
+        else
+        {
+            view.getViewportLayer().setGizmoVisible(false);
+        }
     }
 }

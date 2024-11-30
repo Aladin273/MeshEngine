@@ -1,13 +1,23 @@
 #include "EditVertexOperator.h"
 
-void EditVertexOperator::onEnter(View&)
-{
+#include <glm/gtx/matrix_decompose.hpp>
 
+void EditVertexOperator::onEnter(View& view)
+{
+    view.onSelectedChanged.addUnique(this, &EditVertexOperator::onSelectedChanged);
+    
+    view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
+    view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
+
+    m_active = true;
 }
 
-void EditVertexOperator::onExit(View&)
+void EditVertexOperator::onExit(View& view)
 {
-    m_view->getViewportLayer().setViewportMode(ViewportMode::Select);
+    view.setSelected(Contact{});
+    view.getViewportLayer().setGizmoVisible(false);
+
+    m_active = false;
 }
 
 void EditVertexOperator::onMouseMove(View& view, double x, double y)
@@ -17,88 +27,86 @@ void EditVertexOperator::onMouseMove(View& view, double x, double y)
 
 void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {   
-    if ((button == m_buttonArrow || button == m_buttonTriad) && action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
+    if (button == ButtonCode::Button_Left && action == Action::Press && !view.getViewportLayer().wantCaptureGizmo())
     {
-        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::NM);
+        std::vector<Contact> contacts = view.raycast(x, y, FilterValue::Node);
 
         if (contacts.empty())
         {
-            m_view->getViewportLayer().setViewportMode(ViewportMode::Select);
-            return;
+            view.setSelected(Contact{});
+            view.getViewportLayer().setGizmoVisible(false);
         }
-
-        Contact& contact = contacts.front();
-
-        m_view = &view;
-        m_contact = contact;
-
-        MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
-        if (!node) return;
-
-        const auto& table = node->getMesh()->getHalfEdgeTable();
-        HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
-        HalfEdgeHandle next_heh = start_heh;
-        std::vector<glm::vec3> normals;
-
-        glm::mat4 trf = m_contact.node->getAbsoluteTransform();
-        glm::vec3 point = glm::inverse(trf) * glm::vec4(m_contact.point, 1.0f);
-
-        float min = glm::length(table.getEndPoint(start_heh).position - point);
-        m_vh = table.deref(start_heh).dst;
-
-        // Find needed vertex
-        do
+        else
         {
-            float length = glm::length(table.getEndPoint(next_heh).position - point);
+            Contact contact = contacts.front();
 
-            if (length < min)
+            MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
+            if (!node) return;
+
+            const auto& table = node->getMesh()->getHalfEdgeTable();
+            HalfEdgeHandle start_heh = table.deref(contact.face).heh;
+            HalfEdgeHandle next_heh = start_heh;
+            std::vector<glm::vec3> normals;
+
+            glm::mat4 trf = contact.node->getAbsoluteTransform();
+            glm::vec3 point = glm::inverse(trf) * glm::vec4(contact.point, 1.0f);
+
+            float min = glm::length(table.getEndPoint(start_heh).position - point);
+            HalfEdgeVertexHandle vh = table.deref(start_heh).dst;
+
+            do
             {
-                min = length;
-                m_vh = table.deref(next_heh).dst;
-            }
-            next_heh = table.next(next_heh);
-        } while (next_heh != start_heh);
+                float length = glm::length(table.getEndPoint(next_heh).position - point);
 
-        start_heh = table.deref(m_vh).heh;
-        next_heh = start_heh;
+                if (length < min)
+                {
+                    min = length;
+                    vh = table.deref(next_heh).dst;
+                }
+                next_heh = table.next(next_heh);
+            } while (next_heh != start_heh);
 
-        // Find adjacent normals
-        do
-        {
-            HalfEdgeHandle heh0 = next_heh;
-            HalfEdgeHandle heh1 = table.next(heh0);
-            HalfEdgeHandle heh2 = table.next(heh1);
+            glm::vec3 center = trf * glm::vec4(table.getPoint(vh).position, 1.0f);
 
-            glm::vec3 a = table.getEndPoint(heh0).position;
-            glm::vec3 b = table.getEndPoint(heh1).position;
-            glm::vec3 c = table.getEndPoint(heh2).position;
+            view.getViewportLayer().setGizmoVisible(true);
+            view.getViewportLayer().setGizmoTransform(glm::translate(center));
+            view.getViewportLayer().setGizmoCallback([contact, vh, &view](const glm::mat4& transform, const glm::mat4& delta)
+                {
+                    MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
+                    if (!node) return;
 
-            normals.push_back(glm::normalize(glm::cross(b - a, c - b)));
-            next_heh = table.next(table.twin(next_heh));
-        } while (next_heh != start_heh);
+                    glm::vec3 translation, scale, skew;
+                    glm::vec4 perspective; glm::quat rotation;
 
-        m_normal = glm::vec3(0.0f);
+                    glm::decompose(delta, scale, rotation, translation, skew, perspective);
 
-        for (auto& normal : normals)
-            m_normal += normal;
+                    glm::mat4 absolute = node->getAbsoluteTransform();
+                    glm::mat4 inverse = glm::inverse(absolute);
 
-        m_center = trf * glm::vec4(table.getPoint(m_vh).position, 1.0f);
-        m_normal = glm::normalize(m_normal / static_cast<float>(normals.size()));
+                    glm::mat4 relativeDelta;
 
-        m_view->getViewportLayer().setViewportMode(ViewportMode::Translate);
-        m_view->getViewportLayer().setGizmoMode(GizmoMode::World);
-        m_view->getViewportLayer().setGizmoTransform(glm::translate(m_center));
-        m_view->getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
-            {
-                MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
-                if (!node) return;
+                    switch (view.getViewportLayer().getGizmoMode())
+                    {
+                        case GizmoMode::Translate: relativeDelta = inverse * glm::translate(translation) * absolute; break;
+                        case GizmoMode::Rotate: relativeDelta = glm::mat3(inverse) * glm::mat3_cast(rotation) * glm::mat3(absolute); break;
+                        case GizmoMode::Scale: relativeDelta = glm::mat3(inverse) * glm::mat3(glm::scale(scale)) * glm::mat3(absolute); break;
+                    }
 
-                node->getMesh()->applyTransformation(m_vh, delta);
-            });
+                    node->getMesh()->applyTransformation(vh, relativeDelta);
+                });
+        }
     }
 }
 
 void EditVertexOperator::onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods)
 {
 
+}
+
+void EditVertexOperator::onSelectedChanged(View& view, const Contact& selected)
+{
+    if (m_active && selected.node)
+    {
+        view.setSelected(Contact{});
+    }
 }
