@@ -54,7 +54,6 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
             float min = glm::length(table.getEndPoint(start_heh).position - point);
             HalfEdgeVertexHandle vh = table.deref(start_heh).dst;
 
-            // Find needed vertex
             do
             {
                 float length = glm::length(table.getEndPoint(next_heh).position - point);
@@ -88,9 +87,9 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
 
                     switch (view.getViewportLayer().getGizmoMode())
                     {
-                    case GizmoMode::Translate: relativeDelta = inverse * glm::translate(translation) * absolute; break;
-                    case GizmoMode::Rotate: relativeDelta = glm::mat3(inverse) * glm::mat3_cast(rotation) * glm::mat3(absolute); break;
-                    case GizmoMode::Scale: relativeDelta = glm::mat3(inverse) * glm::mat3(glm::scale(scale)) * glm::mat3(absolute); break;
+                        case GizmoMode::Translate: relativeDelta = inverse * glm::translate(translation) * absolute; break;
+                        case GizmoMode::Rotate: relativeDelta = glm::mat3(inverse) * glm::mat3_cast(rotation) * glm::mat3(absolute); break;
+                        case GizmoMode::Scale: relativeDelta = glm::mat3(inverse) * glm::mat3(glm::scale(scale)) * glm::mat3(absolute); break;
                     }
 
                     node->getMesh()->applyTransformation(vh, relativeDelta);
