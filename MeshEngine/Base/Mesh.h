@@ -2,6 +2,8 @@
 
 #include <string>
 #include <memory>
+#include <set>
+#include <numeric>
 
 #include "MeshEngine/Math/HalfEdge.h"
 #include "MeshEngine/Math/BoundingBox.h"
@@ -50,7 +52,11 @@ public:
     static std::unique_ptr<Mesh> createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
 
 private:
+    std::set<HalfEdgeFaceHandle> m_affectedFaces;
+    std::set<HalfEdgeVertexHandle> m_affectedVertices;
+
     BoundingBox m_bbox;
+
     Material m_material;
     HalfEdgeTable<Vertex> m_table;
 };
