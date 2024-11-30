@@ -1,7 +1,6 @@
 Urgently Goals
 ----------------------------------------------------------------
 - Check raycast precision, updateSubdata
-- Fix parser root node
 - Fix selected call in transforming from properties layer
 
 - Review Delegates, Tree, Viewport, Properties

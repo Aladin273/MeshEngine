@@ -20,7 +20,7 @@ Node::~Node()
 
 void Node::propertyChanged(const Property& property)
 {
-    setTranformDirty(true);
+    setDirty(true);
 }
 
 Node* Node::getParent() const
@@ -67,7 +67,7 @@ void Node::setShader(Shader* shader)
 
 void Node::setRelativeTransform(const glm::mat4& trf)
 {
-    setTranformDirty(true);
+    setDirty(true);
     m_relative = trf;
 }
 
@@ -78,13 +78,13 @@ const glm::mat4& Node::getRelativeTransform()
 
 void Node::setAbsoluteTransform(const glm::mat4& trf)
 {
-    setTranformDirty(true);
+    setDirty(true);
     m_relative = trf * glm::inverse(getAbsoluteTransform());
 }
 
 const glm::mat4& Node::getAbsoluteTransform()
 {
-    if (getTranformDirty())
+    if (getDirty())
     {
         m_absolute = m_relative;
 
@@ -93,7 +93,7 @@ const glm::mat4& Node::getAbsoluteTransform()
             m_absolute = m_parent->getAbsoluteTransform() * m_absolute;
         }
 
-        setTranformDirty(false);
+        setDirty(false);
     }
 
     return m_absolute;
@@ -101,13 +101,13 @@ const glm::mat4& Node::getAbsoluteTransform()
 
 void Node::applyRelativeTransform(const glm::mat4& trf)
 {
-    setTranformDirty(true);
+    setDirty(true);
     m_relative = trf * m_relative;
 }
 
 void Node::applyAbsoluteTransform(const glm::mat4& trf)
 {
-    setTranformDirty(true);
+    setDirty(true);
     m_relative = (trf * glm::inverse(getAbsoluteTransform())) * m_relative;
 }
 
@@ -194,7 +194,7 @@ void Node::attachNode(std::unique_ptr<Node> node)
 
     node->setParent(this);
     node->setScene(m_scene);
-    node->setTranformDirty(true);
+    node->setDirty(true);
     node->start();
 
     m_children.push_back(std::move(node));
@@ -228,20 +228,20 @@ void Node::setScene(Scene* scene)
     }
 }
 
-bool Node::getTranformDirty() const
+bool Node::getDirty() const
 {
-    return m_transformDirty;
+    return m_dirty;
 }
 
-void Node::setTranformDirty(bool dirty)
+void Node::setDirty(bool dirty)
 {
-    m_transformDirty = dirty;
+    m_dirty = dirty;
 
     if (dirty)
     {
         for (auto& child : m_children)
         {
-            child->setTranformDirty(dirty);
+            child->setDirty(dirty);
         }
     }
 }

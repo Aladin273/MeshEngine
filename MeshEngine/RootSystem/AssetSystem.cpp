@@ -6,6 +6,8 @@
 #include "MeshEngine/Node/MeshNode.h"
 #include "MeshEngine/Node/SpriteNode.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 void AssetSystem::init()
 {
     m_stl = std::make_unique<STLParser>();
@@ -26,7 +28,7 @@ std::unique_ptr<Node> AssetSystem::loadModel(const std::string& filename)
     else
         model = m_assimp->loadModel(filename);
 
-    // Re-center
+    // Re-center mesh
     model->processRecursive([](Node& node) -> bool
         {
             if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
@@ -49,6 +51,13 @@ std::unique_ptr<Node> AssetSystem::loadModel(const std::string& filename)
 
             return true;
         });
+
+    // Re-center node
+    glm::vec3 translation, scale, skew;
+    glm::vec4 perspective; glm::quat rotation;
+
+    glm::decompose(model->getRelativeTransform(), scale, rotation, translation, skew, perspective);
+    model->applyRelativeTransform(glm::translate(-translation));
 
     return model;
 }
