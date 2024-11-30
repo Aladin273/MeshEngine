@@ -64,7 +64,7 @@ void EditNodeOperator::onSelectedChanged(View& view, const Contact& selected)
         {
             view.getViewportLayer().setGizmoVisible(true);
             view.getViewportLayer().setGizmoTransform(selected.node->getAbsoluteTransform());
-            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta, const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
+            view.getViewportLayer().setGizmoCallback([&](const glm::mat4& transform, const glm::mat4& delta)
                 {
                     Node* node = selected.node;
                     if (!node) return;

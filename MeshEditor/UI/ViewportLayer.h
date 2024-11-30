@@ -26,7 +26,7 @@ public:
     ViewportLayer(View* view);
 
 public:
-    using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&, const glm::vec3&, const glm::vec3&, const glm::vec3&)>;
+    using GizmoCallback = std::function<void(const glm::mat4&, const glm::mat4&)>;
     using FramebufferSizeCallback = std::function<void(double, double)>;
 
     uint32_t frameId = 0;
@@ -86,10 +86,6 @@ private:
     
     glm::mat4 m_gizmoTransform{ 1.0f};
     glm::mat4 m_gizmoDelta{ 1.0f};
-
-    glm::vec3 m_gizmoTranslation{ 1.0f };
-    glm::vec3 m_gizmoRotation{ 1.0f };
-    glm::vec3 m_gizmoScale{ 1.0f };
 
     GizmoMode m_gizmoMode = GizmoMode::Translate;
     GizmoSpace m_gizmoSpace = GizmoSpace::World;

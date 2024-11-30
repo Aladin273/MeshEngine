@@ -149,15 +149,11 @@ void ViewportLayer::guizmo()
             mode = ImGuizmo::LOCAL;
 
         m_gizmoDelta = glm::mat4(1.0f);
-        m_gizmoTranslation = glm::vec3(1.0f);
-        m_gizmoRotation = glm::vec3(1.0f);
-        m_gizmoScale = glm::vec3(1.0f);
 
         if (ImGuizmo::Manipulate(glm::value_ptr(m_view->getViewport().getCamera().calcViewMatrix()), glm::value_ptr(m_view->getViewport().calcProjectionMatrix()),
             operation, mode, glm::value_ptr(m_gizmoTransform), glm::value_ptr(m_gizmoDelta)))
         {   
-            ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(m_gizmoDelta), glm::value_ptr(m_gizmoTranslation), glm::value_ptr(m_gizmoRotation), glm::value_ptr(m_gizmoScale));
-            m_gizmoCallback(m_gizmoTransform, m_gizmoDelta, m_gizmoTranslation, m_gizmoRotation, m_gizmoScale);
+            m_gizmoCallback(m_gizmoTransform, m_gizmoDelta);
         }
 
         m_wantCaptureGizmo = ImGuizmo::IsOver() || ImGuizmo::IsUsing() || ImGuizmo::IsUsingAny();

@@ -1,5 +1,7 @@
 #include "EditVertexOperator.h"
 
+#include <glm/gtx/matrix_decompose.hpp>
+
 void EditVertexOperator::onEnter(View& view)
 {
     view.onSelectedChanged.addUnique(this, &EditVertexOperator::onSelectedChanged);
@@ -69,18 +71,29 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
 
             view.getViewportLayer().setGizmoVisible(true);
             view.getViewportLayer().setGizmoTransform(glm::translate(center));
-            view.getViewportLayer().setGizmoCallback([contact, vh](const glm::mat4& transform, const glm::mat4& delta, const glm::vec3& translation, const glm::vec3& rotation, const glm::vec3& scale)
+            view.getViewportLayer().setGizmoCallback([contact, vh, &view](const glm::mat4& transform, const glm::mat4& delta)
                 {
                     MeshNode* node = dynamic_cast<MeshNode*>(contact.node);
                     if (!node) return;
 
-                    glm::mat4 inverse = glm::inverse(node->getAbsoluteTransform());
+                    glm::vec3 translation, scale, skew;
+                    glm::vec4 perspective; glm::quat rotation;
 
-                    glm::mat4 localTranslation = glm::translate(glm::vec3(inverse * glm::vec4(translation, 1.f)));
-                    glm::mat4 localRotation = glm::mat4_cast(glm::quat_cast(inverse) * glm::quat(glm::radians(rotation)));
-                    glm::mat4 localScale = glm::scale(glm::vec3(inverse * glm::vec4(scale, 0.f)));
+                    glm::decompose(delta, scale, rotation, translation, skew, perspective);
 
-                    node->getMesh()->applyTransformation(vh, localTranslation);
+                    glm::mat4 absolute = node->getAbsoluteTransform();
+                    glm::mat4 inverse = glm::inverse(absolute);
+
+                    glm::mat4 relativeDelta;
+
+                    switch (view.getViewportLayer().getGizmoMode())
+                    {
+                    case GizmoMode::Translate: relativeDelta = inverse * glm::translate(translation) * absolute; break;
+                    case GizmoMode::Rotate: relativeDelta = glm::mat3(inverse) * glm::mat3_cast(rotation) * glm::mat3(absolute); break;
+                    case GizmoMode::Scale: relativeDelta = glm::mat3(inverse) * glm::mat3(glm::scale(scale)) * glm::mat3(absolute); break;
+                    }
+
+                    node->getMesh()->applyTransformation(vh, relativeDelta);
                 });
         }
     }
