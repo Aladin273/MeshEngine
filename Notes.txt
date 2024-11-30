@@ -1,24 +1,20 @@
 Urgently Goals
 ----------------------------------------------------------------
-- Fix manipulator for vertices and faces
-- Check raycast precision, recalculate bbox
-
-- Add transforming to properties layer, Decompose, Matrix
-
-- Delegates, Tree, Viewport, Properties
-- OnScreen, Checkbox, Flat, Smooth, Changed
-- Buttons for operator and gizmo mode
-
+- Check raycast precision, updateSubdata
 - Fix parser root node
-- Inherit Light from Base with fix buffer padding
+- Fix selected call in transforming from properties layer
+
+- Review Delegates, Tree, Viewport, Properties
+- Buttons for operator and gizmo mode
 
 - Add predicate for renderEx
 - Add possibility use process recursive
 
 - Add new nodes as MeshInstanced, Sprite
 - Implement shadows for multiple light sources
-- Add lit, unlit and flat shading to MeshNode
+- Add lit, unlit and flat shading nodes or global
 - Review normals calculation
+- Inherit Light from Base with fix buffer padding
 - Check tranforms and dirty state
 - Add import mesh as batch and non-batch
 - Add booleans as visible, updateble, castShadows

@@ -40,11 +40,8 @@ void Mesh::updateData()
     m_renderHoles.reserve(faces.size() * 8);
     m_renderBoundaries.reserve(faces.size() * 6);
 
-    m_bbox.min = m_bbox.max = vertices.front().data.position;
-
     for (const auto& vertex : vertices)
     {
-        m_bbox.merge(vertex.data.position);
         m_renderVertices.push_back(vertex.data);
     }
 
@@ -121,12 +118,27 @@ void Mesh::updateData()
     for (size_t i = 0; i < normalsMap.size(); ++i)
         m_renderVertices[i].normal = glm::normalize(normalsMap[i].first / normalsMap[i].second);
 
+    updateBbox();
     super::updateData();
 }
 
 void Mesh::updateSubData()
 {
+    updateBbox();
     super::updateSubData();
+}
+
+void Mesh::updateBbox()
+{
+    if (m_table.getVertices().size())
+    {
+        m_bbox.min = m_bbox.max = m_table.getVertices().front().data.position;
+
+        for (const auto& vertex : m_table.getVertices())
+        {
+            m_bbox.merge(vertex.data.position);
+        }
+    }
 }
 
 void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
@@ -158,7 +170,6 @@ void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
 
         m_table.setPoint(vh, data);
 
-        m_bbox.merge(data.position);
         m_renderVertices[vh].position = data.position;
 
         next_heh = m_table.next(next_heh);
@@ -240,6 +251,8 @@ void Mesh::applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf)
             m_renderSubData.push_back(vh);
         }
     }
+
+    updateBbox();
 }
 
 void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
@@ -252,7 +265,6 @@ void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
 
     m_table.setPoint(vh, data);
 
-    m_bbox.merge(data.position);
     m_renderVertices[vh].position = data.position;
     
     std::set<HalfEdgeFaceHandle> affectedFaces;
@@ -320,6 +332,8 @@ void Mesh::applyTransformation(HalfEdgeVertexHandle vh, const glm::mat4& trf)
             m_renderSubData.push_back(vh);
         }
     }
+
+    updateBbox();
 }
 
 void Mesh::deleteFace(HalfEdgeFaceHandle fh)

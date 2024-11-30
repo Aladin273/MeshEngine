@@ -28,6 +28,8 @@ public:
     virtual void updateData() override;
     virtual void updateSubData() override;
 
+    virtual void updateBbox();
+
 public:
     void applyTransformation(HalfEdgeFaceHandle fh, const glm::mat4& trf);
     void applyTransformation(HalfEdgeVertexHandle fh, const glm::mat4& trf);

@@ -292,7 +292,7 @@ void View::zoomToFit()
     BoundingBox bbox = m_scene->getBoundingBox();
     double length = glm::distance(bbox.min, bbox.max);
 
-    m_viewport.setZFar(glm::max(MeshEngine::Settings::zfarMin, length * 10.f));
+    m_viewport.setZFar(glm::max(MeshEngine::Settings::zfarMin, length * 100.f));
     m_viewport.zoomToFit(bbox.min, bbox.max);
 }
 
@@ -306,7 +306,7 @@ void View::zoomToFit(Node* node)
         BoundingBox bbox = node->getBoundingBox();
         bbox.tranform(node->getAbsoluteTransform());
 
-        m_viewport.setZFar(glm::max(MeshEngine::Settings::zfarMin, length * 10.f));
+        m_viewport.setZFar(glm::max(MeshEngine::Settings::zfarMin, length * 100.f));
         m_viewport.zoomToFit(bbox.min, bbox.max);
     }
 }
