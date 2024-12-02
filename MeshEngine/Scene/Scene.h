@@ -4,6 +4,8 @@
 #include "MeshEngine/RenderSystem/Shader.h"
 
 #include "MeshEngine/Misc/Export.h"
+#include "MeshEngine/Misc/Logger.h"
+#include "MeshEngine/Misc/Timer.h"
 #include "MeshEngine/Misc/Settings.h"
 
 #include "MeshEngine/Math/Ray.h"
@@ -65,6 +67,9 @@ public:
         bindSeparator();
 
         bindProperty(castShadows);
+        bindProperty(octreeRayCast);
+        bindProperty(frustrumCulling);
+
         bindPropertyEx(Property::Color3, "backgroundColor", backgroundColor);
 
         super::bind();
@@ -78,6 +83,9 @@ public:
     bool renderHoles = false;
     bool renderBoundaries = false;
     
+    bool octreeRayCast = false;
+    bool frustrumCulling = false;
+
     bool castShadows = false;
     glm::vec4 backgroundColor{ 0.1875f };
 
@@ -146,6 +154,8 @@ protected:
 private:
     bool m_running = false;
     Node* m_deleted = nullptr;
+
+    std::vector<Node*> m_frustrumCulling;
 
     std::unique_ptr<Octree> m_octree;
     std::vector<std::unique_ptr<Node>> m_nodes;

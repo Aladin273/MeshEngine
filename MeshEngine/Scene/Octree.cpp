@@ -157,8 +157,15 @@ void Octree::render(RenderSystem* renderSystem)
 std::vector<Node*> Octree::raycast(const Ray& ray)
 {
     std::vector<Node*> results;
-    query(ray, results);
+    queryRay(ray, results);
 
+    return results;
+}
+
+std::vector<Node*> Octree::frustrumcast(const Viewport& viewport)
+{
+    std::vector<Node*> results;
+    queryFrustrum(viewport, results);
     return results;
 }
 
@@ -235,7 +242,7 @@ void Octree::merge()
     }
 }
 
-void Octree::query(const Ray& ray, std::vector<Node*>& results)
+void Octree::queryRay(const Ray& ray, std::vector<Node*>& results)
 {
     if (!m_bounds.intersects(ray.orig, ray.dir))
     {
@@ -261,7 +268,92 @@ void Octree::query(const Ray& ray, std::vector<Node*>& results)
         {
             if (child)
             {
-                child->query(ray, results);
+                child->queryRay(ray, results);
+            }
+        }
+    }
+}
+
+void Octree::queryFrustrum(const Viewport& viewport, std::vector<Node*>& results)
+{
+    Viewport tempViewport = viewport;
+    tempViewport.setFOV(viewport.getFov() * 0.5f);
+
+    glm::mat4 projection = tempViewport.calcProjectionMatrix();
+    glm::mat4 view = tempViewport.getCamera().calcViewMatrix();
+
+    glm::mat4 matrix = projection * view;
+    float* viewProjection = glm::value_ptr(matrix);
+
+    std::vector<glm::vec4> frustumPlanes;
+    frustumPlanes.resize(6);
+
+    // Left plane
+    frustumPlanes[0] = glm::vec4(viewProjection[3] + viewProjection[0],
+        viewProjection[7] + viewProjection[4],
+        viewProjection[11] + viewProjection[8],
+        viewProjection[15] + viewProjection[12]);
+    
+    // Right plane
+    frustumPlanes[1] = glm::vec4(viewProjection[3] - viewProjection[0],
+        viewProjection[7] - viewProjection[4],
+        viewProjection[11] - viewProjection[8],
+        viewProjection[15] - viewProjection[12]);
+    
+    // Bottom plane
+    frustumPlanes[2] = glm::vec4(viewProjection[3] + viewProjection[1],
+        viewProjection[7] + viewProjection[5],
+        viewProjection[11] + viewProjection[9],
+        viewProjection[15] + viewProjection[13]);
+    
+    // Top plane
+    frustumPlanes[3] = glm::vec4(viewProjection[3] - viewProjection[1],
+        viewProjection[7] - viewProjection[5],
+        viewProjection[11] - viewProjection[9],
+        viewProjection[15] - viewProjection[13]);
+    
+    // Near plane
+    frustumPlanes[4] = glm::vec4(viewProjection[3] + viewProjection[2],
+        viewProjection[7] + viewProjection[6],
+        viewProjection[11] + viewProjection[10],
+        viewProjection[15] + viewProjection[14]);
+    
+    // Far plane
+    frustumPlanes[5] = glm::vec4(viewProjection[3] - viewProjection[2],
+        viewProjection[7] - viewProjection[6],
+        viewProjection[11] - viewProjection[10],
+        viewProjection[15] - viewProjection[14]);
+
+    for (auto& plane : frustumPlanes)
+    {
+        plane = glm::normalize(plane);
+    }
+
+    if (!m_bounds.intersects(frustumPlanes))
+    {
+        return;
+    }
+
+    if (m_leaf)
+    {
+        for (auto& obj : m_objects)
+        {
+            BoundingBox bbox = obj->getBoundingBox();
+            bbox.tranform(obj->getAbsoluteTransform());
+
+            if (bbox.intersects(frustumPlanes))
+            {
+                results.push_back(obj);
+            }
+        }
+    }
+    else
+    {
+        for (auto& child : m_children)
+        {
+            if (child)
+            {
+                child->queryFrustrum(viewport, results);
             }
         }
     }

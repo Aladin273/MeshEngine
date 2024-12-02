@@ -1,5 +1,7 @@
 Urgently Goals
 ----------------------------------------------------------------
+- Octant, Root, FOV, Cache
+
 - Octree, Frustrum Culling, Normal Map, Height Map, HDR, Bloom
 - Screen Space Ambient Occlusion, Screen Space Reflections
 

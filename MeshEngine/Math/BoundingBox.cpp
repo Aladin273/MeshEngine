@@ -55,3 +55,40 @@ bool BoundingBox::intersects(const glm::vec3& rayOrig, const glm::vec3& rayDir) 
 
     return far >= near;
 }
+
+bool BoundingBox::intersects(const std::vector<glm::vec4>& frustumPlanes) const
+{
+    std::vector<glm::vec3> corners =
+    {
+        glm::vec3(min.x, min.y, min.z),
+        glm::vec3(min.x, min.y, max.z),
+        glm::vec3(min.x, max.y, min.z),
+        glm::vec3(min.x, max.y, max.z),
+        glm::vec3(max.x, min.y, min.z),
+        glm::vec3(max.x, min.y, max.z),
+        glm::vec3(max.x, max.y, min.z),
+        glm::vec3(max.x, max.y, max.z)
+    };
+    
+    for (const auto& plane : frustumPlanes)
+    {
+        bool allOutside = true;
+    
+        for (const auto& corner : corners)
+        {
+            float distance = glm::dot(glm::vec3(plane), corner) + plane.w;
+            if (distance >= 0)
+            {
+                allOutside = false;
+                break;
+            }
+        }
+    
+        if (allOutside)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}

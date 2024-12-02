@@ -113,20 +113,27 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     std::vector<Node*> candidates;
     std::vector<Contact> contacts;
 
-    // Broad Phase
-    processRecursive([&](Node& node) -> bool
-        {
-            BoundingBox bbox = node.getBoundingBox();
-            bbox.tranform(node.getAbsoluteTransform());
+    MeshEngine::Timer timer;
+
+    if (octreeRayCast)
+    {
+        candidates = m_octree->raycast(ray);
+    }
+    else
+    {
+        processRecursive([&](Node& node) -> bool
+            {
+                BoundingBox bbox = node.getBoundingBox();
+                bbox.tranform(node.getAbsoluteTransform());
+
+                if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
+                    candidates.push_back(&node);
+
+                return true;
+            });
+    }
     
-            if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
-                candidates.push_back(&node);
-    
-            return true;
-        });
-    
-    // Octree
-    //candidates = m_octree->raycast(ray);
+    MeshEngine::Logger::info("Raycast time : {} ms ", timer.elapsed());
 
     // Narrow Phase
     for (auto node : candidates)
@@ -206,6 +213,11 @@ void Scene::update(float deltaTime)
         }
     }
 
+    if (frustrumCulling)
+    {
+        m_frustrumCulling = m_octree->frustrumcast(*m_viewport);
+    }
+
     requestDelete();
 }
 
@@ -237,11 +249,24 @@ void Scene::renderDepth(uint32_t targetId)
 
         glCullFace(GL_FRONT);
 
-        for (auto& node : m_nodes)
+        if (frustrumCulling)
         {
-            if (node->visible)
+            for (auto& node : m_frustrumCulling)
             {
-                node->renderEx(m_renderSystem, m_shaderDepth);
+                if (node->visible)
+                {
+                    node->renderEx(m_renderSystem, m_shaderDepth);
+                }
+            }
+        }
+        else
+        {
+            for (auto& node : m_nodes)
+            {
+                if (node->visible)
+                {
+                    node->renderEx(m_renderSystem, m_shaderDepth);
+                }
             }
         }
 
@@ -261,11 +286,24 @@ void Scene::renderScene(uint32_t targetId)
     m_renderSystem->bufferSubUniform(matricesUniformId, 0, sizeof(matricesUniform), &matricesUniform);
     m_renderSystem->bufferSubUniform(lightsUniformId, 0, sizeof(lightsUniform), &lightsUniform);
 
-    for (auto& node : m_nodes)
+    if (frustrumCulling)
     {
-        if (node->visible)
+        for (auto& node : m_frustrumCulling)
         {
-            node->render(m_renderSystem);
+            if (node->visible)
+            {
+                node->render(m_renderSystem);
+            }
+        }
+    }
+    else
+    {
+        for (auto& node : m_nodes)
+        {
+            if (node->visible)
+            {
+                node->render(m_renderSystem);
+            }
         }
     }
 

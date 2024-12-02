@@ -13,6 +13,8 @@
 #include "MeshEngine/Math/Ray.h"
 #include "MeshEngine/Math/BoundingBox.h"
 
+#include "MeshEngine/Viewport/Viewport.h"
+
 class Octree 
 {
 public:
@@ -26,11 +28,14 @@ public:
     void render(RenderSystem* renderSystem);
 
     std::vector<Node*> raycast(const Ray& ray);
+    std::vector<Node*> frustrumcast(const Viewport& viewport);
 
 private:
     void split();
     void merge();
-    void query(const Ray& ray, std::vector<Node*>& results);
+    
+    void queryRay(const Ray& ray, std::vector<Node*>& results);
+    void queryFrustrum(const Viewport& viewport, std::vector<Node*>& results);
 
 private:
     bool m_leaf = true;

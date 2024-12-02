@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 #include "glm/mat4x4.hpp"
@@ -21,6 +23,7 @@ struct BoundingBox
 
     bool intersects(const BoundingBox& other) const;
     bool intersects(const glm::vec3& rayOrig, const glm::vec3& rayDir) const;
+    bool intersects(const std::vector<glm::vec4>& frustumPlanes) const;
 
     bool operator==(const BoundingBox& bbox)
     {
