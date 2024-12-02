@@ -1,13 +1,13 @@
 #include "Intersections.h"
 
-bool glm::intersectAABB(glm::vec3 ray_orig, glm::vec3 ray_dir, glm::vec3 bbox_min, glm::vec3 bbox_max)
+bool glm::intersectRayAABB(glm::vec3 ray_orig, glm::vec3 ray_dir, glm::vec3 min, glm::vec3 max)
 {
     // Slab method
-    glm::vec3 min = (bbox_min - ray_orig) / ray_dir;
-    glm::vec3 max = (bbox_max - ray_orig) / ray_dir;
+    glm::vec3 tempMin = (min - ray_orig) / ray_dir;
+    glm::vec3 tempMax = (max - ray_orig) / ray_dir;
 
-    glm::vec3 t1 = glm::min(min, max);
-    glm::vec3 t2 = glm::max(min, max);
+    glm::vec3 t1 = glm::min(tempMin, tempMax);
+    glm::vec3 t2 = glm::max(tempMin, tempMax);
 
     float near = glm::max(glm::max(t1.x, t1.y), t1.z);
     float far = glm::min(glm::min(t2.x, t2.y), t2.z);
@@ -65,7 +65,7 @@ bool glm::intersectRayRay(glm::vec3 a_orig, glm::vec3 a_dir, glm::vec3 b_orig, g
 
 bool glm::intersectRayPlane(glm::vec3 point0, glm::vec3 normal, glm::vec3 ray_orig, glm::vec3 ray_dir, glm::vec3& point)
 {
-    // assuming vectors are all normalized
+    // Assuming vectors are all normalized
     float denom = glm::dot(normal, ray_dir);
 
     if (glm::abs(denom) > 1e-8)

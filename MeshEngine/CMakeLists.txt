@@ -25,6 +25,7 @@ set(MESH_ENGINE_HEADERS
     Base/Mesh.h
     Base/Sprite.h
 
+    Scene/Octree.h
     Scene/Scene.h
 
     Node/Node.h
@@ -77,6 +78,7 @@ set(MESH_ENGINE_SOURCES
     Base/Mesh.cpp
     Base/Sprite.cpp
 
+    Scene/Octree.cpp
     Scene/Scene.cpp
     
     Node/Node.cpp

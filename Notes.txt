@@ -1,5 +1,8 @@
 Urgently Goals
 ----------------------------------------------------------------
+- Octree, Frustrum Culling, Normal Map, Height Map, HDR, Bloom
+- Screen Space Ambient Occlusion, Screen Space Reflections
+
 - Check raycast precision, updateSubdata
 - Fix selected call in transforming from properties layer
 
@@ -26,9 +29,6 @@ Urgently Goals
 - Implement AssetSystem, InputSystem, GuiSystem for Scene
 - Implement GameMode, GameHud, RenderUI for scene
 - Implement binary saving system
-
-- Octree, Frustrum Culling, Normal Map, Height Map, HDR, Bloom
-- Screen Space Ambient Occlusion, Screen Space Reflections
 ----------------------------------------------------------------
 BufferSubData, UniformBuffer, Normals, Manipulators
 

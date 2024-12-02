@@ -5,6 +5,7 @@
 Scene::Scene()
 {
     m_name = "Scene";
+    m_octree = std::make_unique<Octree>(BoundingBox(glm::vec3(-MeshEngine::Settings::bounds), glm::vec3(MeshEngine::Settings::bounds)), MeshEngine::Settings::depth, MeshEngine::Settings::objects);
 }
 
 Scene::~Scene()
@@ -76,9 +77,14 @@ void Scene::attachNode(std::unique_ptr<Node> node)
     {
         node->setParent(nullptr);
         node->setScene(this);
-        node->setDirty(true);
-        if (m_running) node->start();
+        node->setOctree(m_octree.get());
 
+        if (m_running)
+        {
+            node->start();
+        }
+
+        m_octree->insert(node.get());
         m_nodes.push_back(std::move(node));
     }
 }
@@ -112,12 +118,15 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
         {
             BoundingBox bbox = node.getBoundingBox();
             bbox.tranform(node.getAbsoluteTransform());
-
-            if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
+    
+            if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
                 candidates.push_back(&node);
-
+    
             return true;
         });
+    
+    // Octree
+    //candidates = m_octree->raycast(ray);
 
     // Narrow Phase
     for (auto node : candidates)
@@ -260,6 +269,9 @@ void Scene::renderScene(uint32_t targetId)
         }
     }
 
+    if (renderOctree)
+        m_octree->render(m_renderSystem);
+
     m_renderSystem->unbindFrame();
 }
 
@@ -267,18 +279,9 @@ void Scene::requestDelete()
 {
     if (m_deleted)
     {
+        m_octree->remove(m_deleted);
         m_deleted->detachNode();
-
-        auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [=](std::unique_ptr<Node>& candicate)
-            {
-                return candicate.get() == m_deleted;
-            });
-
-        if (it != m_nodes.end())
-        {
-            m_nodes.erase(it);
-        }
-
+        m_nodes.erase(std::find_if(m_nodes.begin(), m_nodes.end(), [&](std::unique_ptr<Node>& node) { return node.get() == m_deleted; }));
         m_deleted = nullptr;
     }
 }

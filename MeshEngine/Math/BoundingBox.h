@@ -14,6 +14,14 @@ struct BoundingBox
     void merge(const glm::vec3& point);
     void merge(const BoundingBox& bbox);
 
+    glm::vec3 center() const;
+    glm::vec3 halfSize() const;
+
+    bool contains(const BoundingBox& other) const;
+
+    bool intersects(const BoundingBox& other) const;
+    bool intersects(const glm::vec3& rayOrig, const glm::vec3& rayDir) const;
+
     bool operator==(const BoundingBox& bbox)
     {
         return min == bbox.min && max == bbox.max;

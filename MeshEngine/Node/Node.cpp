@@ -45,6 +45,11 @@ Scene* Node::getScene() const
     return m_scene;
 }
 
+Octree* Node::getOctree() const
+{
+    return m_octree;
+}
+
 const std::vector<std::unique_ptr<Node>>& Node::getChildren() const
 {
     return m_children;
@@ -194,9 +199,9 @@ void Node::attachNode(std::unique_ptr<Node> node)
 
     node->setParent(this);
     node->setScene(m_scene);
-    node->setDirty(true);
+    node->setOctree(m_octree);
+    
     node->start();
-
     m_children.push_back(std::move(node));
 }
 
@@ -206,10 +211,7 @@ void Node::detachNode()
 
     if (m_parent)
     {
-        m_parent->m_children.erase(std::find_if(m_parent->m_children.begin(), m_parent->m_children.end(), [&](std::unique_ptr<Node>& node)
-        {
-            return node.get() == this;
-        }));
+        m_parent->m_children.erase(std::find_if(m_parent->m_children.begin(), m_parent->m_children.end(), [&](std::unique_ptr<Node>& node) { return node.get() == this; }));
     }
 }
 
@@ -228,6 +230,26 @@ void Node::setScene(Scene* scene)
     }
 }
 
+void Node::setOctree(Octree* octree)
+{
+    m_octree = octree;
+
+    for (auto& child : m_children)
+    {
+        child->setOctree(octree);
+    }
+}
+
+void Node::setOctant(Octree* octant)
+{
+    m_octant = octant;
+}
+
+Octree* Node::getOctant()
+{
+    return m_octant;
+}
+
 bool Node::getDirty() const
 {
     return m_dirty;
@@ -239,6 +261,9 @@ void Node::setDirty(bool dirty)
 
     if (dirty)
     {
+        if (getOctree())
+            getOctree()->update(this);
+
         for (auto& child : m_children)
         {
             child->setDirty(dirty);

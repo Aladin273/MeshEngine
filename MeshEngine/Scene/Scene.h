@@ -19,6 +19,8 @@
 #include "MeshEngine/Node/Node.h"
 #include "MeshEngine/Node/MeshNode.h"
 
+#include "MeshEngine/Scene/Octree.h"
+
 struct MatricesUniform
 {
     glm::mat4 view;
@@ -50,6 +52,7 @@ public:
 public:
     virtual void bind() override
     {
+        bindProperty(renderOctree);
         bindProperty(renderBbox);
 
         bindSeparator();
@@ -67,6 +70,7 @@ public:
         super::bind();
     }
 
+    bool renderOctree = false;
     bool renderBbox = false;
 
     bool renderTriangles = true;
@@ -142,6 +146,8 @@ protected:
 private:
     bool m_running = false;
     Node* m_deleted = nullptr;
+
+    std::unique_ptr<Octree> m_octree;
     std::vector<std::unique_ptr<Node>> m_nodes;
 };
 

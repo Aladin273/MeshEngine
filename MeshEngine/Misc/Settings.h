@@ -18,11 +18,8 @@ namespace MeshEngine
         const int width = 1920;
         const int height = 1080;
         const double fov = 60.0;
-        const double znear = 0.001;
-        const double zfar = 1000;
-
-        const double zfarMin = 1000.f;
-        const double zfarMax = 10000.f;
+        const double znear = 0.1f;
+        const double zfar = 100000.f;
 
         // Zoom
         const float zoomIn = 1.1f;
@@ -38,6 +35,11 @@ namespace MeshEngine
         const glm::vec3 target = { 0,0,0 };
         const glm::vec3 up = { 0,1,0 };
         const glm::vec3 worldUp = { 0,1,0 };
+
+        // Octree
+        const float bounds = 10000.f;
+        const int depth = 8;
+        const int objects = 4;
 
         // Axes
         const glm::vec3 axisX = { 1.0f, 0.0f, 0.0f };
