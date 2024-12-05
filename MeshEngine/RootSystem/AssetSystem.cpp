@@ -33,7 +33,7 @@ std::unique_ptr<Node> AssetSystem::loadModel(const std::string& filename)
         {
             if (MeshNode* meshNode = dynamic_cast<MeshNode*>(&node))
             {
-                glm::vec3 center = glm::vec4((meshNode->getBoundingBox().min + meshNode->getBoundingBox().max) / 2.0f, 1.0f);
+                glm::vec3 center = glm::vec4(meshNode->getBoundingBox().getCenter(), 1.0f);
 
                 if (glm::any(glm::notEqual(glm::vec3(0.0f), center, 1e-8)))
                 {

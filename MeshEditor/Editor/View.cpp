@@ -31,7 +31,7 @@ View::View(RenderSystem* renderSystem, const std::string& title, uint32_t width,
 
     m_viewport.getCamera().setEyeTargetUp(MeshEngine::Settings::eye, MeshEngine::Settings::target, MeshEngine::Settings::up);
     m_viewport.setViewportSize(width, height);
-    m_viewport.setFOV(MeshEngine::Settings::fov);
+    m_viewport.setFov(MeshEngine::Settings::fov);
     m_viewport.setZNear(MeshEngine::Settings::znear);
     m_viewport.setZFar(MeshEngine::Settings::zfar);
 
@@ -290,7 +290,7 @@ void View::disableOperator()
 void View::zoomToFit()
 {
     BoundingBox bbox = m_scene->getBoundingBox();
-    m_viewport.zoomToFit(bbox.min, bbox.max);
+    m_viewport.zoomToFit(bbox.getMin(), bbox.getMax());
 }
 
 void View::zoomToFit(Node* node)
@@ -300,7 +300,7 @@ void View::zoomToFit(Node* node)
         BoundingBox bbox = node->getBoundingBox();
         bbox.tranform(node->getAbsoluteTransform());
 
-        m_viewport.zoomToFit(bbox.min, bbox.max);
+        m_viewport.zoomToFit(bbox.getMin(), bbox.getMax());
     }
 }
 

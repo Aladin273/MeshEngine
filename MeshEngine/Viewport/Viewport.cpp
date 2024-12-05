@@ -20,9 +20,9 @@ void Viewport::setViewportSize(uint32_t inWidth, uint32_t inHeight)
     m_height = inHeight;
 }
 
-void Viewport::setFOV(double inFOV)
+void Viewport::setFov(double inFov)
 {
-    m_fov = inFOV;
+    m_fov = inFov;
 }
 
 void Viewport::setZNear(double inZNear)
@@ -68,6 +68,52 @@ double Viewport::getHeight() const
 bool Viewport::getOrthogonal() const
 {
     return m_orthogonal;
+}
+
+std::vector<glm::vec4> Viewport::calcFrustrum() const
+{
+    std::vector<glm::vec4> frustum;
+    frustum.resize(6);
+
+    glm::mat4 matrix = calcProjectionMatrix() * m_camera.calcViewMatrix();
+    float* viewProjection = glm::value_ptr(matrix);
+
+    frustum[0] = glm::vec4(viewProjection[3] + viewProjection[0],
+        viewProjection[7] + viewProjection[4],
+        viewProjection[11] + viewProjection[8],
+        viewProjection[15] + viewProjection[12]);
+
+    frustum[1] = glm::vec4(viewProjection[3] - viewProjection[0],
+        viewProjection[7] - viewProjection[4],
+        viewProjection[11] - viewProjection[8],
+        viewProjection[15] - viewProjection[12]);
+
+    frustum[2] = glm::vec4(viewProjection[3] + viewProjection[1],
+        viewProjection[7] + viewProjection[5],
+        viewProjection[11] + viewProjection[9],
+        viewProjection[15] + viewProjection[13]);
+
+    frustum[3] = glm::vec4(viewProjection[3] - viewProjection[1],
+        viewProjection[7] - viewProjection[5],
+        viewProjection[11] - viewProjection[9],
+        viewProjection[15] - viewProjection[13]);
+
+    frustum[4] = glm::vec4(viewProjection[3] + viewProjection[2],
+        viewProjection[7] + viewProjection[6],
+        viewProjection[11] + viewProjection[10],
+        viewProjection[15] + viewProjection[14]);
+
+    frustum[5] = glm::vec4(viewProjection[3] - viewProjection[2],
+        viewProjection[7] - viewProjection[6],
+        viewProjection[11] - viewProjection[10],
+        viewProjection[15] - viewProjection[14]);
+
+    for (auto& plane : frustum)
+    {
+        plane = glm::normalize(plane);
+    }
+
+    return frustum;
 }
 
 void Viewport::zoomToFit(glm::vec3 min, glm::vec3 max)

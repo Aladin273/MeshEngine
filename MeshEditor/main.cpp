@@ -1,5 +1,7 @@
 ﻿#include "Editor/Editor.h"
 
+#include "MeshEngine/Misc/Settings.h"
+
 #include "MeshEngine/Node/MeshNode.h"
 #include "MeshEngine/Node/DirLightNode.h"
 
@@ -34,17 +36,21 @@ std::unique_ptr<Scene> octreeScene()
 
     scene->attachNode(std::move(sunLight));
 
-    for (size_t x = 0; x < 24; ++x)
+    const uint8_t count = 10;
+    const float step = (MeshEngine::Settings::bounds * 2.f) / count;
+    const float size = step * 0.33f;
+
+    for (uint8_t x = 0; x < count; ++x)
     {
-        for (size_t y = 0; y < 24; ++y)
+        for (uint8_t y = 0; y < count; ++y)
         {
-            for (size_t z = 0; z < 24; ++z)
+            for (uint8_t z = 0; z < count; ++z)
             {
                 std::unique_ptr<MeshNode> cube = std::make_unique<MeshNode>();
 
                 cube->setName(std::string("Cube ") + std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z));
-                cube->attachMesh(Mesh::createCube(glm::vec3(0.f), 50.f));
-                cube->setRelativeTransform(glm::translate(glm::vec3(-10000.f + 200.f * x, -10000.f + 200.f * y, -10000.f + 200.f * z)));
+                cube->attachMesh(Mesh::createCube(glm::vec3(0.f), size));
+                cube->setRelativeTransform(glm::translate(glm::vec3(-MeshEngine::Settings::bounds + step * x, -MeshEngine::Settings::bounds + step * y, -MeshEngine::Settings::bounds + step * z)));
 
                 scene->attachNode(std::move(cube));
             }
@@ -59,8 +65,8 @@ int main()
     Editor* editor = Editor::instance();
     View* view = editor->createView(MeshEngine::Settings::title, MeshEngine::Settings::width, MeshEngine::Settings::height, MeshEngine::Settings::icon);
 
-    //std::unique_ptr<Scene> scene = defaultScene();
-    std::unique_ptr<Scene> scene = octreeScene();
+    std::unique_ptr<Scene> scene = defaultScene();
+    //std::unique_ptr<Scene> scene = octreeScene();
 
     view->setScene(scene.get());
 

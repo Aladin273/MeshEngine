@@ -113,14 +113,14 @@ void Octree::render(RenderSystem* renderSystem)
 
         std::vector<Vertex> vertices
         {
-            { { m_bounds.min.x, m_bounds.min.y, m_bounds.min.z }, {}, {} },
-            { { m_bounds.max.x, m_bounds.min.y, m_bounds.min.z }, {}, {} },
-            { { m_bounds.min.x, m_bounds.max.y, m_bounds.min.z }, {}, {} },
-            { { m_bounds.max.x, m_bounds.max.y, m_bounds.min.z }, {}, {} },
-            { { m_bounds.min.x, m_bounds.min.y, m_bounds.max.z }, {}, {} },
-            { { m_bounds.max.x, m_bounds.min.y, m_bounds.max.z }, {}, {} },
-            { { m_bounds.min.x, m_bounds.max.y, m_bounds.max.z }, {}, {} },
-            { { m_bounds.max.x, m_bounds.max.y, m_bounds.max.z }, {}, {} },
+            { { m_bounds.getMin().x, m_bounds.getMin().y, m_bounds.getMin().z }, {}, {} },
+            { { m_bounds.getMax().x, m_bounds.getMin().y, m_bounds.getMin().z }, {}, {} },
+            { { m_bounds.getMin().x, m_bounds.getMax().y, m_bounds.getMin().z }, {}, {} },
+            { { m_bounds.getMax().x, m_bounds.getMax().y, m_bounds.getMin().z }, {}, {} },
+            { { m_bounds.getMin().x, m_bounds.getMin().y, m_bounds.getMax().z }, {}, {} },
+            { { m_bounds.getMax().x, m_bounds.getMin().y, m_bounds.getMax().z }, {}, {} },
+            { { m_bounds.getMin().x, m_bounds.getMax().y, m_bounds.getMax().z }, {}, {} },
+            { { m_bounds.getMax().x, m_bounds.getMax().y, m_bounds.getMax().z }, {}, {} },
         };
 
         std::vector<uint32_t> indices
@@ -162,18 +162,18 @@ std::vector<Node*> Octree::raycast(const Ray& ray)
     return results;
 }
 
-std::vector<Node*> Octree::frustrumcast(const Viewport& viewport)
+std::vector<Node*> Octree::frustrumcast(const std::vector<glm::vec4>& frustrum)
 {
     std::vector<Node*> results;
-    queryFrustrum(viewport, results);
+    queryFrustrum(frustrum, results);
     return results;
 }
 
 void Octree::split()
 {
-    glm::vec3 min = m_bounds.min;
-    glm::vec3 max = m_bounds.max;
-    glm::vec3 center = m_bounds.center();
+    glm::vec3 min = m_bounds.getMin();
+    glm::vec3 max = m_bounds.getMax();
+    glm::vec3 center = m_bounds.getCenter();
 
     BoundingBox childBounds[8] = 
     {
@@ -274,62 +274,9 @@ void Octree::queryRay(const Ray& ray, std::vector<Node*>& results)
     }
 }
 
-void Octree::queryFrustrum(const Viewport& viewport, std::vector<Node*>& results)
+void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::vector<Node*>& results)
 {
-    Viewport tempViewport = viewport;
-    tempViewport.setFOV(viewport.getFov() * 0.5f);
-
-    glm::mat4 projection = tempViewport.calcProjectionMatrix();
-    glm::mat4 view = tempViewport.getCamera().calcViewMatrix();
-
-    glm::mat4 matrix = projection * view;
-    float* viewProjection = glm::value_ptr(matrix);
-
-    std::vector<glm::vec4> frustumPlanes;
-    frustumPlanes.resize(6);
-
-    // Left plane
-    frustumPlanes[0] = glm::vec4(viewProjection[3] + viewProjection[0],
-        viewProjection[7] + viewProjection[4],
-        viewProjection[11] + viewProjection[8],
-        viewProjection[15] + viewProjection[12]);
-    
-    // Right plane
-    frustumPlanes[1] = glm::vec4(viewProjection[3] - viewProjection[0],
-        viewProjection[7] - viewProjection[4],
-        viewProjection[11] - viewProjection[8],
-        viewProjection[15] - viewProjection[12]);
-    
-    // Bottom plane
-    frustumPlanes[2] = glm::vec4(viewProjection[3] + viewProjection[1],
-        viewProjection[7] + viewProjection[5],
-        viewProjection[11] + viewProjection[9],
-        viewProjection[15] + viewProjection[13]);
-    
-    // Top plane
-    frustumPlanes[3] = glm::vec4(viewProjection[3] - viewProjection[1],
-        viewProjection[7] - viewProjection[5],
-        viewProjection[11] - viewProjection[9],
-        viewProjection[15] - viewProjection[13]);
-    
-    // Near plane
-    frustumPlanes[4] = glm::vec4(viewProjection[3] + viewProjection[2],
-        viewProjection[7] + viewProjection[6],
-        viewProjection[11] + viewProjection[10],
-        viewProjection[15] + viewProjection[14]);
-    
-    // Far plane
-    frustumPlanes[5] = glm::vec4(viewProjection[3] - viewProjection[2],
-        viewProjection[7] - viewProjection[6],
-        viewProjection[11] - viewProjection[10],
-        viewProjection[15] - viewProjection[14]);
-
-    for (auto& plane : frustumPlanes)
-    {
-        plane = glm::normalize(plane);
-    }
-
-    if (!m_bounds.intersects(frustumPlanes))
+    if (!m_bounds.intersects(frustrum))
     {
         return;
     }
@@ -341,7 +288,7 @@ void Octree::queryFrustrum(const Viewport& viewport, std::vector<Node*>& results
             BoundingBox bbox = obj->getBoundingBox();
             bbox.tranform(obj->getAbsoluteTransform());
 
-            if (bbox.intersects(frustumPlanes))
+            if (bbox.intersects(frustrum))
             {
                 results.push_back(obj);
             }
@@ -353,7 +300,7 @@ void Octree::queryFrustrum(const Viewport& viewport, std::vector<Node*>& results
         {
             if (child)
             {
-                child->queryFrustrum(viewport, results);
+                child->queryFrustrum(frustrum, results);
             }
         }
     }

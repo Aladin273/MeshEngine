@@ -69,6 +69,7 @@ public:
         bindProperty(castShadows);
         bindProperty(octreeRayCast);
         bindProperty(frustrumCulling);
+        bindProperty(frustrumScale);
 
         bindPropertyEx(Property::Color3, "backgroundColor", backgroundColor);
 
@@ -83,10 +84,11 @@ public:
     bool renderHoles = false;
     bool renderBoundaries = false;
     
-    bool octreeRayCast = false;
-    bool frustrumCulling = false;
-
     bool castShadows = false;
+    bool octreeRayCast = true;
+    bool frustrumCulling = true;
+    float frustrumScale = 1.0f;
+
     glm::vec4 backgroundColor{ 0.1875f };
 
 public:

@@ -279,14 +279,14 @@ void Node::startBbox()
 
         std::vector<Vertex> vertices
         {
-            { { m_bbox.min.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
-            { { m_bbox.max.x, m_bbox.min.y, m_bbox.min.z }, {}, {} },
-            { { m_bbox.min.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
-            { { m_bbox.max.x, m_bbox.max.y, m_bbox.min.z }, {}, {} },
-            { { m_bbox.min.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
-            { { m_bbox.max.x, m_bbox.min.y, m_bbox.max.z }, {}, {} },
-            { { m_bbox.min.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
-            { { m_bbox.max.x, m_bbox.max.y, m_bbox.max.z }, {}, {} },
+            { { m_bbox.getMin().x, m_bbox.getMin().y, m_bbox.getMin().z }, {}, {} },
+            { { m_bbox.getMax().x, m_bbox.getMin().y, m_bbox.getMin().z }, {}, {} },
+            { { m_bbox.getMin().x, m_bbox.getMax().y, m_bbox.getMin().z }, {}, {} },
+            { { m_bbox.getMax().x, m_bbox.getMax().y, m_bbox.getMin().z }, {}, {} },
+            { { m_bbox.getMin().x, m_bbox.getMin().y, m_bbox.getMax().z }, {}, {} },
+            { { m_bbox.getMax().x, m_bbox.getMin().y, m_bbox.getMax().z }, {}, {} },
+            { { m_bbox.getMin().x, m_bbox.getMax().y, m_bbox.getMax().z }, {}, {} },
+            { { m_bbox.getMax().x, m_bbox.getMax().y, m_bbox.getMax().z }, {}, {} },
         };
 
         std::vector<uint32_t> indices

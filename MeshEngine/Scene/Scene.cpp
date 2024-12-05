@@ -126,7 +126,7 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
                 BoundingBox bbox = node.getBoundingBox();
                 bbox.tranform(node.getAbsoluteTransform());
 
-                if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
+                if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.getMin(), bbox.getMax()) && node.getChildren().empty())
                     candidates.push_back(&node);
 
                 return true;
@@ -202,6 +202,8 @@ void Scene::end()
 
 void Scene::update(float deltaTime)
 {
+    requestDelete();
+
     matricesUniform.view = m_viewport->getCamera().calcViewMatrix();
     matricesUniform.projection = m_viewport->calcProjectionMatrix();
 
@@ -215,10 +217,12 @@ void Scene::update(float deltaTime)
 
     if (frustrumCulling)
     {
-        m_frustrumCulling = m_octree->frustrumcast(*m_viewport);
+        float fov = m_viewport->getFov();
+        m_viewport->setFov(fov * frustrumScale);
+        m_frustrumCulling = m_octree->frustrumcast(m_viewport->calcFrustrum());
+        m_viewport->setFov(fov);
     }
 
-    requestDelete();
 }
 
 void Scene::render(uint32_t targetId)

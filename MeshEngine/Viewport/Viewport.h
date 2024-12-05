@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -13,7 +15,7 @@ public:
     glm::mat4 calcProjectionMatrix() const;
 
     void setViewportSize(uint32_t inWidth, uint32_t inHeight);
-    void setFOV(double inFOV);
+    void setFov(double inFov);
     void setZNear(double inZNear);
     void setZFar(double inZFar);
     void setOrthogonal(bool enable);
@@ -36,6 +38,8 @@ public:
     double calcTargetPlaneWidth() const;
     double calcTargetPlaneHeight() const;
     double calcAspectRatio() const;
+    
+    std::vector<glm::vec4> calcFrustrum() const;
 
     Camera& getCamera();
     const Camera& getCamera() const;
