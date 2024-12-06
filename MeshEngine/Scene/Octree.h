@@ -34,8 +34,8 @@ private:
     void split();
     void merge();
     
-    void queryRay(const Ray& ray, std::vector<Node*>& results);
-    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::vector<Node*>& results);
+    void queryRay(const Ray& ray, std::set<Node*>& results);
+    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::set<Node*>& results);
 
 private:
     bool m_leaf = true;

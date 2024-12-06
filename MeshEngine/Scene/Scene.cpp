@@ -118,6 +118,7 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     if (octreeRayCast)
     {
         candidates = m_octree->raycast(ray);
+        candidates.erase(std::remove_if(candidates.begin(), candidates.end(), [](Node* node) { return !node->getChildren().empty(); }), candidates.end());
     }
     else
     {
@@ -134,6 +135,7 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     }
     
     MeshEngine::Logger::info("Raycast time : {} ms ", timer.elapsed());
+    MeshEngine::Logger::info("Num of objects : {}", m_frustrumCulling.size());
 
     // Narrow Phase
     for (auto node : candidates)
@@ -222,7 +224,6 @@ void Scene::update(float deltaTime)
         m_frustrumCulling = m_octree->frustrumcast(m_viewport->calcFrustrum());
         m_viewport->setFov(fov);
     }
-
 }
 
 void Scene::render(uint32_t targetId)

@@ -156,17 +156,18 @@ void Octree::render(RenderSystem* renderSystem)
 
 std::vector<Node*> Octree::raycast(const Ray& ray)
 {
-    std::vector<Node*> results;
+    std::set<Node*> results;
     queryRay(ray, results);
 
-    return results;
+    return std::vector(results.begin(), results.end());
 }
 
 std::vector<Node*> Octree::frustrumcast(const std::vector<glm::vec4>& frustrum)
 {
-    std::vector<Node*> results;
+    std::set<Node*> results;
     queryFrustrum(frustrum, results);
-    return results;
+    
+    return std::vector(results.begin(), results.end());
 }
 
 void Octree::split()
@@ -242,7 +243,7 @@ void Octree::merge()
     }
 }
 
-void Octree::queryRay(const Ray& ray, std::vector<Node*>& results)
+void Octree::queryRay(const Ray& ray, std::set<Node*>& results)
 {
     if (!m_bounds.intersects(ray.orig, ray.dir))
     {
@@ -258,7 +259,7 @@ void Octree::queryRay(const Ray& ray, std::vector<Node*>& results)
 
             if (bbox.intersects(ray.orig, ray.dir))
             {
-                results.push_back(obj);
+                results.insert(obj);
             }
         }
     }
@@ -274,7 +275,7 @@ void Octree::queryRay(const Ray& ray, std::vector<Node*>& results)
     }
 }
 
-void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::vector<Node*>& results)
+void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::set<Node*>& results)
 {
     if (!m_bounds.intersects(frustrum))
     {
@@ -290,7 +291,7 @@ void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::vector<N
 
             if (bbox.intersects(frustrum))
             {
-                results.push_back(obj);
+                results.insert(obj);
             }
         }
     }
