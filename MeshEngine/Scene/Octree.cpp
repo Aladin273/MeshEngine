@@ -2,17 +2,17 @@
 
 #include "MeshEngine/Misc/Export.h"
 #include "MeshEngine/Misc/Settings.h"
+#include "MeshEngine/Misc/DrawHelper.h"
 
 Octree::Octree(const BoundingBox& bounds, uint32_t maxDepth, uint32_t maxObjects)
     : m_bounds(bounds), m_maxDepth(maxDepth), m_maxObjects(maxObjects)
 {
-    m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
+
 }
 
 Octree::~Octree()
 {
-    if (m_renderSystem)
-        m_renderSystem->unbufferData(m_renderId);
+
 }
 
 void Octree::insert(Node* node)
@@ -106,51 +106,14 @@ void Octree::update(Node* node)
 
 void Octree::render(RenderSystem* renderSystem)
 {
-    if (!m_renderInit)
+    MeshEngine::DrawHelper::drawDebugBox(renderSystem, glm::mat4(1.f), m_bounds.getMin(), m_bounds.getMax(), glm::vec4(1.f, 0.5f, 0.5f, 1.f), false, 2.f);
+
+    for (auto& child : m_children)
     {
-        m_renderInit = true;
-        m_renderSystem = renderSystem;
-
-        std::vector<Vertex> vertices
+        if (child)
         {
-            { { m_bounds.getMin().x, m_bounds.getMin().y, m_bounds.getMin().z }, {}, {} },
-            { { m_bounds.getMax().x, m_bounds.getMin().y, m_bounds.getMin().z }, {}, {} },
-            { { m_bounds.getMin().x, m_bounds.getMax().y, m_bounds.getMin().z }, {}, {} },
-            { { m_bounds.getMax().x, m_bounds.getMax().y, m_bounds.getMin().z }, {}, {} },
-            { { m_bounds.getMin().x, m_bounds.getMin().y, m_bounds.getMax().z }, {}, {} },
-            { { m_bounds.getMax().x, m_bounds.getMin().y, m_bounds.getMax().z }, {}, {} },
-            { { m_bounds.getMin().x, m_bounds.getMax().y, m_bounds.getMax().z }, {}, {} },
-            { { m_bounds.getMax().x, m_bounds.getMax().y, m_bounds.getMax().z }, {}, {} },
-        };
-
-        std::vector<uint32_t> indices
-        {
-            0, 1, 1, 3, 3, 2,
-            2, 0, 4, 5, 5, 7,
-            7, 6, 6, 4, 0, 4,
-            1, 5, 2, 6, 3, 7,
-        };
-
-        m_renderId = renderSystem->bufferData(vertices, indices);
-    }
-
-    m_shader->bind();
-
-    m_shader->setMat4("model", glm::mat4(1.f));
-    m_shader->setVec4("color", 1.f, 0.5f, 0.5f, 1.f);
-
-    renderSystem->bindData(m_renderId);
-
-    renderSystem->setLineSize(2.0f);
-    renderSystem->renderLines();
-
-    m_shader->unbind();
-    renderSystem->unbindData();
-
-    for (size_t i = 0; i < 8; ++i)
-    {
-        if (m_children[i])
-          m_children[i]->render(renderSystem);
+            child->render(renderSystem);
+        }
     }
 }
 

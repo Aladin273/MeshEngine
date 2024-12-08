@@ -50,11 +50,4 @@ private:
 
     std::set<Node*> m_objects;
     std::unique_ptr<Octree> m_children[8];
-
-private:
-    Shader* m_shader = nullptr;
-    RenderSystem* m_renderSystem = nullptr;
-    
-    uint32_t m_renderId = 0;
-    bool m_renderInit = false;
 };

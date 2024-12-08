@@ -85,8 +85,8 @@ public:
     bool renderBoundaries = false;
     
     bool castShadows = false;
-    bool octreeRayCast = true;
-    bool frustrumCulling = true;
+    bool octreeRayCast = false;
+    bool frustrumCulling = false;
     float frustrumScale = 1.0f;
 
     glm::vec4 backgroundColor{ 0.1875f };

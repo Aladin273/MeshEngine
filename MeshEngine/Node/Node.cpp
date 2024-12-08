@@ -1,6 +1,7 @@
 #include "Node.h" 
 
 #include "MeshEngine/Scene/Scene.h"
+#include "MeshEngine/Misc/DrawHelper.h"
 
 static bool s_recursiveStart = true;
 static bool s_recursiveEnd = true;
@@ -10,7 +11,6 @@ static bool s_recursiveRender = true;
 Node::Node()
 {
     m_name = "Node";
-    m_shaderBase = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
 }
 
 Node::~Node()
@@ -118,8 +118,6 @@ void Node::applyAbsoluteTransform(const glm::mat4& trf)
 
 void Node::start()
 {
-    startBbox();
-
     if (s_recursiveStart)
     {
         for (auto& child : m_children)
@@ -129,8 +127,6 @@ void Node::start()
 
 void Node::end()
 {
-    endBbox();
-
     if (s_recursiveEnd)
     {
         for (auto& child : m_children)
@@ -140,29 +136,24 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    if (updatable)
+    if (updatable && s_recursiveUpdate)
     {
-        updateBbox(deltaTime);
-
-        if (s_recursiveUpdate)
-        {
-            for (auto& child : m_children)
-                child->update(deltaTime);
-        }
+        for (auto& child : m_children)
+            child->update(deltaTime);
     }
 }
 
 void Node::render(RenderSystem* renderSystem)
 {
-    if (visible)
+    if (getScene() && getScene()->renderBbox)
     {
-        renderBbox(renderSystem);
+        MeshEngine::DrawHelper::drawDebugBox(renderSystem, getAbsoluteTransform(), getBoundingBox().getMin(), getBoundingBox().getMax(), glm::vec4(1.f, 1.f, 0.f, 1.f), false, 2.f);
+    }
 
-        if (s_recursiveRender)
-        {
-            for (auto& child : m_children)
-                child->render(renderSystem);
-        }
+    if (visible && s_recursiveRender)
+    {
+        for (auto& child : m_children)
+            child->render(renderSystem);
     }
 }
 
@@ -269,77 +260,4 @@ void Node::setDirty(bool dirty)
             child->setDirty(dirty);
         }
     }
-}
-
-void Node::startBbox()
-{
-    if (getScene() && getScene()->getRenderSystem())
-    {
-        m_bbox = getBoundingBox();
-
-        std::vector<Vertex> vertices
-        {
-            { { m_bbox.getMin().x, m_bbox.getMin().y, m_bbox.getMin().z }, {}, {} },
-            { { m_bbox.getMax().x, m_bbox.getMin().y, m_bbox.getMin().z }, {}, {} },
-            { { m_bbox.getMin().x, m_bbox.getMax().y, m_bbox.getMin().z }, {}, {} },
-            { { m_bbox.getMax().x, m_bbox.getMax().y, m_bbox.getMin().z }, {}, {} },
-            { { m_bbox.getMin().x, m_bbox.getMin().y, m_bbox.getMax().z }, {}, {} },
-            { { m_bbox.getMax().x, m_bbox.getMin().y, m_bbox.getMax().z }, {}, {} },
-            { { m_bbox.getMin().x, m_bbox.getMax().y, m_bbox.getMax().z }, {}, {} },
-            { { m_bbox.getMax().x, m_bbox.getMax().y, m_bbox.getMax().z }, {}, {} },
-        };
-
-        std::vector<uint32_t> indices
-        {
-            0, 1, 1, 3, 3, 2,
-            2, 0, 4, 5, 5, 7,
-            7, 6, 6, 4, 0, 4,
-            1, 5, 2, 6, 3, 7,
-        };
-
-        RenderSystem* renderSystem = getScene()->getRenderSystem();
-        m_renderBaseId = renderSystem->bufferData(vertices, indices);
-    }
-}
-
-void Node::endBbox()
-{
-    if (getScene() && getScene()->getRenderSystem())
-    {
-        RenderSystem* renderSystem = getScene()->getRenderSystem();
-        renderSystem->unbufferData(m_renderBaseId);
-    }
-}
-
-void Node::updateBbox(float deltaTime)
-{
-    if (m_bbox != getBoundingBox())
-    {
-        resetBbox();
-    }
-}
-
-void Node::renderBbox(RenderSystem* renderSystem)
-{
-    if (getScene() && getScene()->renderBbox)
-    {
-        m_shaderBase->bind();
-        
-        m_shaderBase->setMat4("model", getAbsoluteTransform());
-        m_shaderBase->setVec4("color", 1.f, 1.f, 0.f, 1.f);
-
-        renderSystem->bindData(m_renderBaseId);
-
-        renderSystem->setLineSize(2.0f);
-        renderSystem->renderLines();
-
-        m_shaderBase->unbind();
-        renderSystem->unbindData();
-    }
-}
-
-void Node::resetBbox()
-{
-    endBbox();
-    startBbox();
 }

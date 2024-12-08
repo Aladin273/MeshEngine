@@ -108,19 +108,6 @@ protected:
 protected:
     Shader* m_shader = nullptr;
 
-protected:
-    void startBbox();
-    void endBbox();
-
-    void updateBbox(float deltaTime);
-    void renderBbox(RenderSystem* renderSystem);
-    
-    void resetBbox();
-
-private:
-    Shader* m_shaderBase = nullptr;
-    uint32_t m_renderBaseId = 0;
-
 private:
     BoundingBox m_bbox;
 

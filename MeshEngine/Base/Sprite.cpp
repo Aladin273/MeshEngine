@@ -31,7 +31,7 @@ void Sprite::updateData()
         { { -scaledWidth, -scaledHeight, 0.f }, { 0.f, 0.f, 1.f }, { 0.f, 0.f } },
     };
 
-    m_renderTriangles = { 0, 1, 2, 2, 3, 0, };
+    m_renderTriangles = { 0, 1, 2, 2, 3, 0 };
 
     m_bbox.setMin(glm::vec3(-scaledWidth, -scaledHeight, -0.5f));
     m_bbox.setMax(glm::vec3(scaledWidth, scaledHeight, 0.5f));
