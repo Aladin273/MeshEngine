@@ -6,11 +6,11 @@
 class EditNodeOperator : public Operator
 {
 public:
-    void onEnter(View&) override;
-    void onExit(View&) override;
-    void onMouseMove(View& view, double x, double y) override;
-    void onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y) override;
-    void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
+    virtual void onEnter(View&) override;
+    virtual void onExit(View&) override;
+    virtual void onMouseMove(View& view, double x, double y) override;
+    virtual void onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y) override;
+    virtual void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) override;
 
 private:
     void onSelectedChanged(View& view, const Contact& selected);

@@ -113,6 +113,8 @@ void View::update(float deltaTime)
     
     m_plane->update(deltaTime);
     m_origin->update(deltaTime);
+    
+    m_operatorDispatcher.update(deltaTime);
 }
 
 void View::render()
@@ -151,10 +153,13 @@ void View::render()
         m_origin->render(m_renderSystem);
     }
 
-    m_renderSystem->unbindFrame();
-    
+    // Operators
+    //////////////////////////////////////////////////
+    m_operatorDispatcher.render(m_renderSystem);
 
-    // UI 
+    m_renderSystem->unbindFrame();
+
+    // UI
     //////////////////////////////////////////////////
     m_guiSystem->begin();
 

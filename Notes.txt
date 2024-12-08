@@ -1,7 +1,8 @@
 Urgently Goals
 ----------------------------------------------------------------
-- Octant, Root, FOV, Cache, RenderDebug, Logs
+- Octant, Root, FOV, Cache
 - OctreeNode, FrustrumNode, SetMin, SetMax
+- Logs, RenderDebug, Selected, Operators
 
 - Octree, Frustrum Culling, Normal Map, Height Map, HDR, Bloom
 - Screen Space Ambient Occlusion, Screen Space Reflections

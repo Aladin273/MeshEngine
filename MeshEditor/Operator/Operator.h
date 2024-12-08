@@ -1,6 +1,7 @@
 #pragma once
 
 class View;
+class RenderSystem;
 
 enum class KeyCode;
 enum class ButtonCode;
@@ -16,4 +17,7 @@ public:
     virtual void onMouseMove(View& view, double x, double y) {}
     virtual void onMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y) {}
     virtual void onKeyboardInput(View& view, KeyCode key, Action action, Modifier mods) {}
+    
+    virtual void onUpdate(float deltaTime) {};
+    virtual void onRender(RenderSystem* renderSystem) {};
 };

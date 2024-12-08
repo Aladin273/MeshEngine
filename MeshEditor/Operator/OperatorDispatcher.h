@@ -7,6 +7,8 @@
 
 #include "Operator.h"
 
+class RenderSystem;
+
 class OperatorDispatcher
 {
 public:
@@ -36,8 +38,10 @@ public:
     }
 
     void activateOperator(View& view, KeyCode key);
-    
     void disableOperator(View& view);
+
+    void update(float deltaTime);
+    void render(RenderSystem* renderSystem);
 
 private:
     void processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y);
