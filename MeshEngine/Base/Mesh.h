@@ -45,10 +45,12 @@ public:
     void setMaterial(const Material& material);
 
     static std::unique_ptr<Mesh> createCube(glm::vec3 center, float length);
+    static std::unique_ptr<Mesh> createBox(glm::vec3 center, float width, float height, float depth);
     static std::unique_ptr<Mesh> createSphere(glm::vec3 center, float radius, uint32_t numSubdivisions);
+    static std::unique_ptr<Mesh> createEllipsoid(glm::vec3 center, glm::vec3 size, uint32_t numSubdivisions);
     static std::unique_ptr<Mesh> createCone(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
     static std::unique_ptr<Mesh> createCylinder(glm::vec3 dir, float R, float h, uint32_t numSubdivisions);
-    static std::unique_ptr<Mesh> createTorus(glm::vec3 dir, float minorRadius, float majorRadius, uint32_t majorSegments);
+    static std::unique_ptr<Mesh> createTorus(glm::vec3 dir, float minorRadius, float majorRadius, uint32_t numSubdivisions);
     static std::unique_ptr<Mesh> createArrow(glm::vec3 dir, float R1, float h1, float R2, float h2, uint32_t numSubdivisions);
     static std::unique_ptr<Mesh> createPlane(glm::vec3 dir, float width, float heigth, uint32_t numSubdivisions);
 

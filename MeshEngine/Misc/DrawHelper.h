@@ -14,21 +14,34 @@ namespace MeshEngine
         static void drawDebugPoint(RenderSystem* renderSystem, glm::vec3 point, glm::vec4 color = glm::vec4(1.f), float thickness = 10.0f);
         static void drawDebugLine(RenderSystem* renderSystem, glm::vec3 start, glm::vec3 end, glm::vec4 color = glm::vec4(1.f), float thickness = 10.0f);
         
-        static void drawDebugSphere(RenderSystem* renderSystem, glm::vec3 position, float radius, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
-        static void drawDebugSphere(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
-        
         static void drawDebugBox(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugBox(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 min, glm::vec3 max, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugBox(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
         static void drawDebugBox(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 min, glm::vec3 max, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
 
-        //static void drawDebugCone(RenderSystem* renderSystem);
-        //static void drawDebugCylinder(RenderSystem* renderSystem);
+        static void drawDebugSphere(RenderSystem* renderSystem, glm::vec3 position, float radius, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugSphere(RenderSystem* renderSystem, const glm::mat4& transform, float radius, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+
+        static void drawDebugEllipsoid(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugEllipsoid(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
         
-        //static void drawDebugArrow(RenderSystem* renderSystem);
+        static void drawDebugCone(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 dir, float radius, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugCone(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 dir, float radius, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+
+        static void drawDebugCylinder(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 dir, float radius, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugCylinder(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 dir, float radius, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+
+        static void drawDebugTorus(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 dir, float radius, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugTorus(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 dir,float radius, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+
+        static void drawDebugArrow(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 dir, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugArrow(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 dir, glm::vec3 size, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+
+        static void drawDebugPlane(RenderSystem* renderSystem, glm::vec3 position, glm::vec3 dir, float width, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
+        static void drawDebugPlane(RenderSystem* renderSystem, const glm::mat4& transform, glm::vec3 dir, float width, float height, glm::vec4 color = glm::vec4(1.f), bool fill = false, float thickness = 2.0f);
 
     private:
-        static void drawDebugSphereInternal(RenderSystem* renderSystem, const glm::mat4& matrix, glm::vec4 color, bool fill, float thickness);
-        static void drawDebugBoxInternal(RenderSystem* renderSystem, const glm::mat4& matrix, glm::vec4 color, bool fill, float thickness);
-
+        static void drawDebugShapeInternal(RenderSystem* renderSystem, uint32_t shape, const glm::mat4& matrix, glm::vec4 color, bool fill, float thickness);
         static void drawDebugInternal(RenderSystem* renderSystem, uint32_t renderId, const glm::mat4& matrix, glm::vec4 color, uint32_t type, float thickness);
     };
 }

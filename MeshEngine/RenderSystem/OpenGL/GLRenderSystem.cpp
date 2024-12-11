@@ -127,7 +127,7 @@ void GLRenderSystem::unbufferData(uint32_t dataId)
     }
 }
 
-void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t index, const Vertex& vertex)
+void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t offset, const Vertex& vertex)
 {
     auto it = m_dataMap.find(dataId);
 
@@ -135,10 +135,22 @@ void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t index, const Vertex
     {
         unsigned int VBO = std::get<1>(it->second);
 
-        size_t offset = index * sizeof(Vertex);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(Vertex), sizeof(Vertex), &vertex);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+}
+
+void GLRenderSystem::bufferSubData(uint32_t dataId, uint32_t offset, const std::vector<Vertex>& vertices)
+{
+    auto it = m_dataMap.find(dataId);
+
+    if (it != m_dataMap.end())
+    {
+        unsigned int VBO = std::get<1>(it->second);
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(Vertex), &vertex);
+        glBufferSubData(GL_ARRAY_BUFFER, offset * sizeof(Vertex), vertices.size() * sizeof(Vertex), &vertices[0]);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 }
