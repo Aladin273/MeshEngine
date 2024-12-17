@@ -19,11 +19,8 @@ Octree::~Octree()
     }
 }
 
-void Octree::insert(Node* node)
+void Octree::insert(Node* node, const BoundingBox& bbox)
 {
-    BoundingBox bbox = node->getBoundingBox();
-    bbox.tranform(node->getAbsoluteTransform());
-
     if (!m_bounds.intersects(bbox))
     {
         return;
@@ -47,17 +44,14 @@ void Octree::insert(Node* node)
         {
             if (child) 
             {
-                child->insert(node);
+                child->insert(node, bbox);
             }
         }
     }
 }
 
-void Octree::remove(Node* node)
+void Octree::remove(Node* node, const BoundingBox& bbox)
 {
-    BoundingBox bbox = node->getBoundingBox();
-    bbox.tranform(node->getAbsoluteTransform());
-
     //if (!m_bounds.intersects(bbox) && !m_objects.contains(node))
     //{
     //    return;
@@ -73,7 +67,7 @@ void Octree::remove(Node* node)
         {
             if (child) 
             {
-                child->remove(node);
+                child->remove(node, bbox);
             }
         }
 
@@ -81,30 +75,27 @@ void Octree::remove(Node* node)
     }
 }
 
-void Octree::update(Node* node)
+void Octree::update(Node* node, const BoundingBox& bbox)
 {
-    BoundingBox bbox = node->getBoundingBox();
-    bbox.tranform(node->getAbsoluteTransform());
-
     if (node->getOctant())
     {
         if (!node->getOctant()->m_bounds.contains(bbox))
         {
-            node->getOctant()->remove(node);
+            node->getOctant()->remove(node, bbox);
             node->setOctant(nullptr);
 
-            insert(node);
+            insert(node, bbox);
         }
         else
         {
-            node->getOctant()->remove(node);
-            node->getOctant()->insert(node);
+            node->getOctant()->remove(node, bbox);
+            node->getOctant()->insert(node, bbox);
         }
     }
     else
     {
-        remove(node);
-        insert(node);
+        remove(node, bbox);
+        insert(node, bbox);
     }
 }
 
@@ -162,16 +153,16 @@ void Octree::split()
         m_children[i]->m_parent = this;
     }
 
-    for (auto& obj : m_objects)
+    for (auto& object : m_objects)
     {
         for (auto& child : m_children)
         {
-            BoundingBox bbox = obj->getBoundingBox();
-            bbox.tranform(obj->getAbsoluteTransform());
+            BoundingBox bbox = object->getBoundingBox();
+            bbox.tranform(object->getAbsoluteTransform());
 
             if (child->m_bounds.intersects(bbox))
             {
-                child->insert(obj);
+                child->insert(object, bbox);
             }
         }
     }

@@ -21,10 +21,10 @@ public:
     Octree(const BoundingBox& bounds, uint32_t maxDepth, uint32_t maxObjects);
     ~Octree();
 
-    void insert(Node* node);
-    void remove(Node* node);
+    void insert(Node* node, const BoundingBox& bbox);
+    void remove(Node* node, const BoundingBox& bbox);
     
-    void update(Node* node);
+    void update(Node* node, const BoundingBox& bbox);
     void render(RenderSystem* renderSystem);
 
     std::vector<Node*> raycast(const Ray& ray);

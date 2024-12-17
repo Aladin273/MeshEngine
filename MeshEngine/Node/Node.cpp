@@ -119,7 +119,12 @@ void Node::applyAbsoluteTransform(const glm::mat4& trf)
 void Node::start()
 {
     if (getOctree())
-        getOctree()->insert(this);
+    {
+        BoundingBox bbox = getBoundingBox();
+        bbox.tranform(getAbsoluteTransform());
+
+        getOctree()->insert(this, bbox);
+    }
 
     if (s_recursiveStart)
     {
@@ -131,7 +136,12 @@ void Node::start()
 void Node::end()
 {
     if (getOctree())
-        getOctree()->remove(this);
+    {
+        BoundingBox bbox = getBoundingBox();
+        bbox.tranform(getAbsoluteTransform());
+
+        getOctree()->remove(this, bbox);
+    }
 
     if (s_recursiveEnd)
     {
@@ -143,7 +153,12 @@ void Node::end()
 void Node::update(float deltaTime)
 {
     if (getDirty() && getOctree())
-        getOctree()->update(this);
+    {
+        BoundingBox bbox = getBoundingBox();
+        bbox.tranform(getAbsoluteTransform());
+
+        getOctree()->update(this, bbox);
+    }
 
     if (s_recursiveUpdate)
     {
