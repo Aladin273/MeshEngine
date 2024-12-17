@@ -33,8 +33,6 @@ public:
     Sprite* getSprite() const;
 
 protected:
-    uint32_t m_renderTrianglesId = 0;
-
-protected:
+    uint32_t m_renderId = 0;
     std::unique_ptr<Sprite> m_sprite;
 };

@@ -129,6 +129,9 @@ public:
     std::vector<Contact> raycast(const Ray& ray, FilterValue filterValues);
 
 public:
+    bool isRunning() const;
+
+public:
     void start();
     void end();
 

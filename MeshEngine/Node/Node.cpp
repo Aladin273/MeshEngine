@@ -118,6 +118,9 @@ void Node::applyAbsoluteTransform(const glm::mat4& trf)
 
 void Node::start()
 {
+    if (getOctree())
+        getOctree()->insert(this);
+
     if (s_recursiveStart)
     {
         for (auto& child : m_children)
@@ -127,6 +130,9 @@ void Node::start()
 
 void Node::end()
 {
+    if (getOctree())
+        getOctree()->remove(this);
+
     if (s_recursiveEnd)
     {
         for (auto& child : m_children)
@@ -136,10 +142,16 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    if (updatable && s_recursiveUpdate)
+    if (getDirty() && getOctree())
+        getOctree()->update(this);
+
+    if (s_recursiveUpdate)
     {
         for (auto& child : m_children)
-            child->update(deltaTime);
+        {
+            if (child->updatable)
+                child->update(deltaTime);
+        }
     }
 }
 
@@ -150,29 +162,33 @@ void Node::render(RenderSystem* renderSystem)
         MeshEngine::DrawHelper::drawDebugBox(renderSystem, getAbsoluteTransform(), getBoundingBox().getMin(), getBoundingBox().getMax(), glm::vec4(1.f, 1.f, 0.f, 1.f), false, 2.f);
     }
 
-    if (visible && s_recursiveRender)
+    if (s_recursiveRender)
     {
         for (auto& child : m_children)
-            child->render(renderSystem);
+        {
+            if (child->visible)
+                child->render(renderSystem);
+        }
     }
 }
 
 void Node::renderEx(RenderSystem* renderSystem, Shader* shader)
 {
-    if (visible)
+    s_recursiveRender = false;
+
+    Shader* temp = m_shader;
+    m_shader = shader;
+    render(renderSystem);
+    m_shader = temp;
+
+    s_recursiveRender = true;
+
+    if (s_recursiveRender)
     {
-        s_recursiveRender = false;
-
-        Shader* temp = m_shader;
-        m_shader = shader;
-        render(renderSystem);
-        m_shader = temp;
-
-        s_recursiveRender = true;
-
         for (auto& child : m_children)
         {
-            child->renderEx(renderSystem, shader);
+            if (child->visible)
+                child->renderEx(renderSystem, shader);
         }
     }
 }
@@ -192,7 +208,9 @@ void Node::attachNode(std::unique_ptr<Node> node)
     node->setScene(m_scene);
     node->setOctree(m_octree);
     
-    node->start();
+    if (getScene() && getScene()->isRunning())
+        node->start();
+
     m_children.push_back(std::move(node));
 }
 
@@ -252,9 +270,6 @@ void Node::setDirty(bool dirty)
 
     if (dirty)
     {
-        if (getOctree())
-            getOctree()->update(this);
-
         for (auto& child : m_children)
         {
             child->setDirty(dirty);

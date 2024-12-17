@@ -10,7 +10,6 @@ void EditFaceOperator::onEnter(View& view)
     view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
     view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
 
-    m_contact = Contact{};
     m_active = true;
 }
 
@@ -20,6 +19,7 @@ void EditFaceOperator::onExit(View& view)
     view.getViewportLayer().setGizmoVisible(false);
 
     m_contact = Contact{};
+
     m_active = false;
 }
 
@@ -46,7 +46,16 @@ void EditFaceOperator::onMouseInput(View& view, ButtonCode button, Action action
             m_contact = contacts.front();
 
             MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
-            if (!node) return;
+            
+            if (!node)
+            {
+                view.setSelected(Contact{});
+                view.getViewportLayer().setGizmoVisible(false);
+
+                m_contact = Contact{};
+
+                return;
+            }
 
             const auto& table = node->getMesh()->getHalfEdgeTable();
             HalfEdgeHandle heh0 = table.deref(m_contact.face).heh;

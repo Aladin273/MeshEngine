@@ -5,7 +5,7 @@
 SpotLightNode::SpotLightNode()
 {
     m_name = "SpotLightNode";
-    m_renderMesh = Mesh::createCone(glm::vec3(0.f, 1.f, 0.f), 1.f, 3.f, 32);
+    m_renderMesh = Mesh::createCone(glm::vec3(0.f, 1.f, 0.f), 0.75f, 2.f, 16);
 }
 
 SpotLightNode::~SpotLightNode()

@@ -80,11 +80,8 @@ void Scene::attachNode(std::unique_ptr<Node> node)
         node->setOctree(m_octree.get());
 
         if (m_running)
-        {
             node->start();
-        }
 
-        m_octree->insert(node.get());
         m_nodes.push_back(std::move(node));
     }
 }
@@ -184,6 +181,11 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
         });
 
     return contacts;
+}
+
+bool Scene::isRunning() const
+{
+    return m_running;
 }
 
 void Scene::start()
@@ -322,9 +324,18 @@ void Scene::requestDelete()
 {
     if (m_deleted)
     {
-        m_octree->remove(m_deleted);
         m_deleted->detachNode();
-        m_nodes.erase(std::find_if(m_nodes.begin(), m_nodes.end(), [&](std::unique_ptr<Node>& node) { return node.get() == m_deleted; }));
+
+        auto it = std::find_if(m_nodes.begin(), m_nodes.end(), [=](std::unique_ptr<Node>& candicate)
+            {
+                return candicate.get() == m_deleted;
+            });
+
+        if (it != m_nodes.end())
+        {
+            m_nodes.erase(it);
+        }
+
         m_deleted = nullptr;
     }
 }

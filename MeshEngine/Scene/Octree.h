@@ -23,8 +23,8 @@ public:
 
     void insert(Node* node);
     void remove(Node* node);
+    
     void update(Node* node);
-
     void render(RenderSystem* renderSystem);
 
     std::vector<Node*> raycast(const Ray& ray);

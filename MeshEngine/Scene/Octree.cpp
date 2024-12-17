@@ -12,7 +12,11 @@ Octree::Octree(const BoundingBox& bounds, uint32_t maxDepth, uint32_t maxObjects
 
 Octree::~Octree()
 {
-
+    for (auto& object : m_objects)
+    {
+        if (object->getOctant() == this)
+            object->setOctant(nullptr);
+    }
 }
 
 void Octree::insert(Node* node)

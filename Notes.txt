@@ -1,8 +1,8 @@
 Urgently Goals
 ----------------------------------------------------------------
-- Crash, Octant, Root, FOV, Cache
+- Root, Octant, Cache, Crash
 - OctreeNode, FrustrumNode, SetMin, SetMax
-- Logs, RenderDebug, Selected, Operators
+- Dumps, Logs, DrawHelper, Selected with Operators
 
 - Octree, Frustrum Culling, Normal Map, Height Map, HDR, Bloom
 - Screen Space Ambient Occlusion, Screen Space Reflections
@@ -19,8 +19,8 @@ Urgently Goals
 - Add new nodes as MeshInstanced, Sprite
 - Implement shadows for multiple light sources
 - Add lit, unlit and flat shading nodes or global
-- Review normals calculation
 - Inherit Light from Base with fix buffer padding
+- Review normals calculation
 - Check tranforms and dirty state
 - Add import mesh as batch and non-batch
 - Add booleans as visible, updateble, castShadows
@@ -32,6 +32,7 @@ Urgently Goals
 - Implement View, EditorView, GameView
 - Implement AssetSystem, InputSystem, GuiSystem for Scene
 - Implement GameMode, GameHud, RenderUI for scene
+- Implement command system with undo
 - Implement binary saving system
 ----------------------------------------------------------------
 BufferSubData, UniformBuffer, Normals, Manipulators

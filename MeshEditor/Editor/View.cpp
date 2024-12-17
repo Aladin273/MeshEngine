@@ -161,19 +161,19 @@ void View::render()
 
     // DrawHelper
     //////////////////////////////////////////////////
-    MeshEngine::DrawHelper::drawDebugPoint(m_renderSystem, glm::vec3(20.f, 30.f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugLine(m_renderSystem, glm::vec3(30.f, 30.f, 0.f), glm::vec3(35.f, 35.f, 0.f), glm::vec4(1.f, 0.f, 0.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugTriangle(m_renderSystem, glm::vec3(40.f, 30.f, 0.f), glm::vec3(45.f, 30.f, 0.f), glm::vec3(42.5f, 35.f, 0.f), glm::vec4(0.f, 1.f, 0.f, 1.f), true);
-    MeshEngine::DrawHelper::drawDebugQuad(m_renderSystem, glm::vec3(50.f, 30.f, 0.f), glm::vec3(55.f, 30.f, 0.f), glm::vec3(55.f, 35.f, 0.f), glm::vec3(50.f, 35.f, 0.f), glm::vec4(0.f, 0.f, 1.f, 1.f), true);
-
-    MeshEngine::DrawHelper::drawDebugBox(m_renderSystem, glm::vec3(0.f, 20.f, 0.f), glm::vec3(5.f), glm::vec4(1.f, 1.f, 1.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugSphere(m_renderSystem, glm::vec3(10.f, 20.f, 0.f), 5.f, glm::vec4(1.0f, 1.0f, 0.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugEllipsoid(m_renderSystem, glm::vec3(20.f, 20.f, 0.f), glm::vec3(4.f, 2.f, 3.f), glm::vec4(1.f, 0.f, 1.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugCone(m_renderSystem, glm::vec3(30.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), 2.f, 5.f, glm::vec4(0.f, 1.f, 1.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugCylinder(m_renderSystem, glm::vec3(40.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), 2.f, 5.f, glm::vec4(1.f, 0.f, 0.0f, 1.f));
-    MeshEngine::DrawHelper::drawDebugTorus(m_renderSystem, glm::vec3(50.f, 20.f, 0.f), glm::vec3(0.f, 0.f, 1.f), 5.f, glm::vec4(0.f, 1.f, 0.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugArrow(m_renderSystem, glm::vec3(60.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(3.f), glm::vec4(0.f, 0.f, 1.f, 1.f));
-    MeshEngine::DrawHelper::drawDebugPlane(m_renderSystem, glm::vec3(70.f, 20.f, 0.f), glm::vec3(0.f, 0.f, 1.f), 10.f, 10.f, glm::vec4(0.f, 0.f, 0.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugPoint(m_renderSystem, glm::vec3(20.f, 30.f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugLine(m_renderSystem, glm::vec3(30.f, 30.f, 0.f), glm::vec3(35.f, 35.f, 0.f), glm::vec4(1.f, 0.f, 0.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugTriangle(m_renderSystem, glm::vec3(40.f, 30.f, 0.f), glm::vec3(45.f, 30.f, 0.f), glm::vec3(42.5f, 35.f, 0.f), glm::vec4(0.f, 1.f, 0.f, 1.f), true);
+    //MeshEngine::DrawHelper::drawDebugQuad(m_renderSystem, glm::vec3(50.f, 30.f, 0.f), glm::vec3(55.f, 30.f, 0.f), glm::vec3(55.f, 35.f, 0.f), glm::vec3(50.f, 35.f, 0.f), glm::vec4(0.f, 0.f, 1.f, 1.f), true);
+    //
+    //MeshEngine::DrawHelper::drawDebugBox(m_renderSystem, glm::vec3(0.f, 20.f, 0.f), glm::vec3(5.f), glm::vec4(1.f, 1.f, 1.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugSphere(m_renderSystem, glm::vec3(10.f, 20.f, 0.f), 5.f, glm::vec4(1.0f, 1.0f, 0.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugEllipsoid(m_renderSystem, glm::vec3(20.f, 20.f, 0.f), glm::vec3(4.f, 2.f, 3.f), glm::vec4(1.f, 0.f, 1.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugCone(m_renderSystem, glm::vec3(30.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), 2.f, 5.f, glm::vec4(0.f, 1.f, 1.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugCylinder(m_renderSystem, glm::vec3(40.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), 2.f, 5.f, glm::vec4(1.f, 0.f, 0.0f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugTorus(m_renderSystem, glm::vec3(50.f, 20.f, 0.f), glm::vec3(0.f, 0.f, 1.f), 5.f, glm::vec4(0.f, 1.f, 0.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugArrow(m_renderSystem, glm::vec3(60.f, 20.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(3.f), glm::vec4(0.f, 0.f, 1.f, 1.f));
+    //MeshEngine::DrawHelper::drawDebugPlane(m_renderSystem, glm::vec3(70.f, 20.f, 0.f), glm::vec3(0.f, 0.f, 1.f), 10.f, 10.f, glm::vec4(0.f, 0.f, 0.f, 1.f));
     //////////////////////////////////////////////////
 
     m_renderSystem->unbindFrame();

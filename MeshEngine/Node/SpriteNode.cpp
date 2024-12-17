@@ -33,7 +33,7 @@ void SpriteNode::start()
             material.emissionMap.id = renderSystem->bufferTexture(material.emissionMap.path, material.emissionMap.width, material.emissionMap.height, true);
             m_sprite->setMaterial(material);
 
-            m_renderTrianglesId = renderSystem->bufferData(m_sprite->getRenderVertices(), m_sprite->getRenderTriangles());
+            m_renderId = renderSystem->bufferData(m_sprite->getRenderVertices(), m_sprite->getRenderTriangles());
 
             m_sprite->setRenderDataDirty(false);
         }
@@ -48,7 +48,7 @@ void SpriteNode::end()
     {
         RenderSystem* renderSystem = getScene()->getRenderSystem();
 
-        renderSystem->unbufferData(m_renderTrianglesId);
+        renderSystem->unbufferData(m_renderId);
 
         renderSystem->unbufferTexture(m_sprite->getMaterial().diffuseMap.id);
         renderSystem->unbufferTexture(m_sprite->getMaterial().specularMap.id);
@@ -70,7 +70,7 @@ void SpriteNode::update(float deltaTime)
 
             for (auto& index : m_sprite->getRenderSubData())
             {
-                renderSystem->bufferSubData(m_renderTrianglesId, index, m_sprite->getRenderVertices()[index]);
+                renderSystem->bufferSubData(m_renderId, index, m_sprite->getRenderVertices()[index]);
             }
 
             m_sprite->setRenderSubDataDirty(false);
@@ -101,7 +101,7 @@ void SpriteNode::render(RenderSystem* renderSystem)
         renderSystem->bindTexture(1, m_sprite->getMaterial().specularMap.id);
         renderSystem->bindTexture(2, m_sprite->getMaterial().emissionMap.id);
 
-        renderSystem->bindData(m_renderTrianglesId);
+        renderSystem->bindData(m_renderId);
         renderSystem->renderTriangles();
     }
 

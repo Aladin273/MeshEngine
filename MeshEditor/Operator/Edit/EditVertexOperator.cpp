@@ -10,7 +10,6 @@ void EditVertexOperator::onEnter(View& view)
     view.getViewportLayer().setGizmoMode(GizmoMode::Translate);
     view.getViewportLayer().setGizmoSpace(GizmoSpace::World);
 
-    m_contact = Contact{};
     m_active = true;
 }
 
@@ -20,6 +19,8 @@ void EditVertexOperator::onExit(View& view)
     view.getViewportLayer().setGizmoVisible(false);
 
     m_contact = Contact{};
+    m_vh = {};
+
     m_active = false;
 }
 
@@ -46,7 +47,17 @@ void EditVertexOperator::onMouseInput(View& view, ButtonCode button, Action acti
             m_contact = contacts.front();
 
             MeshNode* node = dynamic_cast<MeshNode*>(m_contact.node);
-            if (!node) return;
+
+            if (!node)
+            {
+                view.setSelected(Contact{});
+                view.getViewportLayer().setGizmoVisible(false);
+
+                m_contact = Contact{};
+                m_vh = {};
+
+                return;
+            }
 
             const auto& table = node->getMesh()->getHalfEdgeTable();
             HalfEdgeHandle start_heh = table.deref(m_contact.face).heh;
@@ -134,9 +145,11 @@ void EditVertexOperator::onRender(RenderSystem* renderSystem)
 
         } while (next_heh != start_heh);
 
-
         for (auto& face : faces)
         {
+            if (face == invalid)
+                continue;
+
             HalfEdgeHandle heh0 = table.deref(face).heh;
             HalfEdgeHandle heh1 = table.next(heh0);
             HalfEdgeHandle heh2 = table.next(heh1);
