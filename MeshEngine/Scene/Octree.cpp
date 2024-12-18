@@ -110,18 +110,40 @@ void Octree::render(RenderSystem* renderSystem)
 
 std::vector<Node*> Octree::raycast(const Ray& ray)
 {
-    std::unordered_set<Node*> results;
+    std::unordered_map<Node*, bool> results;
     queryRay(ray, results);
 
-    return std::vector(results.begin(), results.end());
+    std::vector<Node*> filteredResults;
+    filteredResults.reserve(results.size());
+
+    for (const auto& [node, intersects] : results)
+    {
+        if (intersects)
+        {
+            filteredResults.push_back(node);
+        }
+    }
+
+    return filteredResults;
 }
 
 std::vector<Node*> Octree::frustrumcast(const std::vector<glm::vec4>& frustrum)
 {
-    std::unordered_set<Node*> results;
+    std::unordered_map<Node*, bool> results;
     queryFrustrum(frustrum, results);
-    
-    return std::vector(results.begin(), results.end());
+
+    std::vector<Node*> filteredResults;
+    filteredResults.reserve(results.size());
+
+    for (const auto& [node, intersects] : results)
+    {
+        if (intersects)
+        {
+            filteredResults.push_back(node);
+        }
+    }
+
+    return filteredResults;
 }
 
 void Octree::split()
@@ -202,7 +224,7 @@ void Octree::merge()
     m_leaf = true;
 }
 
-void Octree::queryRay(const Ray& ray, std::unordered_set<Node*>& results)
+void Octree::queryRay(const Ray& ray, std::unordered_map<Node*, bool>& results)
 {
     if (!m_bounds.intersects(ray.orig, ray.dir))
     {
@@ -213,12 +235,12 @@ void Octree::queryRay(const Ray& ray, std::unordered_set<Node*>& results)
     {
         for (auto& object : m_objects)
         {
-            BoundingBox bbox = object->getBoundingBox();
-            bbox.tranform(object->getAbsoluteTransform());
-
-            if (bbox.intersects(ray.orig, ray.dir))
+            if (!results.contains(object))
             {
-                results.insert(object);
+                BoundingBox bbox = object->getBoundingBox();
+                bbox.tranform(object->getAbsoluteTransform());
+
+                results[object] = bbox.intersects(ray.orig, ray.dir);
             }
         }
     }
@@ -234,7 +256,7 @@ void Octree::queryRay(const Ray& ray, std::unordered_set<Node*>& results)
     }
 }
 
-void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_set<Node*>& results)
+void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_map<Node*, bool>& results)
 {
     if (!m_bounds.intersects(frustrum))
     {
@@ -245,12 +267,12 @@ void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordere
     {
         for (auto& object : m_objects)
         {
-            BoundingBox bbox = object->getBoundingBox();
-            bbox.tranform(object->getAbsoluteTransform());
-
-            if (bbox.intersects(frustrum))
+            if (!results.contains(object))
             {
-                results.insert(object);
+                BoundingBox bbox = object->getBoundingBox();
+                bbox.tranform(object->getAbsoluteTransform());
+
+                results[object] = bbox.intersects(frustrum);
             }
         }
     }

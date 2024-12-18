@@ -5,6 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <algorithm>
+#include <iterator>
 
 #include "MeshEngine/RenderSystem/Shader.h"
 #include "MeshEngine/RenderSystem/RenderSystem.h"
@@ -35,8 +36,8 @@ private:
     void split();
     void merge();
     
-    void queryRay(const Ray& ray, std::unordered_set<Node*>& results);
-    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_set<Node*>& results);
+    void queryRay(const Ray& ray, std::unordered_map<Node*, bool>& results);
+    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_map<Node*, bool>& results);
 
 private:
     bool m_leaf = true;
