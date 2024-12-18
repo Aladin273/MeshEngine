@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 
 #include "MeshEngine/RenderSystem/Shader.h"
@@ -47,5 +48,7 @@ private:
     BoundingBox m_bounds;
 
     std::unordered_set<Node*> m_objects;
+    std::unordered_map<Node*, uint32_t> m_objectsCount;
+    
     std::unique_ptr<Octree> m_children[8];
 };

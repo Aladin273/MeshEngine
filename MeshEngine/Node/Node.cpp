@@ -152,14 +152,6 @@ void Node::end()
 
 void Node::update(float deltaTime)
 {
-    if (getDirty() && getOctree())
-    {
-        BoundingBox bbox = getBoundingBox();
-        bbox.tranform(getAbsoluteTransform());
-
-        getOctree()->update(this, bbox);
-    }
-
     if (s_recursiveUpdate)
     {
         for (auto& child : m_children)
@@ -285,6 +277,14 @@ void Node::setDirty(bool dirty)
 
     if (dirty)
     {
+        if (getOctree())
+        {
+            BoundingBox bbox = getBoundingBox();
+            bbox.tranform(getAbsoluteTransform());
+
+            getOctree()->update(this, bbox);
+        }
+
         for (auto& child : m_children)
         {
             child->setDirty(dirty);

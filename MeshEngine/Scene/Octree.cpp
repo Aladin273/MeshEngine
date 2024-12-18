@@ -7,7 +7,8 @@
 Octree::Octree(const BoundingBox& bounds, uint32_t maxDepth, uint32_t maxObjects)
     : m_bounds(bounds), m_maxDepth(maxDepth), m_maxObjects(maxObjects)
 {
-
+    m_objects.reserve(m_maxObjects);
+    m_objectsCount.reserve(m_maxObjects);
 }
 
 Octree::~Octree()
@@ -166,38 +167,39 @@ void Octree::merge()
 {
     if (m_leaf) return;
 
-    uint8_t totalSize = 0;
-    
+    uint32_t uniqueCount = 0;
+    m_objectsCount.clear();
+
     for (auto& child : m_children)
     {
-        if (child) 
+        if (child)
         {
-            if (!child->m_leaf)
+            if (!child->m_leaf || child->m_objects.size() > m_maxObjects)
                 return;
 
-            totalSize += child->m_objects.size();
+            for (auto& object : child->m_objects)
+            {
+                if (m_objectsCount[object] == 0)
+                {
+                    ++m_objectsCount[object];
+                    ++uniqueCount;
+                }
+
+                if (uniqueCount > m_maxObjects)
+                    return;
+            }
         }
     }
 
-    if (totalSize <= m_maxObjects)
+    m_objects.clear();
+
+    for (auto& child : m_children)
     {
-        std::unordered_set<Node*> totalObjects;
-        totalObjects.reserve(totalSize);
-
-        for (auto& child : m_children)
-        {
-            totalObjects.insert(child->m_objects.begin(), child->m_objects.end());
-        }
-
-        m_objects.insert(totalObjects.begin(), totalObjects.end());
-
-        for (auto& child : m_children) 
-        {
-            child.reset();
-        }
-
-        m_leaf = true;
+        m_objects.insert(child->m_objects.begin(), child->m_objects.end());
+        child.reset();
     }
+
+    m_leaf = true;
 }
 
 void Octree::queryRay(const Ray& ray, std::unordered_set<Node*>& results)
