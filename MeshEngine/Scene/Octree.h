@@ -49,7 +49,7 @@ private:
     BoundingBox m_bounds;
 
     std::unordered_set<Node*> m_objects;
-    std::unordered_map<Node*, uint32_t> m_objectsCount;
+    std::unordered_map<Node*, uint32_t> m_duplicates;
     
     std::unique_ptr<Octree> m_children[8];
 };
