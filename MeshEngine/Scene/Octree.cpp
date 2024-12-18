@@ -52,11 +52,6 @@ void Octree::insert(Node* node, const BoundingBox& bbox)
 
 void Octree::remove(Node* node, const BoundingBox& bbox)
 {
-    //if (!m_bounds.intersects(bbox) && !m_objects.contains(node))
-    //{
-    //    return;
-    //}
-
     if (m_leaf)
     {
         m_objects.erase(node);
@@ -114,7 +109,7 @@ void Octree::render(RenderSystem* renderSystem)
 
 std::vector<Node*> Octree::raycast(const Ray& ray)
 {
-    std::set<Node*> results;
+    std::unordered_set<Node*> results;
     queryRay(ray, results);
 
     return std::vector(results.begin(), results.end());
@@ -122,7 +117,7 @@ std::vector<Node*> Octree::raycast(const Ray& ray)
 
 std::vector<Node*> Octree::frustrumcast(const std::vector<glm::vec4>& frustrum)
 {
-    std::set<Node*> results;
+    std::unordered_set<Node*> results;
     queryFrustrum(frustrum, results);
     
     return std::vector(results.begin(), results.end());
@@ -150,7 +145,6 @@ void Octree::split()
     {
         m_children[i] = std::make_unique<Octree>(childBounds[i], m_maxDepth, m_maxObjects);
         m_children[i]->m_depth = m_depth + 1;
-        m_children[i]->m_parent = this;
     }
 
     for (auto& object : m_objects)
@@ -160,10 +154,7 @@ void Octree::split()
             BoundingBox bbox = object->getBoundingBox();
             bbox.tranform(object->getAbsoluteTransform());
 
-            if (child->m_bounds.intersects(bbox))
-            {
-                child->insert(object, bbox);
-            }
+            child->insert(object, bbox);
         }
     }
 
@@ -175,7 +166,7 @@ void Octree::merge()
 {
     if (m_leaf) return;
 
-    std::set<Node*> totalObjects;
+    uint8_t totalSize = 0;
     
     for (auto& child : m_children)
     {
@@ -184,12 +175,20 @@ void Octree::merge()
             if (!child->m_leaf)
                 return;
 
-            totalObjects.insert(child->m_objects.begin(), child->m_objects.end());
+            totalSize += child->m_objects.size();
         }
     }
 
-    if (totalObjects.size() <= m_maxObjects) 
+    if (totalSize <= m_maxObjects)
     {
+        std::unordered_set<Node*> totalObjects;
+        totalObjects.reserve(totalSize);
+
+        for (auto& child : m_children)
+        {
+            totalObjects.insert(child->m_objects.begin(), child->m_objects.end());
+        }
+
         m_objects.insert(totalObjects.begin(), totalObjects.end());
 
         for (auto& child : m_children) 
@@ -201,7 +200,7 @@ void Octree::merge()
     }
 }
 
-void Octree::queryRay(const Ray& ray, std::set<Node*>& results)
+void Octree::queryRay(const Ray& ray, std::unordered_set<Node*>& results)
 {
     if (!m_bounds.intersects(ray.orig, ray.dir))
     {
@@ -210,14 +209,14 @@ void Octree::queryRay(const Ray& ray, std::set<Node*>& results)
 
     if (m_leaf)
     {
-        for (auto& obj : m_objects)
+        for (auto& object : m_objects)
         {
-            BoundingBox bbox = obj->getBoundingBox();
-            bbox.tranform(obj->getAbsoluteTransform());
+            BoundingBox bbox = object->getBoundingBox();
+            bbox.tranform(object->getAbsoluteTransform());
 
             if (bbox.intersects(ray.orig, ray.dir))
             {
-                results.insert(obj);
+                results.insert(object);
             }
         }
     }
@@ -233,7 +232,7 @@ void Octree::queryRay(const Ray& ray, std::set<Node*>& results)
     }
 }
 
-void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::set<Node*>& results)
+void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_set<Node*>& results)
 {
     if (!m_bounds.intersects(frustrum))
     {
@@ -242,14 +241,14 @@ void Octree::queryFrustrum(const std::vector<glm::vec4>& frustrum, std::set<Node
 
     if (m_leaf)
     {
-        for (auto& obj : m_objects)
+        for (auto& object : m_objects)
         {
-            BoundingBox bbox = obj->getBoundingBox();
-            bbox.tranform(obj->getAbsoluteTransform());
+            BoundingBox bbox = object->getBoundingBox();
+            bbox.tranform(object->getAbsoluteTransform());
 
             if (bbox.intersects(frustrum))
             {
-                results.insert(obj);
+                results.insert(object);
             }
         }
     }

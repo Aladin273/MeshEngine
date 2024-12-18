@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <algorithm>
 
 #include "MeshEngine/RenderSystem/Shader.h"
@@ -34,8 +34,8 @@ private:
     void split();
     void merge();
     
-    void queryRay(const Ray& ray, std::set<Node*>& results);
-    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::set<Node*>& results);
+    void queryRay(const Ray& ray, std::unordered_set<Node*>& results);
+    void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_set<Node*>& results);
 
 private:
     bool m_leaf = true;
@@ -46,8 +46,6 @@ private:
 
     BoundingBox m_bounds;
 
-    Octree* m_parent = nullptr;
-
-    std::set<Node*> m_objects;
+    std::unordered_set<Node*> m_objects;
     std::unique_ptr<Octree> m_children[8];
 };
