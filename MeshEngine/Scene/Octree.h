@@ -40,6 +40,7 @@ private:
     void queryFrustrum(const std::vector<glm::vec4>& frustrum, std::unordered_map<Node*, bool>& results);
 
 private:
+    bool m_init = false;
     bool m_leaf = true;
     uint32_t m_depth = 0;
     
