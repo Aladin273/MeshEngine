@@ -8,7 +8,7 @@
 
 ArrowNode::ArrowNode(View* view, glm::vec3 axis, glm::vec3 color)
 {
-    m_mesh = Mesh::createArrow(axis, 0.06f, 0.1f, 0.02f, 0.8f, 32);
+    m_mesh = Mesh::createArrow(axis, 0.125f, 0.25f, 0.0625f, 0.75f, 16);
     m_shader = MeshEngine::createShader(MeshEngine::Settings::shadersPath + "baseColorVertex.glsl", MeshEngine::Settings::shadersPath + "baseColorFragment.glsl");
 
     m_renderColor = color;
