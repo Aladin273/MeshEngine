@@ -11,6 +11,7 @@ set(MESH_ENGINE_HEADERS
     Misc/Delegate.h
     Misc/DynamicLibrary.h
     Misc/Settings.h
+    Misc/DrawHelper.h
     
     Math/HalfEdge.h
     Math/Intersections.h
@@ -25,6 +26,7 @@ set(MESH_ENGINE_HEADERS
     Base/Mesh.h
     Base/Sprite.h
 
+    Scene/Octree.h
     Scene/Scene.h
 
     Node/Node.h
@@ -63,6 +65,7 @@ set(MESH_ENGINE_SOURCES
     Misc/Delegate.cpp
     Misc/DynamicLibrary.cpp
     Misc/Settings.cpp
+    Misc/DrawHelper.cpp
 
     Math/HalfEdge.cpp
     Math/Intersections.cpp
@@ -77,6 +80,7 @@ set(MESH_ENGINE_SOURCES
     Base/Mesh.cpp
     Base/Sprite.cpp
 
+    Scene/Octree.cpp
     Scene/Scene.cpp
     
     Node/Node.cpp

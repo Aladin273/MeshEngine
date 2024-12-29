@@ -124,7 +124,7 @@ void MeshNode::render(RenderSystem* renderSystem)
 
         renderSystem->bindData(m_renderLinesId);
 
-        renderSystem->setLineSize(1.0f);
+        renderSystem->setLineSize(2.0f);
         renderSystem->renderLines();
     }
 

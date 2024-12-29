@@ -32,7 +32,8 @@ public:
     virtual uint32_t bufferData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) = 0;
     virtual void unbufferData(uint32_t dataId) = 0;
 
-    virtual void bufferSubData(uint32_t dataId, uint32_t index, const Vertex& vertex) = 0;
+    virtual void bufferSubData(uint32_t dataId, uint32_t offset, const Vertex& vertex) = 0;
+    virtual void bufferSubData(uint32_t dataId, uint32_t offset, const std::vector<Vertex>& vertices) = 0;
 
     virtual uint32_t bufferUniform(uint32_t bindPoint, uint32_t size, const void* data) = 0;
     virtual void unbufferUniform(uint32_t uniformId) = 0;

@@ -19,6 +19,7 @@ class Node : public Base
 {
 public:
     friend class Scene;
+    friend class Octree;
 
 public:
     Node();
@@ -41,9 +42,10 @@ public:
     bool visible = true;
 
 public:
-    Node* getParent() const;
     Node* getRoot() const;
+    Node* getParent() const;
     Scene* getScene() const;
+    Octree* getOctree() const;
     const std::vector<std::unique_ptr<Node>>& getChildren() const;
 
 public:
@@ -95,25 +97,16 @@ public:
 protected:
     void setParent(Node* parent);
     void setScene(Scene* scene);
+    void setOctree(Octree* octree);
+
+    Octree* getOctant();
+    void setOctant(Octree* octant);
 
     bool getDirty() const;
     void setDirty(bool dirty);
 
 protected:
     Shader* m_shader = nullptr;
-
-protected:
-    void startBbox();
-    void endBbox();
-
-    void updateBbox(float deltaTime);
-    void renderBbox(RenderSystem* renderSystem);
-    
-    void resetBbox();
-
-private:
-    Shader* m_shaderBase = nullptr;
-    uint32_t m_renderBaseId = 0;
 
 private:
     BoundingBox m_bbox;
@@ -122,7 +115,9 @@ private:
     glm::mat4 m_absolute{ 1.0f };
     glm::mat4 m_relative{ 1.0f };
 
-    Scene* m_scene = nullptr;
     Node* m_parent = nullptr;
+    Scene* m_scene = nullptr;
+    Octree* m_octree = nullptr;
+    Octree* m_octant = nullptr;
     std::vector<std::unique_ptr<Node>> m_children;
 };

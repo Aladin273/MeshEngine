@@ -182,7 +182,8 @@ void Mesh::updateBbox()
 {
     if (m_table.getVertices().size())
     {
-        m_bbox.min = m_bbox.max = m_table.getVertices().front().data.position;
+        m_bbox.setMin(m_table.getVertices().front().data.position);
+        m_bbox.setMax(m_table.getVertices().front().data.position);
 
         for (const auto& vertex : m_table.getVertices())
         {
@@ -311,12 +312,12 @@ std::unique_ptr<Mesh> Mesh::createCube(glm::vec3 center, float length)
     HalfEdgeTable<Vertex> table;
     float halfLength = length / 2;
 
-    HalfEdgeVertexHandle vh0 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength, -halfLength) + center, {}, {} });
-    HalfEdgeVertexHandle vh1 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh0 = table.addVertex(Vertex{ glm::vec3( halfLength,  halfLength, -halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh1 = table.addVertex(Vertex{ glm::vec3( halfLength, -halfLength, -halfLength) + center, {}, {} });
     HalfEdgeVertexHandle vh2 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength, -halfLength) + center, {}, {} });
     HalfEdgeVertexHandle vh3 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength, -halfLength) + center, {}, {} });
-    HalfEdgeVertexHandle vh4 = table.addVertex(Vertex{ glm::vec3(halfLength,  halfLength,  halfLength) + center, {}, {} });
-    HalfEdgeVertexHandle vh5 = table.addVertex(Vertex{ glm::vec3(halfLength, -halfLength,  halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh4 = table.addVertex(Vertex{ glm::vec3( halfLength,  halfLength,  halfLength) + center, {}, {} });
+    HalfEdgeVertexHandle vh5 = table.addVertex(Vertex{ glm::vec3( halfLength, -halfLength,  halfLength) + center, {}, {} });
     HalfEdgeVertexHandle vh6 = table.addVertex(Vertex{ glm::vec3(-halfLength, -halfLength,  halfLength) + center, {}, {} });
     HalfEdgeVertexHandle vh7 = table.addVertex(Vertex{ glm::vec3(-halfLength,  halfLength,  halfLength)  + center, {}, {} });
 
@@ -326,6 +327,138 @@ std::unique_ptr<Mesh> Mesh::createCube(glm::vec3 center, float length)
     table.addFace(vh1, vh5, vh6, vh2);
     table.addFace(vh2, vh6, vh7, vh3);
     table.addFace(vh4, vh0, vh3, vh7);
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createBox(glm::vec3 center, float width, float height, float depth)
+{
+    HalfEdgeTable<Vertex> table;
+    float halfWidth = width / 2;
+    float halfHeight = height / 2;
+    float halfDepth = depth / 2;
+
+    HalfEdgeVertexHandle vh0 = table.addVertex(Vertex{ glm::vec3( halfWidth,  halfHeight, -halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh1 = table.addVertex(Vertex{ glm::vec3( halfWidth, -halfHeight, -halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh2 = table.addVertex(Vertex{ glm::vec3(-halfWidth, -halfHeight, -halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh3 = table.addVertex(Vertex{ glm::vec3(-halfWidth,  halfHeight, -halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh4 = table.addVertex(Vertex{ glm::vec3( halfWidth,  halfHeight,  halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh5 = table.addVertex(Vertex{ glm::vec3( halfWidth, -halfHeight,  halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh6 = table.addVertex(Vertex{ glm::vec3(-halfWidth, -halfHeight,  halfDepth) + center, {}, {} });
+    HalfEdgeVertexHandle vh7 = table.addVertex(Vertex{ glm::vec3(-halfWidth,  halfHeight,  halfDepth) + center, {}, {} });
+
+    table.addFace(vh0, vh1, vh2, vh3);
+    table.addFace(vh4, vh7, vh6, vh5);
+    table.addFace(vh0, vh4, vh5, vh1);
+    table.addFace(vh1, vh5, vh6, vh2);
+    table.addFace(vh2, vh6, vh7, vh3);
+    table.addFace(vh4, vh0, vh3, vh7);
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createSphere(glm::vec3 center, float radius, uint32_t numSubdivisions)
+{
+    std::vector<HalfEdgeVertexHandle> vertexHandles;
+    HalfEdgeTable<Vertex> table;
+
+    for (int lat = 0; lat <= numSubdivisions; ++lat)
+    {
+        float theta = glm::pi<float>() * lat / numSubdivisions;
+        float sinTheta = glm::sin(theta);
+        float cosTheta = glm::cos(theta);
+
+        for (int lon = 0; lon <= numSubdivisions; ++lon)
+        {
+            float phi = glm::two_pi<float>() * lon / numSubdivisions;
+            float sinPhi = glm::sin(phi);
+            float cosPhi = glm::cos(phi);
+
+            glm::vec3 position = glm::vec3(radius * sinTheta * cosPhi, radius * cosTheta, radius * sinTheta * sinPhi) + center;
+
+            vertexHandles.push_back(table.addVertex(Vertex{ position, {}, {} }));
+        }
+    }
+
+    for (int lat = 0; lat < numSubdivisions; ++lat)
+    {
+        for (int lon = 0; lon < numSubdivisions; ++lon)
+        {
+            int current = lat * (numSubdivisions + 1) + lon;
+            int next = current + numSubdivisions + 1;
+
+            HalfEdgeVertexHandle v0 = vertexHandles[current];
+            HalfEdgeVertexHandle v1 = vertexHandles[current + 1];
+            HalfEdgeVertexHandle v2 = vertexHandles[next + 1];
+            HalfEdgeVertexHandle v3 = vertexHandles[next];
+
+            if (lat != 0)
+            {
+                table.addFace(v0, v1, v2);
+            }
+
+            if (lat != numSubdivisions - 1)
+            {
+                table.addFace(v0, v2, v3);
+            }
+        }
+    }
+
+    table.connectTwins();
+
+    return std::make_unique<Mesh>(table);
+}
+
+std::unique_ptr<Mesh> Mesh::createEllipsoid(glm::vec3 center, glm::vec3 size, uint32_t numSubdivisions)
+{
+    std::vector<HalfEdgeVertexHandle> vertexHandles;
+    HalfEdgeTable<Vertex> table;
+
+    for (int lat = 0; lat <= numSubdivisions; ++lat)
+    {
+        float theta = glm::pi<float>() * lat / numSubdivisions;
+        float sinTheta = glm::sin(theta);
+        float cosTheta = glm::cos(theta);
+
+        for (int lon = 0; lon <= numSubdivisions; ++lon)
+        {
+            float phi = glm::two_pi<float>() * lon / numSubdivisions;
+            float sinPhi = glm::sin(phi);
+            float cosPhi = glm::cos(phi);
+
+            glm::vec3 position = glm::vec3(size.x * sinTheta * cosPhi, size.y * cosTheta, size.z * sinTheta * sinPhi) + center;
+
+            vertexHandles.push_back(table.addVertex(Vertex{ position, {}, {} }));
+        }
+    }
+
+    for (int lat = 0; lat < numSubdivisions; ++lat)
+    {
+        for (int lon = 0; lon < numSubdivisions; ++lon)
+        {
+            int current = lat * (numSubdivisions + 1) + lon;
+            int next = current + numSubdivisions + 1;
+
+            HalfEdgeVertexHandle v0 = vertexHandles[current];
+            HalfEdgeVertexHandle v1 = vertexHandles[current + 1];
+            HalfEdgeVertexHandle v2 = vertexHandles[next + 1];
+            HalfEdgeVertexHandle v3 = vertexHandles[next];
+
+            if (lat != 0)
+            {
+                table.addFace(v0, v1, v2);
+            }
+
+            if (lat != numSubdivisions - 1)
+            {
+                table.addFace(v0, v2, v3);
+            }
+        }
+    }
 
     table.connectTwins();
 
@@ -419,10 +552,10 @@ std::unique_ptr<Mesh> Mesh::createCone(glm::vec3 inDir, float R, float h, uint32
     return std::make_unique<Mesh>(table);
 }
 
-std::unique_ptr<Mesh> Mesh::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t majorSegments)
+std::unique_ptr<Mesh> Mesh::createTorus(glm::vec3 inDir, float minorRadius, float majorRadius, uint32_t numSubdivisions)
 {
     const glm::vec3 dir(0, 0, 1);
-    float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(majorSegments);
+    float cx = 0.0f, cy = 0.0f; int segments = static_cast<int>(numSubdivisions);
 
     std::vector<HalfEdgeVertexHandle> vertices;
     HalfEdgeTable<Vertex> table;

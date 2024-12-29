@@ -23,8 +23,8 @@ OriginNode::~OriginNode()
 
 void OriginNode::update(float deltaTime)
 {
-    glm::vec3 position = m_view->getViewport().unproject(m_view->getViewport().getWidth() * 0.1f, m_view->getViewport().getHeight() * 0.1f, 0.5f);
-    setRelativeTransform(glm::translate(position) * glm::scale(glm::vec3(0.00025f)));
+    glm::vec3 position = m_view->getViewport().unproject(m_view->getViewport().getWidth() * 0.05f, m_view->getViewport().getHeight() * 0.05f, 0.5f);
+    setRelativeTransform(glm::translate(position) * glm::scale(glm::vec3(0.01f)));
 
     super::update(deltaTime);
 }

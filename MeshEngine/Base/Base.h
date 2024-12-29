@@ -64,6 +64,12 @@ public:
     void setName(const std::string& name);
     const std::string& getName() const;
 
+public:
+    bool operator==(const Base& other)
+    {
+        return getId() == other.getId();
+    }
+
 protected:
     template <typename T>
     void bindPropertyInternal(std::string name, T* object)

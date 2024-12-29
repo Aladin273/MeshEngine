@@ -61,6 +61,30 @@ void OperatorDispatcher::disableOperator(View& view)
     }
 }
 
+void OperatorDispatcher::update(float deltaTime)
+{
+    for (auto& op : m_buttons)
+        op.second.get()->onUpdate(deltaTime);
+    for (auto& op : m_keys)
+        op.second.get()->onUpdate(deltaTime);
+    for (auto& op : m_quicks)
+        op.second.get()->onUpdate(deltaTime);
+    for (auto& op : m_dominants)
+        op.second.second.get()->onUpdate(deltaTime);
+}
+
+void OperatorDispatcher::render(RenderSystem* renderSystem)
+{
+    for (auto& op : m_buttons)
+        op.second.get()->onRender(renderSystem);
+    for (auto& op : m_keys)
+        op.second.get()->onRender(renderSystem);
+    for (auto& op : m_quicks)
+        op.second.get()->onRender(renderSystem);
+    for (auto& op : m_dominants)
+        op.second.second.get()->onRender(renderSystem);
+}
+
 void OperatorDispatcher::processMouseInput(View& view, ButtonCode button, Action action, Modifier mods, double x, double y)
 {
     if (m_stack.size())

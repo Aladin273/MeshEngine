@@ -4,7 +4,7 @@
 
 namespace glm
 {
-    bool intersectAABB(glm::vec3 ray_orig, glm::vec3 ray_dir, glm::vec3 bbox_min, glm::vec3 bbox_max);
+    bool intersectRayAABB(glm::vec3 ray_orig, glm::vec3 ray_dir, glm::vec3 bbox_min, glm::vec3 bbox_max);
 
     bool intersectRayTriangle(glm::vec3 ray_orig, glm::vec3 ray_dir, float& t, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2);
 

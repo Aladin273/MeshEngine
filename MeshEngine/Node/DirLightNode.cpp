@@ -5,7 +5,7 @@
 DirLightNode::DirLightNode()
 {
     m_name = "DirLightNode";
-    m_renderMesh = Mesh::createArrow(glm::vec3(0.f, -1.f, 0.f), 0.5f, 1.0f, 0.25f, 3.f, 32);
+    m_renderMesh = Mesh::createArrow(glm::vec3(0.f, -1.f, 0.f), 0.375f, 0.75f, 0.1875f, 2.25f, 16);
 }
 
 DirLightNode::~DirLightNode()

@@ -5,6 +5,7 @@
 Scene::Scene()
 {
     m_name = "Scene";
+    m_octree = std::make_unique<Octree>(BoundingBox(glm::vec3(-MeshEngine::Settings::bounds), glm::vec3(MeshEngine::Settings::bounds)), MeshEngine::Settings::depth, MeshEngine::Settings::objects);
 }
 
 Scene::~Scene()
@@ -76,8 +77,10 @@ void Scene::attachNode(std::unique_ptr<Node> node)
     {
         node->setParent(nullptr);
         node->setScene(this);
-        node->setDirty(true);
-        if (m_running) node->start();
+        node->setOctree(m_octree.get());
+
+        if (m_running)
+            node->start();
 
         m_nodes.push_back(std::move(node));
     }
@@ -107,17 +110,29 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     std::vector<Node*> candidates;
     std::vector<Contact> contacts;
 
-    // Broad Phase
-    processRecursive([&](Node& node) -> bool
-        {
-            BoundingBox bbox = node.getBoundingBox();
-            bbox.tranform(node.getAbsoluteTransform());
+    MeshEngine::Timer timer;
 
-            if (glm::intersectAABB(ray.orig, ray.dir, bbox.min, bbox.max) && node.getChildren().empty())
-                candidates.push_back(&node);
+    if (octreeRayCast)
+    {
+        candidates = m_octree->raycast(ray);
+        candidates.erase(std::remove_if(candidates.begin(), candidates.end(), [](Node* node) { return !node->getChildren().empty(); }), candidates.end());
+    }
+    else
+    {
+        processRecursive([&](Node& node) -> bool
+            {
+                BoundingBox bbox = node.getBoundingBox();
+                bbox.tranform(node.getAbsoluteTransform());
 
-            return true;
-        });
+                if (glm::intersectRayAABB(ray.orig, ray.dir, bbox.getMin(), bbox.getMax()) && node.getChildren().empty())
+                    candidates.push_back(&node);
+
+                return true;
+            });
+    }
+    
+    MeshEngine::Logger::info("Raycast time : {} ms ", timer.elapsed());
+    MeshEngine::Logger::info("Num of objects : {}", m_frustrumCulling.size());
 
     // Narrow Phase
     for (auto node : candidates)
@@ -168,6 +183,11 @@ std::vector<Contact> Scene::raycast(const Ray& ray, FilterValue filterValues)
     return contacts;
 }
 
+bool Scene::isRunning() const
+{
+    return m_running;
+}
+
 void Scene::start()
 {
     m_running = true;
@@ -186,6 +206,8 @@ void Scene::end()
 
 void Scene::update(float deltaTime)
 {
+    requestDelete();
+
     matricesUniform.view = m_viewport->getCamera().calcViewMatrix();
     matricesUniform.projection = m_viewport->calcProjectionMatrix();
 
@@ -197,7 +219,13 @@ void Scene::update(float deltaTime)
         }
     }
 
-    requestDelete();
+    if (frustrumCulling)
+    {
+        float fov = m_viewport->getFov();
+        m_viewport->setFov(fov * frustrumScale);
+        m_frustrumCulling = m_octree->frustrumcast(m_viewport->calcFrustrum());
+        m_viewport->setFov(fov);
+    }
 }
 
 void Scene::render(uint32_t targetId)
@@ -228,11 +256,24 @@ void Scene::renderDepth(uint32_t targetId)
 
         glCullFace(GL_FRONT);
 
-        for (auto& node : m_nodes)
+        if (frustrumCulling)
         {
-            if (node->visible)
+            for (auto& node : m_frustrumCulling)
             {
-                node->renderEx(m_renderSystem, m_shaderDepth);
+                if (node->visible)
+                {
+                    node->renderEx(m_renderSystem, m_shaderDepth);
+                }
+            }
+        }
+        else
+        {
+            for (auto& node : m_nodes)
+            {
+                if (node->visible)
+                {
+                    node->renderEx(m_renderSystem, m_shaderDepth);
+                }
             }
         }
 
@@ -252,13 +293,29 @@ void Scene::renderScene(uint32_t targetId)
     m_renderSystem->bufferSubUniform(matricesUniformId, 0, sizeof(matricesUniform), &matricesUniform);
     m_renderSystem->bufferSubUniform(lightsUniformId, 0, sizeof(lightsUniform), &lightsUniform);
 
-    for (auto& node : m_nodes)
+    if (frustrumCulling)
     {
-        if (node->visible)
+        for (auto& node : m_frustrumCulling)
         {
-            node->render(m_renderSystem);
+            if (node->visible)
+            {
+                node->render(m_renderSystem);
+            }
         }
     }
+    else
+    {
+        for (auto& node : m_nodes)
+        {
+            if (node->visible)
+            {
+                node->render(m_renderSystem);
+            }
+        }
+    }
+
+    if (renderOctree)
+        m_octree->render(m_renderSystem);
 
     m_renderSystem->unbindFrame();
 }

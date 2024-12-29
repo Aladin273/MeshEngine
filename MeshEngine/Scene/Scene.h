@@ -4,6 +4,8 @@
 #include "MeshEngine/RenderSystem/Shader.h"
 
 #include "MeshEngine/Misc/Export.h"
+#include "MeshEngine/Misc/Logger.h"
+#include "MeshEngine/Misc/Timer.h"
 #include "MeshEngine/Misc/Settings.h"
 
 #include "MeshEngine/Math/Ray.h"
@@ -18,6 +20,8 @@
 
 #include "MeshEngine/Node/Node.h"
 #include "MeshEngine/Node/MeshNode.h"
+
+#include "MeshEngine/Scene/Octree.h"
 
 struct MatricesUniform
 {
@@ -50,6 +54,7 @@ public:
 public:
     virtual void bind() override
     {
+        bindProperty(renderOctree);
         bindProperty(renderBbox);
 
         bindSeparator();
@@ -62,11 +67,16 @@ public:
         bindSeparator();
 
         bindProperty(castShadows);
+        bindProperty(octreeRayCast);
+        bindProperty(frustrumCulling);
+        bindProperty(frustrumScale);
+
         bindPropertyEx(Property::Color3, "backgroundColor", backgroundColor);
 
         super::bind();
     }
 
+    bool renderOctree = false;
     bool renderBbox = false;
 
     bool renderTriangles = true;
@@ -75,6 +85,10 @@ public:
     bool renderBoundaries = false;
     
     bool castShadows = false;
+    bool octreeRayCast = false;
+    bool frustrumCulling = false;
+    float frustrumScale = 1.0f;
+
     glm::vec4 backgroundColor{ 0.1875f };
 
 public:
@@ -115,6 +129,9 @@ public:
     std::vector<Contact> raycast(const Ray& ray, FilterValue filterValues);
 
 public:
+    bool isRunning() const;
+
+public:
     void start();
     void end();
 
@@ -142,6 +159,10 @@ protected:
 private:
     bool m_running = false;
     Node* m_deleted = nullptr;
+
+    std::vector<Node*> m_frustrumCulling;
+
+    std::unique_ptr<Octree> m_octree;
     std::vector<std::unique_ptr<Node>> m_nodes;
 };
 
